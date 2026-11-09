@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Universal Downloader · P0 控制台</title>
+<style>
+:root{--bg:#f7f8fa;--panel:#fff;--fg:#1f2328;--soft:#57606a;--line:#d8dee4;--accent:#2563eb;--accent-soft:#eaf1ff;--ok:#1a7f37;--warn:#b45309;--err:#cf222e}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--panel:#161b22;--fg:#e6edf3;--soft:#9aa7b4;--line:#30363d;--accent:#6ea8fe;--accent-soft:#1b2a44;--ok:#3fb950;--warn:#d29922;--err:#f85149}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+h1{font-size:20px;margin:0}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.meta{margin-left:auto;color:var(--soft);font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
+h2{font-size:14px;margin:0 0 14px;color:var(--soft);font-weight:600;letter-spacing:.4px}
+form{display:flex;gap:10px;flex-wrap:wrap}
+input{flex:1 1 380px;min-width:200px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);outline:none;font-size:13px}
+input:focus{border-color:var(--accent)}
+input.small{flex:0 0 130px;min-width:110px}
+button{padding:9px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer;font-size:13px}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.mini{padding:3px 8px;font-size:12px;border-radius:6px}
+button:disabled{opacity:.45;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:9px 8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--soft);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td.url{max-width:290px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--accent-soft);color:var(--accent)}
+.badge.completed{color:var(--ok);background:rgba(26,127,55,.12)}
+.badge.failed,.badge.canceled{color:var(--err);background:rgba(207,34,46,.12)}
+.badge.paused{color:var(--warn);background:rgba(180,83,9,.12)}
+.bar{height:6px;border-radius:6px;background:var(--bg);border:1px solid var(--line);overflow:hidden;min-width:90px}
+.bar>i{display:block;height:100%;background:var(--accent);width:0}
+.hint{color:var(--soft);font-size:12px;margin-top:10px}
+#msg{min-height:18px;font-size:12px;color:var(--err);margin-top:8px}
+.foot{color:var(--soft);font-size:11.5px;margin-top:20px;line-height:1.8}
+code{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Universal Downloader</h1><span class="tag">P0 · L0 API</span>
+    <span class="meta" id="meta">连接中…</span>
+  </header>
+
+  <section class="card">
+    <h2>新建任务</h2>
+    <form id="addForm">
+      <input id="url" placeholder="https://example.com/file.iso（P0 仅支持 HTTP/HTTPS 直链）" required>
+      <input id="conn" class="small" type="number" min="1" max="64" value="8" title="最大连接数">
+      <button class="primary" type="submit">添加</button>
+    </form>
+    <div id="msg"></div>
+    <div class="hint">解析、分片、限速、断点、校验与原子提交均由同一个 Go 调度器完成；本页只用于验证控制面契约。</div>
+  </section>
+
+  <section class="card">
+    <h2>任务列表 <span id="count" style="font-weight:400;text-transform:none"></span></h2>
+    <table>
+      <thead><tr><th>任务</th><th>输入（已脱敏）</th><th>状态</th><th>进度</th><th>大小</th><th>操作</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="6" style="color:var(--soft)">加载中…</td></tr></tbody>
+    </table>
+  </section>
+
+  <div class="foot">
+    这是 <strong>可替换的最小 UI 占位实现</strong>（WBS 6），仅用于验证 REST / WebSocket 契约；
+    Flutter / Tauri 定档仍为 OPEN-02（<code>docs/14</code>）。<br>
+    接口：<code>GET /api/v1/tasks</code> · <code>POST /api/v1/tasks</code> · <code>WS /api/v1/events</code> · <code>GET /api/v1/healthz</code>。
+  </div>
+</div>
+<script>
+const rows = document.getElementById('rows');
+const msg = document.getElementById('msg');
+const meta = document.getElementById('meta');
+const count = document.getElementById('count');
+let tasks = [];
+
+function fmt(n){ if(!n) return '0 B'; const u=['B','KiB','MiB','GiB']; let i=0; while(n>=1024&&i<3){n/=1024;i++} return n.toFixed(1)+' '+u[i]; }
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function api(path, opts){
+  const res = await fetch(path, opts);
+  if(!res.ok){ let e=''; try{ e=(await res.json()).error.message }catch(_){ e=res.statusText }
+    throw new Error(e||('HTTP '+res.status)); }
+  return res.status===204?null:res.json();
+}
+async function load(){
+  try{
+    const d = await api('/api/v1/tasks?limit=50');
+    tasks = d.tasks||[]; render();
+    count.textContent = '· 共 '+d.total+' 条';
+    const h = await api('/api/v1/healthz');
+    meta.textContent = 'daemon '+h.version+' · DB '+(h.db?'正常':'异常');
+  }catch(e){ meta.textContent='连接失败：'+e.message }
+}
+function render(){
+  if(!tasks.length){ rows.innerHTML='<tr><td colspan="6" style="color:var(--soft)">暂无任务</td></tr>'; return }
+  rows.innerHTML = tasks.map(t=>{
+    const pct = t.bytesTotal?Math.min(100,t.bytesDone/t.bytesTotal*100):0;
+    const state=(t.state||'').toLowerCase();
+    return `<tr>
+      <td><code>${esc(String(t.id).slice(0,10))}</code></td>
+      <td class="url" title="${esc(t.input)}">${esc(t.input)}</td>
+      <td><span class="badge ${esc(state)}">${esc(t.state)}</span></td>
+      <td><div class="bar"><i style="width:${pct.toFixed(1)}%"></i></div>${pct.toFixed(0)}%</td>
+      <td>${fmt(t.bytesDone)} / ${fmt(t.bytesTotal)}</td>
+      <td>
+        <button class="mini" data-act="pause" data-id="${esc(t.id)}" ${state==='running'?'':'disabled'}>暂停</button>
+        <button class="mini" data-act="resume" data-id="${esc(t.id)}" ${(state==='paused'||state==='failed')?'':'disabled'}>恢复</button>
+        <button class="mini" data-act="cancel" data-id="${esc(t.id)}">取消</button>
+        <button class="mini" data-act="rm" data-id="${esc(t.id)}">删除</button>
+      </td></tr>`;
+  }).join('');
+}
+rows.addEventListener('click', async e=>{
+  const b=e.target.closest('button[data-act]'); if(!b||b.disabled) return;
+  const {act,id}=b.dataset;
+  try{
+    if(act==='rm') await api('/api/v1/tasks/'+id,{method:'DELETE'});
+    else await api('/api/v1/tasks/'+id+'/'+act,{method:'POST'});
+    msg.textContent=''; await load();
+  }catch(err){ msg.textContent=err.message }
+});
+document.getElementById('addForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  try{
+    await api('/api/v1/tasks',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({input:document.getElementById('url').value,
+        options:{maxConnections:Number(document.getElementById('conn').value)||8}})});
+    msg.textContent=''; document.getElementById('url').value=''; await load();
+  }catch(err){ msg.textContent=err.message }
+});
+function connectWS(){
+  const proto=location.protocol==='https:'?'wss':'ws';
+  const ws=new WebSocket(proto+'://'+location.host+'/api/v1/events');
+  ws.onmessage=()=>{ load() };
+  ws.onclose=()=>setTimeout(connectWS,2000);
+}
+load(); connectWS(); setInterval(load,3000);
+</script>
+</body>
+</html>

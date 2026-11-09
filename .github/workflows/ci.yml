@@ -1,0 +1,54 @@
+name: P0 CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.3'
+          cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python3 -m pip install markdown
+      - run: go mod download
+      - name: install govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: gofmt / vet / architecture guards
+        run: make lint
+      - name: unit + contract + integration tests
+        run: make test
+      - name: CGO_ENABLED=0 six-platform build
+        run: make build
+      - name: P0 review gates (coverage / SBOM / licenses / vuln / bench / rollback)
+        run: make gates
+      - name: upload gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-gate-evidence
+          path: |
+            dist/gates.json
+            dist/GATES.md
+            dist/coverage.json
+            dist/sbom.cdx.json
+            dist/license-report.json
+            dist/vuln.txt
+            dist/bench.json
+            dist/rollback-drill.txt
+            dist/THIRD_PARTY_NOTICES.md
+          if-no-files-found: warn
+      - name: docs-as-code link validation
+        run: python3 tools/build_docs.py --check

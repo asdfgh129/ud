@@ -1,0 +1,46 @@
+# Universal Downloader · P0 参考配置（对应 docs/13-构建发布与运维.md §7）
+# 复制为 config.yaml 后按需修改；优先级：内置默认 < 配置文件 < 环境变量 < CLI 参数 < API 运行时设置。
+listen: "127.0.0.1:0"        # 0 = 随机端口 + 本地发现文件；不占用固定 6800
+downloadDir: "~/Downloads/ud"
+tempSuffix: ".part"
+logLevel: "info"             # debug|info|warn|error
+# remoteToken 仅在非回环监听时必填；留空且监听回环时无需鉴权。
+# 生产环境请通过环境变量 UD_REMOTE_TOKEN 注入，不要写进配置文件。
+remoteToken: ""
+
+global:
+  maxConcurrentTasks: 5
+  maxDownloadRate: "8MiB/s"
+  maxUploadRate: "2MiB/s"
+  maxConnectionsPerTask: 16
+  chunkSize: "4MiB"
+  diskFlushInterval: "500ms"
+
+security:
+  allowedSchemes: ["http", "https", "ftp", "ftps", "sftp"]
+  allowedPorts: [80, 443, 21, 22, 990]
+  maxRedirects: 3
+  maxMetalinkMirrors: 32
+  maxXMLBytes: 4194304
+  blockPrivateNetworks: true
+  # 仅供本地 fixture / 单元测试使用；开启后允许回环地址与任意端口。生产必须保持 false。
+  allowLoopbackForDev: false
+
+# 以下分组为 P1+ 预留，P0 只解析不生效（见 docs/14 项目计划 P0 交付边界）。
+bt:
+  peerID: "-GT0001-"
+  enableDHT: true
+  enablePEX: true
+  seedRatio: 1.0
+  seedTimeMinutes: 60
+  enableUPnP: true
+ed2k:
+  obfuscation: true
+  secureIdent: true
+  tcpPort: 4662
+  udpPort: 4672
+plugins:
+  verifySignature: true
+  runtime: "goja"
+telemetry:
+  enabled: false
