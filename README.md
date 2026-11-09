@@ -2,7 +2,7 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0 骨架已落地（v0.1.0，2026-11-08），评审门禁证据已备齐（2026-11-09），待里程碑评审签署。**
+> **当前阶段：P0 里程碑评审已「有条件通过」并打 `v0.1.0` 附注标签（2026-11-09），P1 已解锁。** 覆盖率仍有 8 个包低于阈值，作为附加条件在 P1 首个 PR 前补齐；详见 [`docs/17`](docs/17-P0里程碑评审材料.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
 > 仓库已包含可运行的 Go 代码：一条 HTTP(S) 直链能走完 `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P0 不是功能完整版**——BT/ed2k/FTP/站点解析/插件/sidecar/L1 RPC facade 均未实现，详见 [ADR-0020](docs/adr/ADR-0020-P0实现基线与范围声明.md) 与 [更新日志](CHANGELOG.md)。
 
@@ -72,7 +72,7 @@ go run ./cmd/udctl show <id>
 | 查实际改了什么、修了什么 | [`CHANGELOG.md`](CHANGELOG.md) |
 | 查 P0 范围边界与残余风险 | [`ADR-0020`](docs/adr/ADR-0020-P0实现基线与范围声明.md) |
 | 查排期与 P0 验收结果 | [`docs/14-项目计划与风险管理.md`](docs/14-项目计划与风险管理.md) |
-| 查 P0 评审要签什么、还差什么 | [`docs/17-P0里程碑评审材料.md`](docs/17-P0里程碑评审材料.md) |
+| 查 P0 评审结论、签署与附加条件 | [`docs/17-P0里程碑评审材料.md`](docs/17-P0里程碑评审材料.md) |
 | 看哪些文档待审核 / 已决定 | 文档门户首页 `#/home` 的状态总览 |
 
 预览型阅读：运行 `python3 tools/build_docs.py` 后打开 `docs/_site/index.html`。这是一个带侧栏的单文件门户，**默认打开 `#/home` 状态首页**：统计卡 + 状态徽章 + 分类卡片，直观显示每份文档是「待审核 / 已决定 / 持续维护 / 已废止 / 未标注」，并支持按状态、类型筛选与搜索；侧栏保留全部 41 篇文档链接，CHANGELOG、ADR 与 P0 评审材料均可直接跳转。`docs/_site/` 是生成物，禁止手工编辑。
@@ -88,11 +88,11 @@ go run ./cmd/udctl show <id>
 
 1. `MemoryCredentialStore` 是进程内参考实现，`mem://` 引用在 daemon 重启后失效；OS 钥匙串适配器待 P1。
 2. 非回环监听必须配置 `remoteToken`（否则拒绝启动），且目前只有 Bearer 鉴权，无 TLS / Origin 校验。
-3. `postProcess` 只支持 `none`；最小 UI 是契约验证占位件（OPEN-02 Flutter vs Tauri 未决）。
+3. `postProcess` 只支持 `none`；最小 UI 是契约验证占位件（OPEN-02 已定档 Flutter，正式 UI 不进入 P1 编码范围）。
 4. CycloneDX SBOM / `govulncheck` / 许可证扫描 / 覆盖率报告 / 回滚演练已由 `make gates` 执行；但**覆盖率仍有 8 个包低于阈值**，互操作套件与千兆内网性能基准未执行，不等价于发布门禁全绿（见 `docs/17` §3/§5）。
 
 完整清单见 [`docs/11` §10](docs/11-安全与合规设计.md) 与 [`docs/14` §9](docs/14-项目计划与风险管理.md)。
 
 ## 许可证
 
-代码许可证待立项确定（建议 MPL-2.0 或 Apache-2.0 以匹配主要依赖）；文档采用 CC-BY-4.0。依赖许可证矩阵见 `docs/10-技术选型与依赖清单.md`，P0 实际锁定依赖见其 §7。
+**代码：MPL-2.0**（2026-11-09 定档，见 [`LICENSE`](LICENSE)）；**文档：CC-BY-4.0**。发布二进制须随附 `LICENSE` 与 `THIRD_PARTY_NOTICES.md`，修改过的 MPL 文件按 MPL-2.0 提供并记录修改清单。依赖许可证矩阵见 `docs/10-技术选型与依赖清单.md` §4，P0 实际锁定依赖见其 §7。

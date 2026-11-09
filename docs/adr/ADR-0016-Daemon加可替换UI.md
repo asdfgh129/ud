@@ -1,6 +1,6 @@
 # ADR-0016 核心为 daemon，UI 用 Flutter/Tauri 且可替换
 
-- **状态**：Proposed
+- **状态**：Accepted（2026-11-09 P0 里程碑评审批量批准）
 - **日期**：2026-11-08
 - **决策者**：架构组 + 客户端
 - **关联**：`04` §3.2/§7、`07`、`13` §6、OPEN-02
@@ -14,7 +14,7 @@
 1. 核心为**常驻 Go daemon**，通过 REST + WebSocket（可选 JSON-RPC）对外暴露；UI / CLI / 浏览器扩展 / AriaNg 都是可替换客户端。
 2. 桌面：daemon 进程 + UI 客户端，本机回环监听（`127.0.0.1:0` 随机端口 + 本地发现文件），**不占用固定 6800 端口**；远程访问需显式开启 + token。
 3. 移动端：核心**以库形式链接进 App（同进程、不派生子进程）**，UI 直连内部接口；禁用所有 sidecar。
-4. UI 框架候选 **Flutter**（一套覆盖 Win/macOS/Linux/Android/iOS/Web，Gopeed 已验证）或 **Tauri**（更轻）；最终定档为 `OPEN-02`，P0 结束前决定。**框架选择不得影响核心 API 契约**。
+4. UI 框架候选 **Flutter**（一套覆盖 Win/macOS/Linux/Android/iOS/Web，Gopeed 已验证）或 **Tauri**（更轻）；最终定档为 `OPEN-02`，P0 结束前决定（已于 2026-11-09 定档 **Flutter**，见 `14` §7 / `17` §8）。**框架选择不得影响核心 API 契约**。
 5. 对外接口可对齐 aria2 RPC 以复用生态（L1，见 ADR-0019），但那是**控制面兼容**，与 P2P 线协议无关。
 
 ## 备选方案

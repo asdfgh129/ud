@@ -175,12 +175,12 @@ padding-top:14px;margin-top:18px}
   </div>
   <div class="stats">
     <div class="stat"><b>41</b><small>文档总数（含 ADR / 根目录）</small></div>
-    <div class="stat"><b>39</b><small>待审核（草案 / Proposed）</small></div>
-    <div class="stat"><b>1</b><small>已决定（已批准 / 现行）</small></div>
+    <div class="stat"><b>17</b><small>待审核（草案 / Proposed）</small></div>
+    <div class="stat"><b>23</b><small>已决定（已批准 / 现行）</small></div>
     <div class="stat"><b>20</b><small>架构决策记录 ADR</small></div>
   </div>
-  <div class="hbar"><span class="hseg s-review" style="width:95.12%" title="待审核 39 篇"></span><span class="hseg s-accepted" style="width:2.44%" title="已决定 1 篇"></span><span class="hseg s-unknown" style="width:2.44%" title="未标注 1 篇"></span></div>
-  <div class="hlegend"><span><i class="hseg s-review"></i>待审核 39</span><span><i class="hseg s-accepted"></i>已决定 1</span><span><i class="hseg s-unknown"></i>未标注 1</span></div>
+  <div class="hbar"><span class="hseg s-review" style="width:41.46%" title="待审核 17 篇"></span><span class="hseg s-accepted" style="width:56.10%" title="已决定 23 篇"></span><span class="hseg s-unknown" style="width:2.44%" title="未标注 1 篇"></span></div>
+  <div class="hlegend"><span><i class="hseg s-review"></i>待审核 17</span><span><i class="hseg s-accepted"></i>已决定 23</span><span><i class="hseg s-unknown"></i>未标注 1</span></div>
 </header>
 
 <div class="banner warn"><strong>当前最该关注：</strong>P0 骨架（WBS 1–6）已完成编码并通过全量门禁，但
@@ -193,10 +193,10 @@ padding-top:14px;margin-top:18px}
   <p class="sub">状态取自各文档版本头的 <code>状态：</code> 字段与 ADR 头部的 <code>状态</code> 行，由构建器读取 Markdown 后规范化为 5 类。支持关键词搜索、按状态 / 类型筛选；点击卡片标题在本页打开正文。</p>
   <div class="htoolbar" id="homeFilters">
     <input id="homeSearch" class="hsearch" type="search" placeholder="搜索编号、标题、摘要、责任人或状态…" autocomplete="off">
-    <div class="frow"><span>按状态</span><div class="filters"><button class="fbtn active" data-dim="status" data-f="all">全部 41</button><button class="fbtn" data-dim="status" data-f="review">待审核 39</button><button class="fbtn" data-dim="status" data-f="accepted">已决定 1</button><button class="fbtn" data-dim="status" data-f="maintained">持续维护 0</button><button class="fbtn" data-dim="status" data-f="deprecated">已废止 0</button><button class="fbtn" data-dim="status" data-f="unknown">未标注 1</button></div></div>
+    <div class="frow"><span>按状态</span><div class="filters"><button class="fbtn active" data-dim="status" data-f="all">全部 41</button><button class="fbtn" data-dim="status" data-f="review">待审核 17</button><button class="fbtn" data-dim="status" data-f="accepted">已决定 23</button><button class="fbtn" data-dim="status" data-f="maintained">持续维护 0</button><button class="fbtn" data-dim="status" data-f="deprecated">已废止 0</button><button class="fbtn" data-dim="status" data-f="unknown">未标注 1</button></div></div>
     <div class="frow"><span>按类型</span><div class="filters"><button class="fbtn active" data-dim="kind" data-f="all">全部 41</button><button class="fbtn" data-dim="kind" data-f="doc">规范文档 19</button><button class="fbtn" data-dim="kind" data-f="adr">ADR 20</button><button class="fbtn" data-dim="kind" data-f="root">项目文件 2</button></div></div>
   </div>
-  <section class="hgroup"><h3>总览与治理<span class="hc-num">4 份</span></h3><p class="hc-gdesc">为什么做，以及文档体系如何管理</p><div class="hgrid"><div class="hcard" data-status="unknown" data-kind="root" data-search="readme 项目 readme（总入口） 构建与运行方式、代码地图、已验证门禁与已知限制。 根目录 · 项目入口 "><div class="hc-top"><span class="hc-id">README</span><span class="chip s-unknown">未标注</span></div><a class="hc-title" href="#/root-readme">项目 README（总入口）</a><div class="hc-desc">构建与运行方式、代码地图、已验证门禁与已知限制。</div><div class="hc-foot"><span class="hc-meta">根目录 · 项目入口</span><span class="chip s-plain">项目入口</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-00 文档总览与文档控制 文档控制、体系、清单、阅读路径 v0.5 · 全体 草案（p0 评审材料已备齐，待签署）"><div class="hc-top"><span class="hc-id">UD-DOC-00</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/readme">文档总览与文档控制</a><div class="hc-desc">文档控制、体系、清单、阅读路径</div><div class="hc-foot"><span class="hc-meta">v0.5 · 全体</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-01 01 项目章程 愿景、目标、范围/非目标、成功指标、约束、里程碑 v0.1 · 全体 草案（待立项评审）"><div class="hc-top"><span class="hc-id">UD-DOC-01</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-01">01 项目章程</a><div class="hc-desc">愿景、目标、范围/非目标、成功指标、约束、里程碑</div><div class="hc-foot"><span class="hc-meta">v0.1 · 全体</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-02 02 术语表 统一术语，消除协议/容器/后处理概念混用 v0.1 · 全体 草案"><div class="hc-top"><span class="hc-id">UD-DOC-02</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-02">02 术语表</a><div class="hc-desc">统一术语，消除协议/容器/后处理概念混用</div><div class="hc-foot"><span class="hc-meta">v0.1 · 全体</span></div></div></div></section><section class="hgroup"><h3>需求与架构<span class="hc-num">5 份</span></h3><p class="hc-gdesc">需求、架构、详细设计、数据模型与互操作性</p><div class="hgrid"><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-03 03 软件需求规格说明书（srs） fr/nfr、用例、验收标准、需求追踪矩阵 v0.2 · 产品/qa/架构 草案（p0 追踪矩阵已补全，待评审）"><div class="hc-top"><span class="hc-id">UD-DOC-03</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-03">03 软件需求规格说明书（SRS）</a><div class="hc-desc">FR/NFR、用例、验收标准、需求追踪矩阵</div><div class="hc-foot"><span class="hc-meta">v0.2 · 产品/QA/架构</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-04 04 架构设计说明书（sad） 架构原则、c4 视图、统一流水线、单调度器论证、质量属性 v0.2 · 架构/开发 草案（p0 骨架已落地，待评审）"><div class="hc-top"><span class="hc-id">UD-DOC-04</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-04">04 架构设计说明书（SAD）</a><div class="hc-desc">架构原则、C4 视图、统一流水线、单调度器论证、质量属性</div><div class="hc-foot"><span class="hc-meta">v0.2 · 架构/开发</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-05 05 详细设计说明书（lld） 包结构、核心 go 接口、task 状态机、分片与限流、错误模型 v0.2 · 后端开发 草案（p0 实现基线已落地）"><div class="hc-top"><span class="hc-id">UD-DOC-05</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-05">05 详细设计说明书（LLD）</a><div class="hc-desc">包结构、核心 Go 接口、Task 状态机、分片与限流、错误模型</div><div class="hc-foot"><span class="hc-meta">v0.2 · 后端开发</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-06 06 数据模型与存储设计 er、ddl、resource json、状态持久化、迁移 v0.2 · 后端/qa 草案（ddl v1 已落地）"><div class="hc-top"><span class="hc-id">UD-DOC-06</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-06">06 数据模型与存储设计</a><div class="hc-desc">ER、DDL、Resource JSON、状态持久化、迁移</div><div class="hc-foot"><span class="hc-meta">v0.2 · 后端/QA</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-16 16 互操作性与兼容性设计 bt/bep、tracker、ed2k 三层兼容性、身份与礼仪、pt 非承诺、文案口径 v0.1 · 架构/qa/产品 草案（产品文案需法务会签）"><div class="hc-top"><span class="hc-id">UD-DOC-16</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-16">16 互操作性与兼容性设计</a><div class="hc-desc">BT/BEP、tracker、eD2k 三层兼容性、身份与礼仪、PT 非承诺、文案口径</div><div class="hc-foot"><span class="hc-meta">v0.1 · 架构/QA/产品</span></div></div></div></section><section class="hgroup"><h3>接口与扩展<span class="hc-num">3 份</span></h3><p class="hc-gdesc">对外契约、插件与 sidecar 边界</p><div class="hgrid"><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-07 07 接口规范（api） rest / websocket / cli / 错误码 / aria2 rpc facade 子集 v0.2 · 全端/qa 草案（l0 已落地）"><div class="hc-top"><span class="hc-id">UD-DOC-07</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-07">07 接口规范（API）</a><div class="hc-desc">REST / WebSocket / CLI / 错误码 / aria2 RPC facade 子集</div><div class="hc-foot"><span class="hc-meta">v0.2 · 全端/QA</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-08 08 扩展与插件开发规范 resolver/transport/postprocessor 契约、goja/wazero、ssrf 能力裁剪 v0.1 · 后端/生态 草案"><div class="hc-top"><span class="hc-id">UD-DOC-08</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-08">08 扩展与插件开发规范</a><div class="hc-desc">Resolver/Transport/PostProcessor 契约、goja/wazero、SSRF 能力裁剪</div><div class="hc-foot"><span class="hc-meta">v0.1 · 后端/生态</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-09 09 sidecar 与外部依赖契约 判定标准、清单、manifest、json-rpc、能力协商与降级、ffmpeg/yt-dlp 专项约束 v0.1 · 后端/运维 草案"><div class="hc-top"><span class="hc-id">UD-DOC-09</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-09">09 Sidecar 与外部依赖契约</a><div class="hc-desc">判定标准、清单、manifest、JSON-RPC、能力协商与降级、ffmpeg/yt-dlp 专项约束</div><div class="hc-foot"><span class="hc-meta">v0.1 · 后端/运维</span></div></div></div></section><section class="hgroup"><h3>工程保障<span class="hc-num">7 份</span></h3><p class="hc-gdesc">依赖、安全、测试、构建、计划与协作流程</p><div class="hgrid"><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-10 10 技术选型与依赖清单 完整库表、许可证矩阵、被否决方案、版本与 sbom 策略 v0.3 · 架构/法务 草案（p0 依赖已 pin，供应链门禁已执行）"><div class="hc-top"><span class="hc-id">UD-DOC-10</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-10">10 技术选型与依赖清单</a><div class="hc-desc">完整库表、许可证矩阵、被否决方案、版本与 SBOM 策略</div><div class="hc-foot"><span class="hc-meta">v0.3 · 架构/法务</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-11 11 安全与合规设计 威胁模型、ssrf、凭据、供应链、许可证与平台条款边界 v0.3 · 安全/法务/全体 草案（p0 控制已落地，仍需安全/法务评审）"><div class="hc-top"><span class="hc-id">UD-DOC-11</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-11">11 安全与合规设计</a><div class="hc-desc">威胁模型、SSRF、凭据、供应链、许可证与平台条款边界</div><div class="hc-foot"><span class="hc-meta">v0.3 · 安全/法务/全体</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-12 12 测试策略与测试计划 分层测试、互操作回归套件、故障注入、性能基准、发布门禁 v0.3 · qa/开发 草案（p0 评审门禁已采集证据）"><div class="hc-top"><span class="hc-id">UD-DOC-12</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-12">12 测试策略与测试计划</a><div class="hc-desc">分层测试、互操作回归套件、故障注入、性能基准、发布门禁</div><div class="hc-foot"><span class="hc-meta">v0.3 · QA/开发</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-13 13 构建、发布与运维 交叉编译矩阵、ci/cd、打包、配置、升级迁移、监控与 runbook v0.3 · devops/开发 草案（p0 评审门禁已接入 ci）"><div class="hc-top"><span class="hc-id">UD-DOC-13</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-13">13 构建、发布与运维</a><div class="hc-desc">交叉编译矩阵、CI/CD、打包、配置、升级迁移、监控与 Runbook</div><div class="hc-foot"><span class="hc-meta">v0.3 · DevOps/开发</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-14 14 项目计划与风险管理 wbs、p0–p3 里程碑、风险登记册、未决事项 v0.3 · pm/架构 草案（评审材料已备齐，待签署）"><div class="hc-top"><span class="hc-id">UD-DOC-14</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-14">14 项目计划与风险管理</a><div class="hc-desc">WBS、P0–P3 里程碑、风险登记册、未决事项</div><div class="hc-foot"><span class="hc-meta">v0.3 · PM/架构</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-15 15 开发规范与协作流程 编码规范、git 流程、评审清单、变更管理、dor/dod v0.3 · 全体 草案（p0 评审门禁已接入）"><div class="hc-top"><span class="hc-id">UD-DOC-15</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-15">15 开发规范与协作流程</a><div class="hc-desc">编码规范、Git 流程、评审清单、变更管理、DoR/DoD</div><div class="hc-foot"><span class="hc-meta">v0.3 · 全体</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-17 17 p0 里程碑评审材料 客观门禁证据、覆盖率债、风险登记册更新、adr 变更清单、open 决策简报、签署表 v0.1 · 评审组/pm/qa/安全/法务 草案（待里程碑评审签署）"><div class="hc-top"><span class="hc-id">UD-DOC-17</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-17">17 P0 里程碑评审材料</a><div class="hc-desc">客观门禁证据、覆盖率债、风险登记册更新、ADR 变更清单、OPEN 决策简报、签署表</div><div class="hc-foot"><span class="hc-meta">v0.1 · 评审组/PM/QA/安全/法务</span></div></div></div></section><section class="hgroup"><h3>变更记录<span class="hc-num">1 份</span></h3><p class="hc-gdesc">每次代码变更的唯一记录入口</p><div class="hgrid"><div class="hcard" data-status="accepted" data-kind="root" data-search="changelog 更新日志 changelog keep a changelog 1.1.0 + semver 2.0.0；**每次代码变更必须先写这里**（`15` §10） 根目录 · 唯一变更真值源 现行"><div class="hc-top"><span class="hc-id">CHANGELOG</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/changelog">更新日志 CHANGELOG</a><div class="hc-desc">Keep a Changelog 1.1.0 + SemVer 2.0.0；**每次代码变更必须先写这里**（`15` §10）</div><div class="hc-foot"><span class="hc-meta">根目录 · 唯一变更真值源</span><span class="chip s-p0">唯一变更源</span></div></div></div></section><section class="hgroup"><h3>架构决策记录 ADR<span class="hc-num">21 份</span></h3><p class="hc-gdesc">一个决策一份记录，状态与影响面一目了然</p><div class="hgrid"><div class="hcard" data-status="review" data-kind="doc" data-search="ud-adr-00 adr 索引与演进时间线 全部架构决策记录（唯一决策真值源），含 0020 p0 实现基线 v0.2 · 全体 草案"><div class="hc-top"><span class="hc-id">UD-ADR-00</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-index">ADR 索引与演进时间线</a><div class="hc-desc">全部架构决策记录（唯一决策真值源），含 0020 P0 实现基线</div><div class="hc-foot"><span class="hc-meta">v0.2 · 全体</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0001 核心语言选择 go，坚持纯 go 单二进制 影响文档：01、04、10、13 决策者 架构组 · proposed（待立项评审批量转 accepted） proposed（待立项评审批量转 accepted）"><div class="hc-top"><span class="hc-id">ADR-0001</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0001">核心语言选择 Go，坚持纯 Go 单二进制</a><div class="hc-desc">影响文档：01、04、10、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed（待立项评审批量转 Accepted）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0002 采用 resolver→resource→transport 统一流水线与单调度器 影响文档：03、04、05、07 决策者 架构组 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0002</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0002">采用 Resolver→Resource→Transport 统一流水线与单调度器</a><div class="hc-desc">影响文档：03、04、05、07</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0003 完全移除 aria2 二进制，只保留其 wire protocol 规范 影响文档：04、07、10 决策者 架构组 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0003</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0003">完全移除 aria2 二进制，只保留其 wire protocol 规范</a><div class="hc-desc">影响文档：04、07、10</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0004 bt 引擎进程内自研，不外包给 aria2 影响文档：04、10、16 决策者 架构组 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0004</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0004">BT 引擎进程内自研，不外包给 aria2</a><div class="hc-desc">影响文档：04、10、16</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0005 ed2k 采用 goed2k（mit，纯 go） 影响文档：10、16、12 决策者 架构组 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0005</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0005">ed2k 采用 goed2k（MIT，纯 Go）</a><div class="hc-desc">影响文档：10、16、12</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0006 metalink 自写纯 go 解析，撤回 libmetalink 影响文档：08、10 决策者 架构组 · proposed（修订初版推荐） proposed（修订初版推荐）"><div class="hc-top"><span class="hc-id">ADR-0006</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0006">Metalink 自写纯 Go 解析，撤回 libmetalink</a><div class="hc-desc">影响文档：08、10</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed（修订初版推荐）</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0007 迅雷链接仅解码，不做 p2sp 影响文档：01、03、16 决策者 架构组 + 产品 + 法务 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0007</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0007">迅雷链接仅解码，不做 P2SP</a><div class="hc-desc">影响文档：01、03、16</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 产品 + 法务 · Proposed</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0008 sidecar 判定标准与零 sidecar 基线 影响文档：04、09、13 决策者 架构组 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0008</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0008">Sidecar 判定标准与零 sidecar 基线</a><div class="hc-desc">影响文档：04、09、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0009 telegram 改 gotd/td 纯 go，移除 telethon 影响文档：09、10 决策者 架构组 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0009</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0009">Telegram 改 gotd/td 纯 Go，移除 Telethon</a><div class="hc-desc">影响文档：09、10</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0010 视频站双层：lux 进程内 + yt-dlp 仅吐 json 影响文档：04、09 决策者 架构组 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0010</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0010">视频站双层：lux 进程内 + yt-dlp 仅吐 JSON</a><div class="hc-desc">影响文档：04、09</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0011 ffmpeg 降级为桌面可选 transcode 插件 影响文档：09、11、13 决策者 架构组 + 法务 · proposed（修订初版「ffmpeg 必需」定位） proposed（修订初版「ffmpeg 必需」定位）"><div class="hc-top"><span class="hc-id">ADR-0011</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0011">ffmpeg 降级为桌面可选 Transcode 插件</a><div class="hc-desc">影响文档：09、11、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 法务 · Proposed（修订初版「ffmpeg 必需」定位）</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0012 postprocessor 输入本地路径、输出 .part + 原子提交 影响文档：05、09、13 决策者 架构组 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0012</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0012">PostProcessor 输入本地路径、输出 .part + 原子提交</a><div class="hc-desc">影响文档：05、09、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0013 resource 在 p0 一次性纳入多文件与协议身份字段 影响文档：05、06、07、14 决策者 架构组 · proposed（本项目最高优先级的设计约束） proposed（本项目最高优先级的设计约束）"><div class="hc-top"><span class="hc-id">ADR-0013</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0013">Resource 在 P0 一次性纳入多文件与协议身份字段</a><div class="hc-desc">影响文档：05、06、07、14</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed（本项目最高优先级的设计约束）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0014 插件引擎 goja 起步，wazero/extism 可选硬隔离 影响文档：08、11 决策者 架构组 + 安全 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0014</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0014">插件引擎 goja 起步，wazero/Extism 可选硬隔离</a><div class="hc-desc">影响文档：08、11</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 安全 · Proposed</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0015 sqlite(modernc) + 系统钥匙串 影响文档：06、11 决策者 架构组 + 安全 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0015</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0015">SQLite(modernc) + 系统钥匙串</a><div class="hc-desc">影响文档：06、11</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 安全 · Proposed</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0016 核心为 daemon，ui 用 flutter/tauri 且可替换 影响文档：04、07、13 决策者 架构组 + 客户端 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0016</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0016">核心为 daemon，UI 用 Flutter/Tauri 且可替换</a><div class="hc-desc">影响文档：04、07、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 客户端 · Proposed</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0017 p2p 保持诚实 peerid，不承诺私有 tracker 准入 影响文档：11、16 决策者 架构组 + 产品 + 法务 · proposed（需产品 + 法务会签） proposed（需产品 + 法务会签）"><div class="hc-top"><span class="hc-id">ADR-0017</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0017">P2P 保持诚实 PeerID，不承诺私有 tracker 准入</a><div class="hc-desc">影响文档：11、16</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 产品 + 法务 · Proposed（需产品 + 法务会签）</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0018 微信能力单独分发、默认不安装 影响文档：09、11、14 决策者 架构组 + 法务 + 产品 · proposed（需法务独立评审） proposed（需法务独立评审）"><div class="hc-top"><span class="hc-id">ADR-0018</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0018">微信能力单独分发、默认不安装</a><div class="hc-desc">影响文档：09、11、14</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 法务 + 产品 · Proposed（需法务独立评审）</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0019 rpc 兼容分 l0/l1/l2 三档，p0/p1 停在 l0 影响文档：07、14 决策者 架构组 + 产品 · proposed proposed"><div class="hc-top"><span class="hc-id">ADR-0019</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0019">RPC 兼容分 L0/L1/L2 三档，P0/P1 停在 L0</a><div class="hc-desc">影响文档：07、14</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 产品 · Proposed</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="review" data-kind="adr" data-search="adr-0020 声明 p0 实现基线、三处规范修正与范围外能力清单 影响文档：03–07、10–15、changelog 决策者 架构组 · proposed（随 p0 里程碑一并评审） proposed（随 p0 里程碑一并评审）"><div class="hc-top"><span class="hc-id">ADR-0020</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/adr-0020">声明 P0 实现基线、三处规范修正与范围外能力清单</a><div class="hc-desc">影响文档：03–07、10–15、CHANGELOG</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Proposed（随 P0 里程碑一并评审）</span></div></div></div></section>
+  <section class="hgroup"><h3>总览与治理<span class="hc-num">4 份</span></h3><p class="hc-gdesc">为什么做，以及文档体系如何管理</p><div class="hgrid"><div class="hcard" data-status="unknown" data-kind="root" data-search="readme 项目 readme（总入口） 构建与运行方式、代码地图、已验证门禁与已知限制。 根目录 · 项目入口 "><div class="hc-top"><span class="hc-id">README</span><span class="chip s-unknown">未标注</span></div><a class="hc-title" href="#/root-readme">项目 README（总入口）</a><div class="hc-desc">构建与运行方式、代码地图、已验证门禁与已知限制。</div><div class="hc-foot"><span class="hc-meta">根目录 · 项目入口</span><span class="chip s-plain">项目入口</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-00 文档总览与文档控制 文档控制、体系、清单、阅读路径 v0.6 · 全体 草案（p0 已通过有条件评审；adr 集已批准，其余文档待逐篇评审）"><div class="hc-top"><span class="hc-id">UD-DOC-00</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/readme">文档总览与文档控制</a><div class="hc-desc">文档控制、体系、清单、阅读路径</div><div class="hc-foot"><span class="hc-meta">v0.6 · 全体</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-01 01 项目章程 愿景、目标、范围/非目标、成功指标、约束、里程碑 v0.1 · 全体 草案（待立项评审）"><div class="hc-top"><span class="hc-id">UD-DOC-01</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-01">01 项目章程</a><div class="hc-desc">愿景、目标、范围/非目标、成功指标、约束、里程碑</div><div class="hc-foot"><span class="hc-meta">v0.1 · 全体</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-02 02 术语表 统一术语，消除协议/容器/后处理概念混用 v0.1 · 全体 草案"><div class="hc-top"><span class="hc-id">UD-DOC-02</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-02">02 术语表</a><div class="hc-desc">统一术语，消除协议/容器/后处理概念混用</div><div class="hc-foot"><span class="hc-meta">v0.1 · 全体</span></div></div></div></section><section class="hgroup"><h3>需求与架构<span class="hc-num">5 份</span></h3><p class="hc-gdesc">需求、架构、详细设计、数据模型与互操作性</p><div class="hgrid"><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-03 03 软件需求规格说明书（srs） fr/nfr、用例、验收标准、需求追踪矩阵 v0.2 · 产品/qa/架构 草案（p0 追踪矩阵已补全，待评审）"><div class="hc-top"><span class="hc-id">UD-DOC-03</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-03">03 软件需求规格说明书（SRS）</a><div class="hc-desc">FR/NFR、用例、验收标准、需求追踪矩阵</div><div class="hc-foot"><span class="hc-meta">v0.2 · 产品/QA/架构</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-04 04 架构设计说明书（sad） 架构原则、c4 视图、统一流水线、单调度器论证、质量属性 v0.2 · 架构/开发 草案（p0 骨架已落地，待评审）"><div class="hc-top"><span class="hc-id">UD-DOC-04</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-04">04 架构设计说明书（SAD）</a><div class="hc-desc">架构原则、C4 视图、统一流水线、单调度器论证、质量属性</div><div class="hc-foot"><span class="hc-meta">v0.2 · 架构/开发</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-05 05 详细设计说明书（lld） 包结构、核心 go 接口、task 状态机、分片与限流、错误模型 v0.2 · 后端开发 草案（p0 实现基线已落地）"><div class="hc-top"><span class="hc-id">UD-DOC-05</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-05">05 详细设计说明书（LLD）</a><div class="hc-desc">包结构、核心 Go 接口、Task 状态机、分片与限流、错误模型</div><div class="hc-foot"><span class="hc-meta">v0.2 · 后端开发</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-06 06 数据模型与存储设计 er、ddl、resource json、状态持久化、迁移 v0.2 · 后端/qa 草案（ddl v1 已落地）"><div class="hc-top"><span class="hc-id">UD-DOC-06</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-06">06 数据模型与存储设计</a><div class="hc-desc">ER、DDL、Resource JSON、状态持久化、迁移</div><div class="hc-foot"><span class="hc-meta">v0.2 · 后端/QA</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-16 16 互操作性与兼容性设计 bt/bep、tracker、ed2k 三层兼容性、身份与礼仪、pt 非承诺、文案口径 v0.1 · 架构/qa/产品 草案（产品文案需法务会签）"><div class="hc-top"><span class="hc-id">UD-DOC-16</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-16">16 互操作性与兼容性设计</a><div class="hc-desc">BT/BEP、tracker、eD2k 三层兼容性、身份与礼仪、PT 非承诺、文案口径</div><div class="hc-foot"><span class="hc-meta">v0.1 · 架构/QA/产品</span></div></div></div></section><section class="hgroup"><h3>接口与扩展<span class="hc-num">3 份</span></h3><p class="hc-gdesc">对外契约、插件与 sidecar 边界</p><div class="hgrid"><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-07 07 接口规范（api） rest / websocket / cli / 错误码 / aria2 rpc facade 子集 v0.2 · 全端/qa 草案（l0 已落地）"><div class="hc-top"><span class="hc-id">UD-DOC-07</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-07">07 接口规范（API）</a><div class="hc-desc">REST / WebSocket / CLI / 错误码 / aria2 RPC facade 子集</div><div class="hc-foot"><span class="hc-meta">v0.2 · 全端/QA</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-08 08 扩展与插件开发规范 resolver/transport/postprocessor 契约、goja/wazero、ssrf 能力裁剪 v0.1 · 后端/生态 草案"><div class="hc-top"><span class="hc-id">UD-DOC-08</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-08">08 扩展与插件开发规范</a><div class="hc-desc">Resolver/Transport/PostProcessor 契约、goja/wazero、SSRF 能力裁剪</div><div class="hc-foot"><span class="hc-meta">v0.1 · 后端/生态</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-09 09 sidecar 与外部依赖契约 判定标准、清单、manifest、json-rpc、能力协商与降级、ffmpeg/yt-dlp 专项约束 v0.1 · 后端/运维 草案"><div class="hc-top"><span class="hc-id">UD-DOC-09</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-09">09 Sidecar 与外部依赖契约</a><div class="hc-desc">判定标准、清单、manifest、JSON-RPC、能力协商与降级、ffmpeg/yt-dlp 专项约束</div><div class="hc-foot"><span class="hc-meta">v0.1 · 后端/运维</span></div></div></div></section><section class="hgroup"><h3>工程保障<span class="hc-num">7 份</span></h3><p class="hc-gdesc">依赖、安全、测试、构建、计划与协作流程</p><div class="hgrid"><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-10 10 技术选型与依赖清单 完整库表、许可证矩阵、被否决方案、版本与 sbom 策略 v0.3 · 架构/法务 草案（p0 依赖已 pin，供应链门禁已执行）"><div class="hc-top"><span class="hc-id">UD-DOC-10</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-10">10 技术选型与依赖清单</a><div class="hc-desc">完整库表、许可证矩阵、被否决方案、版本与 SBOM 策略</div><div class="hc-foot"><span class="hc-meta">v0.3 · 架构/法务</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-11 11 安全与合规设计 威胁模型、ssrf、凭据、供应链、许可证与平台条款边界 v0.3 · 安全/法务/全体 草案（p0 控制已落地，仍需安全/法务评审）"><div class="hc-top"><span class="hc-id">UD-DOC-11</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-11">11 安全与合规设计</a><div class="hc-desc">威胁模型、SSRF、凭据、供应链、许可证与平台条款边界</div><div class="hc-foot"><span class="hc-meta">v0.3 · 安全/法务/全体</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-12 12 测试策略与测试计划 分层测试、互操作回归套件、故障注入、性能基准、发布门禁 v0.3 · qa/开发 草案（p0 评审门禁已采集证据）"><div class="hc-top"><span class="hc-id">UD-DOC-12</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-12">12 测试策略与测试计划</a><div class="hc-desc">分层测试、互操作回归套件、故障注入、性能基准、发布门禁</div><div class="hc-foot"><span class="hc-meta">v0.3 · QA/开发</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-13 13 构建、发布与运维 交叉编译矩阵、ci/cd、打包、配置、升级迁移、监控与 runbook v0.3 · devops/开发 草案（p0 评审门禁已接入 ci）"><div class="hc-top"><span class="hc-id">UD-DOC-13</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-13">13 构建、发布与运维</a><div class="hc-desc">交叉编译矩阵、CI/CD、打包、配置、升级迁移、监控与 Runbook</div><div class="hc-foot"><span class="hc-meta">v0.3 · DevOps/开发</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-14 14 项目计划与风险管理 wbs、p0–p3 里程碑、风险登记册、未决事项 v0.4 · pm/架构 草案（p0 已通过有条件评审，p1 已解锁）"><div class="hc-top"><span class="hc-id">UD-DOC-14</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-14">14 项目计划与风险管理</a><div class="hc-desc">WBS、P0–P3 里程碑、风险登记册、未决事项</div><div class="hc-foot"><span class="hc-meta">v0.4 · PM/架构</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="review" data-kind="doc" data-search="ud-doc-15 15 开发规范与协作流程 编码规范、git 流程、评审清单、变更管理、dor/dod v0.3 · 全体 草案（p0 评审门禁已接入）"><div class="hc-top"><span class="hc-id">UD-DOC-15</span><span class="chip s-review">待审核</span></div><a class="hc-title" href="#/doc-15">15 开发规范与协作流程</a><div class="hc-desc">编码规范、Git 流程、评审清单、变更管理、DoR/DoD</div><div class="hc-foot"><span class="hc-meta">v0.3 · 全体</span><span class="chip s-p0">P0 已校准</span></div></div><div class="hcard" data-status="accepted" data-kind="doc" data-search="ud-doc-17 17 p0 里程碑评审材料 客观门禁证据、覆盖率债、风险登记册更新、adr 变更清单、open 决策简报、签署表 v0.2 · 评审组/pm/qa/安全/法务 已批准（p0 里程碑评审已签署）"><div class="hc-top"><span class="hc-id">UD-DOC-17</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/doc-17">17 P0 里程碑评审材料</a><div class="hc-desc">客观门禁证据、覆盖率债、风险登记册更新、ADR 变更清单、OPEN 决策简报、签署表</div><div class="hc-foot"><span class="hc-meta">v0.2 · 评审组/PM/QA/安全/法务</span><span class="chip s-p0">P0 已校准</span></div></div></div></section><section class="hgroup"><h3>变更记录<span class="hc-num">1 份</span></h3><p class="hc-gdesc">每次代码变更的唯一记录入口</p><div class="hgrid"><div class="hcard" data-status="accepted" data-kind="root" data-search="changelog 更新日志 changelog keep a changelog 1.1.0 + semver 2.0.0；**每次代码变更必须先写这里**（`15` §10） 根目录 · 唯一变更真值源 现行"><div class="hc-top"><span class="hc-id">CHANGELOG</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/changelog">更新日志 CHANGELOG</a><div class="hc-desc">Keep a Changelog 1.1.0 + SemVer 2.0.0；**每次代码变更必须先写这里**（`15` §10）</div><div class="hc-foot"><span class="hc-meta">根目录 · 唯一变更真值源</span><span class="chip s-p0">唯一变更源</span></div></div></div></section><section class="hgroup"><h3>架构决策记录 ADR<span class="hc-num">21 份</span></h3><p class="hc-gdesc">一个决策一份记录，状态与影响面一目了然</p><div class="hgrid"><div class="hcard" data-status="accepted" data-kind="doc" data-search="ud-adr-00 adr 索引与演进时间线 全部架构决策记录（唯一决策真值源），含 0020 p0 实现基线 v0.3 · 全体 已批准"><div class="hc-top"><span class="hc-id">UD-ADR-00</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-index">ADR 索引与演进时间线</a><div class="hc-desc">全部架构决策记录（唯一决策真值源），含 0020 P0 实现基线</div><div class="hc-foot"><span class="hc-meta">v0.3 · 全体</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0001 核心语言选择 go，坚持纯 go 单二进制 影响文档：01、04、10、13 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0001</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0001">核心语言选择 Go，坚持纯 Go 单二进制</a><div class="hc-desc">影响文档：01、04、10、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0002 采用 resolver→resource→transport 统一流水线与单调度器 影响文档：03、04、05、07 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0002</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0002">采用 Resolver→Resource→Transport 统一流水线与单调度器</a><div class="hc-desc">影响文档：03、04、05、07</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0003 完全移除 aria2 二进制，只保留其 wire protocol 规范 影响文档：04、07、10 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0003</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0003">完全移除 aria2 二进制，只保留其 wire protocol 规范</a><div class="hc-desc">影响文档：04、07、10</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0004 bt 引擎进程内自研，不外包给 aria2 影响文档：04、10、16 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0004</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0004">BT 引擎进程内自研，不外包给 aria2</a><div class="hc-desc">影响文档：04、10、16</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0005 ed2k 采用 goed2k（mit，纯 go） 影响文档：10、16、12 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0005</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0005">ed2k 采用 goed2k（MIT，纯 Go）</a><div class="hc-desc">影响文档：10、16、12</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0006 metalink 自写纯 go 解析，撤回 libmetalink 影响文档：08、10 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0006</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0006">Metalink 自写纯 Go 解析，撤回 libmetalink</a><div class="hc-desc">影响文档：08、10</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0007 迅雷链接仅解码，不做 p2sp 影响文档：01、03、16 决策者 架构组 + 产品 + 法务 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0007</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0007">迅雷链接仅解码，不做 P2SP</a><div class="hc-desc">影响文档：01、03、16</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 产品 + 法务 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0008 sidecar 判定标准与零 sidecar 基线 影响文档：04、09、13 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0008</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0008">Sidecar 判定标准与零 sidecar 基线</a><div class="hc-desc">影响文档：04、09、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0009 telegram 改 gotd/td 纯 go，移除 telethon 影响文档：09、10 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0009</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0009">Telegram 改 gotd/td 纯 Go，移除 Telethon</a><div class="hc-desc">影响文档：09、10</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0010 视频站双层：lux 进程内 + yt-dlp 仅吐 json 影响文档：04、09 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0010</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0010">视频站双层：lux 进程内 + yt-dlp 仅吐 JSON</a><div class="hc-desc">影响文档：04、09</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0011 ffmpeg 降级为桌面可选 transcode 插件 影响文档：09、11、13 决策者 架构组 + 法务 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0011</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0011">ffmpeg 降级为桌面可选 Transcode 插件</a><div class="hc-desc">影响文档：09、11、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 法务 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0012 postprocessor 输入本地路径、输出 .part + 原子提交 影响文档：05、09、13 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0012</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0012">PostProcessor 输入本地路径、输出 .part + 原子提交</a><div class="hc-desc">影响文档：05、09、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0013 resource 在 p0 一次性纳入多文件与协议身份字段 影响文档：05、06、07、14 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0013</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0013">Resource 在 P0 一次性纳入多文件与协议身份字段</a><div class="hc-desc">影响文档：05、06、07、14</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0014 插件引擎 goja 起步，wazero/extism 可选硬隔离 影响文档：08、11 决策者 架构组 + 安全 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0014</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0014">插件引擎 goja 起步，wazero/Extism 可选硬隔离</a><div class="hc-desc">影响文档：08、11</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 安全 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0015 sqlite(modernc) + 系统钥匙串 影响文档：06、11 决策者 架构组 + 安全 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0015</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0015">SQLite(modernc) + 系统钥匙串</a><div class="hc-desc">影响文档：06、11</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 安全 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0016 核心为 daemon，ui 用 flutter/tauri 且可替换 影响文档：04、07、13 决策者 架构组 + 客户端 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0016</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0016">核心为 daemon，UI 用 Flutter/Tauri 且可替换</a><div class="hc-desc">影响文档：04、07、13</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 客户端 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0017 p2p 保持诚实 peerid，不承诺私有 tracker 准入 影响文档：11、16 决策者 架构组 + 产品 + 法务 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0017</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0017">P2P 保持诚实 PeerID，不承诺私有 tracker 准入</a><div class="hc-desc">影响文档：11、16</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 产品 + 法务 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0018 微信能力单独分发、默认不安装 影响文档：09、11、14 决策者 架构组 + 法务 + 产品 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0018</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0018">微信能力单独分发、默认不安装</a><div class="hc-desc">影响文档：09、11、14</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 法务 + 产品 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0019 rpc 兼容分 l0/l1/l2 三档，p0/p1 停在 l0 影响文档：07、14 决策者 架构组 + 产品 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0019</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0019">RPC 兼容分 L0/L1/L2 三档，P0/P1 停在 L0</a><div class="hc-desc">影响文档：07、14</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 + 产品 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span><span class="chip s-p0">P0 依据</span></div></div><div class="hcard" data-status="accepted" data-kind="adr" data-search="adr-0020 声明 p0 实现基线、三处规范修正与范围外能力清单 影响文档：03–07、10–15、changelog 决策者 架构组 · accepted（2026-11-09 p0 里程碑评审批量批准） accepted（2026-11-09 p0 里程碑评审批量批准）"><div class="hc-top"><span class="hc-id">ADR-0020</span><span class="chip s-accepted">已决定</span></div><a class="hc-title" href="#/adr-0020">声明 P0 实现基线、三处规范修正与范围外能力清单</a><div class="hc-desc">影响文档：03–07、10–15、CHANGELOG</div><div class="hc-foot"><span class="hc-meta">决策者 架构组 · Accepted（2026-11-09 P0 里程碑评审批量批准）</span></div></div></div></section>
   <div class="hempty" id="homeEmpty">没有匹配的文档，试试其他关键词或筛选条件。</div>
 </section>
 
@@ -216,7 +216,8 @@ padding-top:14px;margin-top:18px}
     <code>tools/build_docs.py</code> 从 Markdown 生成，修改文档状态后重跑 <code>make docs</code> 即自动更新，
     不存在需要手工同步的第二份清单。</div>
 </section>
-</article><article class="doc" id="doc-readme" data-slug="readme"><div class="doc-head"><h1>文档总览与文档控制</h1><div class="doc-meta"><span class="badge">草案（P0 评审材料已备齐，待签署）</span>文档编号：UD-DOC-00 ｜ 版本：v0.5 ｜ 状态：**草案（P0 评审材料已备齐，待签署）** ｜ 日期：2026-11-09 ｜ 维护责任：架构组</div></div><blockquote>
+</article><article class="doc" id="doc-readme" data-slug="readme"><div class="doc-head"><h1>文档总览与文档控制</h1><div class="doc-meta"><span class="badge">草案（P0 已通过有条件评审；ADR 集已批准，其余文档待逐篇评审）</span>文档编号：UD-DOC-00 ｜ 版本：v0.6 ｜ 状态：**草案（P0 已通过有条件评审；ADR 集已批准，其余文档待逐篇评审）** ｜ 日期：2026-11-09 ｜ 维护责任：架构组</div></div><blockquote>
+<p><strong>v0.6 变更</strong>：P0 里程碑评审于 2026-11-09 「有条件通过」，ADR 0001–0020 批量转 <code>Accepted</code>（索引升 v0.3），OPEN-01 定档 MPL-2.0、OPEN-02 定档 Flutter，<code>v0.1.0</code> 附注标签已打，P1 已解锁（<code>14</code> §11）。§三 清单中「17」与「ADR 索引」状态改为已批准；其余规范性文档仍为草案，按里程碑逐篇评审，不因一次授权整批生效。侧栏链接与全部深链保持不变。</p>
 <p><strong>v0.5 变更</strong>：新增 <a href="#/doc-17">17 P0 里程碑评审材料</a>，集中呈现可复跑门禁证据、ADR 变更清单、OPEN-01/02 决策简报与评审签署表；新增 <code>make gates</code> 证据链（覆盖率 / CycloneDX SBOM / 许可证 / <code>govulncheck</code> / 吞吐基准 / 回滚演练）。Go 工具链因 <code>GO-2026-6809</code> 升至 1.27.3。侧栏链接与所有既有深链保持不变。</p>
 <p><strong>v0.4 变更</strong>：文档门户新增 <code>#/home</code> 状态首页（默认落地页），以统计卡 + 状态徽章 + 分类卡片展示「待审核 / 已决定 / 持续维护 / 已废止 / 未标注」分布；状态由构建器从各文档版本头与 ADR 状态行自动解析，不维护第二份清单。侧栏链接与所有既有深链保持不变。</p>
 <p><strong>v0.3 变更</strong>：P0 骨架（WBS 1–6）已完成编码，本仓库不再「只有文档」。新增根目录 <a href="#/changelog"><code>CHANGELOG.md</code></a> 作为唯一的变更记录真值源并纳入文档门户；<code>03</code>–<code>07</code>、<code>10</code>–<code>15</code>、ADR 索引与 <a href="#/adr-0020">ADR-0020</a> 均已按实现校准。阅读时请区分「目标规范」与「P0 现状」：各文档版本头下的实现校准段、以及 §七 的索引是入口。</p>
@@ -237,7 +238,7 @@ padding-top:14px;margin-top:18px}
 </tr>
 <tr>
 <td>状态机</td>
-<td><code>草案 → 评审中 → 已批准 → 已废止</code>；只有「已批准」文档可作为实现与验收依据</td>
+<td><code>草案 → 评审中 → 已批准 → 已废止</code>；只有「已批准」文档可作为实现与验收依据。<strong>ADR 0001–0020 已于 2026-11-09 批量批准</strong>，其余规范性文档仍为草案，按里程碑逐篇评审</td>
 </tr>
 <tr>
 <td>变更触发</td>
@@ -471,14 +472,14 @@ padding-top:14px;margin-top:18px}
 <tr>
 <td>17</td>
 <td><a href="#/doc-17">P0 里程碑评审材料</a></td>
-<td>草案（待签署）</td>
+<td>已批准</td>
 <td>评审组/PM/QA/安全/法务</td>
 <td>客观门禁证据、覆盖率债、风险登记册更新、ADR 变更清单、OPEN 决策简报、签署表</td>
 </tr>
 <tr>
 <td>—</td>
 <td><a href="#/adr-index">ADR 索引</a></td>
-<td>草案</td>
+<td>已批准</td>
 <td>全体</td>
 <td>全部架构决策记录（唯一决策真值源），含 0020 P0 实现基线</td>
 </tr>
@@ -492,7 +493,7 @@ padding-top:14px;margin-top:18px}
 </tbody>
 </table>
 <blockquote>
-<p>文档状态仍为「草案」：ADR 0001–0020 尚未批量转 <code>Accepted</code>，P0 里程碑未正式评审。但 P0 代码已按这些 ADR 落地，各文档用「v0.2 实现校准」段标注差异；评审材料与签署表见 <a href="#/doc-17"><code>17</code></a>，评审通过前不得启动 P1（<code>14</code> §3）。</p>
+<p><strong>状态口径</strong>：ADR 0001–0020 已于 2026-11-09 批量转 <code>Accepted</code>，P0 里程碑评审「有条件通过」，<code>14</code> §3 的 P1 门禁已解除。但除「17」与 ADR 索引外，其余规范性文档仍为草案，按里程碑逐篇评审；各文档用「v0.2 实现校准」段标注与已批准 ADR 的差异。评审结论与签署见 <a href="#/doc-17"><code>17</code></a>。</p>
 <p>上表的状态会自动汇总到门户首页 <code>#/home</code>；本表与版本头是状态的唯一来源，不要在门户或构建器中另写一份状态清单。</p>
 </blockquote>
 <h2 id="h-readme--_4">四、全局约定</h2>
@@ -2105,15 +2106,15 @@ python3 tools/build_docs.py --check   # 只校验链接，CI 用
 <tbody>
 <tr>
 <td>OPEN-01</td>
-<td>代码许可证（MPL-2.0 / Apache-2.0）</td>
+<td>✅ 已决：代码许可证 <strong>MPL-2.0</strong>（2026-11-09，<code>14</code> §7 / <code>17</code> §8；<code>LICENSE</code> 已入库）</td>
 <td>法务 + 架构</td>
-<td>立项前</td>
+<td>已关闭</td>
 </tr>
 <tr>
 <td>OPEN-02</td>
-<td>移动端 UI 框架 Flutter vs Tauri 最终定档</td>
+<td>✅ 已决：<strong>Flutter</strong>（2026-11-09，<code>14</code> §7 / <code>17</code> §8；正式 UI 不进入 P1）</td>
 <td>客户端</td>
-<td>P0 结束前</td>
+<td>已关闭</td>
 </tr>
 <tr>
 <td>OPEN-03</td>
@@ -4762,7 +4763,7 @@ export function resolve(url, ctx) {
 </tbody>
 </table>
 <blockquote>
-<p>代码许可证待立项确定（建议 MPL-2.0 / Apache-2.0 以匹配主要依赖），见 <code>03</code> OPEN-01。</p>
+<p><strong>代码许可证已定档 MPL-2.0</strong>（OPEN-01 关闭，2026-11-09 P0 里程碑评审）：根目录 <a href="../LICENSE"><code>LICENSE</code></a> 为 MPL-2.0 全文；文档采用 CC-BY-4.0。选 MPL-2.0 以匹配未来主力依赖 <code>anacrolix/torrent</code> / <code>metainfo</code>（同许可），文件级弱 copyleft 与当前 12 个 BSD/MIT/Apache 链接依赖兼容。<strong>分发义务</strong>：每个发布二进制随附 <code>LICENSE</code> 与 <code>THIRD_PARTY_NOTICES.md</code>；修改过的 MPL 文件须继续以 MPL-2.0 提供并记录修改清单；<code>make gates</code> 的许可证扫描继续强制 0 copyleft / 0 未识别。</p>
 </blockquote>
 <h2 id="h-doc-10--5">5. 已否决方案（避免反复讨论）</h2>
 <table>
@@ -5150,7 +5151,7 @@ export function resolve(url, ctx) {
 <li><strong>凭据不跨重启</strong>：<code>MemoryCredentialStore</code> 是进程内参考实现，<code>mem://</code> 引用在 daemon 重启后失效，相关任务需重新提交凭据。系统钥匙串（Keychain / Credential Manager / libsecret）适配器尚未实现，<code>core.CredentialStore</code> 接口已预留。</li>
 <li><strong>原始输入仍在内存</strong>：<code>tasks.input</code> 落库前已 <code>RedactURL</code>，但进程内存中仍持有未脱敏的原始 <code>core.Input</code>（用于实际请求）；这是功能必需，需靠「不写日志 / 不进事件 / 不进响应」约束，而非靠删除。</li>
 <li><strong>dev 模式是显式降级</strong>：<code>security.allowLoopbackForDev</code> 会把回环目标从私网/端口黑名单中放开，仅允许在回环监听 + 本地联调时使用；<code>config.Validate</code> 禁止它与非回环监听组合。</li>
-<li><strong>未覆盖面</strong>：Metalink / m3u8 / 种子 / tracker peer 地址尚未解析，因此 §2 中针对这些来源的数量、大小、DTD 与分片上限尚无代码；插件沙箱、sidecar 隔离、遥测与崩溃上报同样未实现。<strong>已补上</strong>：许可证扫描、<code>govulncheck</code>、CycloneDX SBOM 与 <code>go mod verify</code> 由 <code>make gates</code> 执行并进入 CI（证据见 <code>17</code> §3）；但「高危漏洞 7 天内修复」的流程责任人、法务签字与 <code>THIRD_PARTY_NOTICES</code> 的对外发布形式仍待评审确认。</li>
+<li><strong>未覆盖面</strong>：Metalink / m3u8 / 种子 / tracker peer 地址尚未解析，因此 §2 中针对这些来源的数量、大小、DTD 与分片上限尚无代码；插件沙箱、sidecar 隔离、遥测与崩溃上报同样未实现。<strong>已补上</strong>：许可证扫描、<code>govulncheck</code>、CycloneDX SBOM 与 <code>go mod verify</code> 由 <code>make gates</code> 执行并进入 CI（证据见 <code>17</code> §3）；法务签字已由项目发起人 2026-11-09 全权批准（OPEN-01 定档 MPL-2.0，<code>LICENSE</code> 已入库）；但独立法务复核、<code>THIRD_PARTY_NOTICES</code> 的对外发布形式与「高危漏洞 7 天内修复」的流程责任人仍待 P1+ 确认。</li>
 <li><strong>工具链供应链</strong>：Go 工具链已固定 1.27.3，但 CI 尚未固定构建镜像 digest，也未做可复现构建比对（<code>13</code> §12）；<code>GOTOOLCHAIN=auto</code> 依赖可用的 checksum DB，离线环境需预置工具链。</li>
 <li><strong>鉴权仅 Bearer</strong>：P0 无 TLS、无用户体系、无 CSRF/Origin 校验；非回环监听应置于受控网络或反向代理之后，且 <code>remoteToken</code> 必须足够随机。</li>
 </ol><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/11-安全与合规设计.md</code></div></article><article class="doc" id="doc-doc-12" data-slug="doc-12"><div class="doc-head"><h1>12 测试策略与测试计划</h1><div class="doc-meta"><span class="badge">草案（P0 评审门禁已采集证据）</span>文档编号：UD-DOC-12 ｜ 版本：v0.3 ｜ 状态：草案（P0 评审门禁已采集证据） ｜ 日期：2026-11-09 ｜ 上游：`03`、`07`、`16`</div></div><blockquote>
@@ -6082,9 +6083,10 @@ telemetry:
 </tbody>
 </table>
 <p><strong>CI</strong>（<code>.github/workflows/ci.yml</code>）：Go <code>1.27.3</code> + Python <code>3.13</code>，安装 <code>markdown</code> 与 <code>govulncheck</code>，依次执行 <code>go mod download</code>、<code>make lint</code>、<code>make test</code>、<code>make build</code>、<code>make gates</code>、<code>python3 tools/build_docs.py --check</code>，并把 <code>dist/</code> 门禁证据上传为 artifact。PR 级强制检查与 §4 一致，由 <code>tools/check_arch.py</code> 的 6 条守卫落实：① <code>core</code> 零实现依赖；② transport 热路径无 <code>os/exec</code> / cgo；③ <code>PostProcessor</code> 契约；④ 全局速率配置唯一读取点（测试夹具不算第二权威）；⑤ 禁用 cgo/GPL 驱动；⑥ <code>docs/_site</code> 为生成物。</p>
-<p><strong>已知差异</strong>：可复现构建镜像固定 digest、代码签名/公证、Android/iOS 目标、L4 互操作、千兆内网 1GiB 性能基准、覆盖率阈值强制（<code>gates.py --strict</code>）均未纳入 P0 CI。覆盖率当前仍有 8 个包低于阈值，详见 <code>17</code> §5。构建时若默认代理不可达，可用 <code>GOPROXY=https://goproxy.cn,direct make build</code> 覆盖（<code>Makefile</code> 已支持）。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/13-构建发布与运维.md</code></div></article><article class="doc" id="doc-doc-14" data-slug="doc-14"><div class="doc-head"><h1>14 项目计划与风险管理</h1><div class="doc-meta"><span class="badge">草案（评审材料已备齐，待签署）</span>文档编号：UD-DOC-14 ｜ 版本：v0.3 ｜ 状态：草案（评审材料已备齐，待签署） ｜ 日期：2026-11-09</div></div><blockquote>
-<p><strong>v0.3 说明</strong>：新增 <a href="#/doc-17">17 P0 里程碑评审材料</a> 作为评审单一入口，<code>make gates</code> 补齐 §8 要求的度量输出（覆盖率、SBOM、许可证、漏洞、吞吐基线、回滚演练）；§5 新增 R-16 覆盖率债。<strong>P0 仍未通过正式评审</strong>，§3 的门禁继续有效；评审通过后须在 §10 记录结论、签署与 ADR 状态变更。</p>
-<p><strong>v0.2 说明</strong>：WBS 1–6 的代码已落地并通过本文 §2 P0 验收项，逐项证据见 §9。P0 <strong>已实现但未通过正式里程碑评审</strong>，因此 §3「P0 未通过评审不得启动 P1」仍然有效；OPEN-01/OPEN-02 保持未决。</p>
+<p><strong>已知差异</strong>：可复现构建镜像固定 digest、代码签名/公证、Android/iOS 目标、L4 互操作、千兆内网 1GiB 性能基准、覆盖率阈值强制（<code>gates.py --strict</code>）均未纳入 P0 CI。覆盖率当前仍有 8 个包低于阈值，详见 <code>17</code> §5。构建时若默认代理不可达，可用 <code>GOPROXY=https://goproxy.cn,direct make build</code> 覆盖（<code>Makefile</code> 已支持）。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/13-构建发布与运维.md</code></div></article><article class="doc" id="doc-doc-14" data-slug="doc-14"><div class="doc-head"><h1>14 项目计划与风险管理</h1><div class="doc-meta"><span class="badge">草案（P0 已通过有条件评审，P1 已解锁）</span>文档编号：UD-DOC-14 ｜ 版本：v0.4 ｜ 状态：草案（P0 已通过有条件评审，P1 已解锁） ｜ 日期：2026-11-09</div></div><blockquote>
+<p><strong>v0.4 说明</strong>：P0 里程碑评审于 2026-11-09 由项目发起人全权批准，结论「<strong>有条件通过</strong>」（§10）；ADR 0001–0020 批量转 <code>Accepted</code>，OPEN-01 定档 MPL-2.0、OPEN-02 定档 Flutter，<code>v0.1.0</code> 附注标签已打。§3 的 P1 门禁解除，P1 排期见新增的 §11。覆盖率 8 个包未达标作为附加条件延后至 P1 首个 PR 前。</p>
+<p><strong>v0.3 说明</strong>：新增 <a href="#/doc-17">17 P0 里程碑评审材料</a> 作为评审单一入口，<code>make gates</code> 补齐 §8 要求的度量输出（覆盖率、SBOM、许可证、漏洞、吞吐基线、回滚演练）；§5 新增 R-16 覆盖率债。<strong>当时 P0 尚未通过正式评审</strong>，§3 的门禁有效；后续结论、签署与 ADR 状态变更见 v0.4 与 §10（本段为 v0.3 当时的快照）。</p>
+<p><strong>v0.2 说明</strong>：WBS 1–6 的代码已落地并通过本文 §2 P0 验收项，逐项证据见 §9。P0 <strong>当时已实现但尚未通过正式里程碑评审</strong>，§3 门禁有效；OPEN-01/OPEN-02 当时保持未决（两者及评审均已于 2026-11-09 完成，见 v0.4 / §7 / §10）。</p>
 </blockquote>
 <h2 id="h-doc-14--1-wbs">1. WBS（工作分解）</h2>
 <table>
@@ -6327,7 +6329,7 @@ telemetry:
     P1 -.互操作套件.-> P3
     P2 -.格式选取.-> P3
 </pre>
-<p>P0 的 <code>Resource</code> 定义是全局关键路径：P1 的 private flag / 双 infohash、P3 的 eD2k UserHash / RSA 身份 / 积分、L1 的 <code>getFiles</code> 映射全部依赖它。<strong>P0 未通过评审不得启动 P1。</strong></p>
+<p>P0 的 <code>Resource</code> 定义是全局关键路径：P1 的 private flag / 双 infohash、P3 的 eD2k UserHash / RSA 身份 / 积分、L1 的 <code>getFiles</code> 映射全部依赖它。<strong>P0 未通过评审不得启动 P1。</strong>（该门禁已于 2026-11-09 满足：结论「有条件通过」，见 §10；P1 排期见 §11。）</p>
 <h2 id="h-doc-14--4">4. 角色与投入</h2>
 <table>
 <thead>
@@ -6563,17 +6565,17 @@ telemetry:
 <tbody>
 <tr>
 <td>OPEN-01</td>
-<td>代码许可证定档（MPL-2.0 / Apache-2.0）</td>
+<td>✅ <strong>已决：MPL-2.0</strong>（2026-11-09，<code>LICENSE</code> 已入库；依据见 <code>17</code> §8）</td>
 <td>法务 + 架构</td>
-<td>立项前</td>
-<td>阻塞依赖合入</td>
+<td>已关闭</td>
+<td>阻塞已解除</td>
 </tr>
 <tr>
 <td>OPEN-02</td>
-<td>Flutter vs Tauri 定档</td>
+<td>✅ <strong>已决：Flutter</strong>（2026-11-09，正式 UI 不进入 P1；依据见 <code>17</code> §8）</td>
 <td>客户端</td>
-<td>P0 结束前</td>
-<td>影响移动端排期</td>
+<td>已关闭</td>
+<td>移动端排期已定</td>
 </tr>
 <tr>
 <td>OPEN-03</td>
@@ -6623,7 +6625,7 @@ telemetry:
 <td>1</td>
 <td>项目建立</td>
 <td>✅</td>
-<td><code>go.mod</code>、<code>Makefile</code>、<code>.github/workflows/ci.yml</code>、<code>.gitignore</code>、<code>config.example.yaml</code>、<code>CHANGELOG.md</code>；<strong>许可证 OPEN-01 仍未决</strong></td>
+<td><code>go.mod</code>、<code>Makefile</code>、<code>.github/workflows/ci.yml</code>、<code>.gitignore</code>、<code>config.example.yaml</code>、<code>CHANGELOG.md</code>；<strong>许可证 OPEN-01 已定档 MPL-2.0（2026-11-09）</strong></td>
 </tr>
 <tr>
 <td>2</td>
@@ -6653,7 +6655,7 @@ telemetry:
 <td>6</td>
 <td>最小 UI</td>
 <td>✅</td>
-<td><code>internal/api/ui/index.html</code>（<code>go:embed</code> 单文件，仅验证契约；<strong>可替换，OPEN-02 未决</strong>）</td>
+<td><code>internal/api/ui/index.html</code>（<code>go:embed</code> 单文件，仅验证契约；<strong>可替换，OPEN-02 已定档 Flutter</strong>）</td>
 </tr>
 </tbody>
 </table>
@@ -6709,18 +6711,18 @@ telemetry:
 </tr>
 </tbody>
 </table>
-<p><strong>P0 收尾带入 P1 的事项</strong>（不视为 P0 未完成）：OS 钥匙串适配器与凭据跨重启、<code>events</code> 保留期清理、<code>chunks</code> 批量刷盘聚合、慢启动动态扩连、<code>POST /tasks</code> 响应内嵌 <code>Resource</code> 预览、L4 互操作与千兆内网性能基准、<strong>8 个包的覆盖率补测并把 <code>--strict</code> 接入 CI</strong>、OPEN-01 许可证定档、OPEN-02 UI 定档。完整范围声明见 <a href="#/adr-0020">ADR-0020</a>。</p>
+<p><strong>P0 收尾带入 P1 的事项</strong>（不视为 P0 未完成）：OS 钥匙串适配器与凭据跨重启、<code>events</code> 保留期清理、<code>chunks</code> 批量刷盘聚合、慢启动动态扩连、<code>POST /tasks</code> 响应内嵌 <code>Resource</code> 预览、L4 互操作与千兆内网性能基准、<strong>8 个包的覆盖率补测并把 <code>--strict</code> 接入 CI</strong>、（OPEN-01 许可证、OPEN-02 UI 已于 2026-11-09 定档，移出本清单）。完整范围声明见 <a href="#/adr-0020">ADR-0020</a>。</p>
 <blockquote>
 <p><strong>已从 P1 队列移出</strong>：CycloneDX SBOM、<code>govulncheck</code>、许可证扫描、<code>go mod verify</code>、覆盖率报告、回环吞吐回归基线、备份/回滚演练均已在 2026-11-09 的评审准备轮落地（<code>make gates</code>），证据见 <code>17</code> §3。首次漏洞扫描发现并修复了 Go 标准库 <code>GO-2026-6809</code>。</p>
 </blockquote>
-<p><strong>风险登记册更新</strong>：R-01 / R-02 / R-08 的 P0 缓解措施已落地（一次建模 + 静态守卫 + SSRF/脱敏/凭据不落库），风险等级维持不变。R-14 的 SBOM / <code>govulncheck</code> / 许可证扫描已由 <code>make gates</code> 执行并接入 CI，R-07 的 <code>THIRD_PARTY_NOTICES.md</code> 已生成；但法务签字与 OPEN-01 仍未完成，故等级不变。新增 R-16（覆盖率债）。残余风险见 <code>11</code> §10，<code>17</code> §6 给出逐条更新表。</p>
-<h2 id="h-doc-14--10-p0">10. P0 里程碑评审（待签署）</h2>
-<p>评审材料、门禁证据、ADR 变更清单、OPEN-01/02 决策简报与签署表集中见 <a href="#/doc-17">17 P0 里程碑评审材料</a>。</p>
+<p><strong>风险登记册更新</strong>：R-01 / R-02 / R-08 的 P0 缓解措施已落地（一次建模 + 静态守卫 + SSRF/脱敏/凭据不落库），风险等级维持不变。R-14 的 SBOM / <code>govulncheck</code> / 许可证扫描已由 <code>make gates</code> 执行并接入 CI，R-07 的 <code>THIRD_PARTY_NOTICES.md</code> 已生成；项目发起人的全权批准与 OPEN-01 定档已于 2026-11-09 完成，但法务独立复核、签名校验与规则供应链扫描仍待 P1+，故等级不变。新增 R-16（覆盖率债）。残余风险见 <code>11</code> §10，<code>17</code> §6 给出逐条更新表。</p>
+<h2 id="h-doc-14--10-p0">10. P0 里程碑评审结论（已签署）</h2>
+<p>评审材料、门禁证据、ADR 变更清单、OPEN 决策与签署表见 <a href="#/doc-17">17 P0 里程碑评审材料</a>。</p>
 <table>
 <thead>
 <tr>
 <th>项</th>
-<th>状态</th>
+<th>结论</th>
 </tr>
 </thead>
 <tbody>
@@ -6733,31 +6735,97 @@ telemetry:
 <td>✅ 见 <code>17</code> §3/§5/§6/§7</td>
 </tr>
 <tr>
-<td>评审结论 / 签署表</td>
-<td>⬜ <strong>待签</strong>（<code>17</code> §1）</td>
+<td><strong>评审结论</strong></td>
+<td>✅ <strong>有条件通过</strong>（2026-11-09）</td>
 </tr>
 <tr>
-<td>ADR 0001–0020 转 <code>Accepted</code></td>
-<td>⬜ 待评审（<code>17</code> §7）</td>
+<td>批准方式</td>
+<td>项目发起人（用户）一次性全权批准，代行架构 / QA / 安全 / 法务 / 产品五个签署角色（<code>17</code> §1，不虚构实名签字）</td>
 </tr>
 <tr>
-<td>OPEN-01 / OPEN-02 结论</td>
-<td>⬜ 逾期未决（<code>17</code> §8）</td>
+<td>ADR 0001–0020</td>
+<td>✅ 全部转 <code>Accepted</code>（<code>17</code> §7）</td>
+</tr>
+<tr>
+<td>OPEN-01</td>
+<td>✅ MPL-2.0（<code>LICENSE</code> 已入库，<code>10</code> §4 已同步）</td>
+</tr>
+<tr>
+<td>OPEN-02</td>
+<td>✅ Flutter（正式 UI 不进入 P1 编码范围）</td>
 </tr>
 <tr>
 <td>覆盖率阈值</td>
-<td>⚠️ 8 个包未达标（<code>17</code> §5）；建议作为「有条件通过」的条件</td>
+<td>⚠️ 8 个包未达标，作为「有条件通过」的附加条件：P1 首个 PR 前补测并把 <code>--strict</code> 接入 CI</td>
 </tr>
 <tr>
 <td><code>v0.1.0</code> 标签</td>
-<td>⬜ 仓库尚未初始化 git，见 <code>17</code> §9 第 4 条</td>
+<td>✅ 附注标签已打并同步 GitHub</td>
 </tr>
 </tbody>
 </table>
+<p><strong>附加条件（未满足前不得合入 P1 首个 PR）</strong>：见 <code>17</code> §1 三条（覆盖率债、许可证履行、风险等级维持）。</p>
 <blockquote>
-<p><strong>评审结论记录处（签署后填写）</strong>：结论 ⬜ 通过 / ⬜ 有条件通过 / ⬜ 不通过；日期 ____；签署人 ____；附加条件 ____。</p>
-<p>在结论填好并按 <code>17</code> §9 完成 1–5 前，<code>14</code> §3 的「P0 未通过评审不得启动 P1」继续生效。</p>
-</blockquote><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/14-项目计划与风险管理.md</code></div></article><article class="doc" id="doc-doc-15" data-slug="doc-15"><div class="doc-head"><h1>15 开发规范与协作流程</h1><div class="doc-meta"><span class="badge">草案（P0 评审门禁已接入）</span>文档编号：UD-DOC-15 ｜ 版本：v0.3 ｜ 状态：草案（P0 评审门禁已接入） ｜ 日期：2026-11-09</div></div><h2 id="h-doc-15--1-go">1. 编码规范（Go）</h2>
+<p><code>14</code> §3 的「P0 未通过评审不得启动 P1」已于 2026-11-09 解除；P1 启动安排见 §11。</p>
+</blockquote>
+<h2 id="h-doc-14--11-p1-wbs-711">11. P1 启动（WBS 7–11）</h2>
+<p><strong>状态：已解锁（2026-11-09）</strong>。P1 范围是协议与插件，不是 UI（OPEN-02 定档 Flutter 后，正式 UI 按 <code>13</code> 的客户端排期单独推进）。</p>
+<table>
+<thead>
+<tr>
+<th>序</th>
+<th>WBS</th>
+<th>工作包</th>
+<th>前置</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>—</td>
+<td><strong>覆盖率债清零</strong>：补 <code>scheduler</code> / <code>config</code> / <code>postproc</code> / <code>api</code> / <code>store</code> / <code>transport/http</code> / <code>resolve</code> / <code>app</code> 至阈值，<code>gates.py --strict</code> 接入 CI</td>
+<td>无</td>
+<td>✅ 必须最先完成（§10 附加条件），否则 P1 功能 PR 不予合入</td>
+</tr>
+<tr>
+<td>2</td>
+<td>8</td>
+<td>链接封装：thunder / flashget / qqdl 解码、Metalink 纯 Go 解析</td>
+<td>ADR-0006 / 0007、序 1</td>
+<td>独立 Resolver，可完整交付</td>
+</tr>
+<tr>
+<td>3</td>
+<td>9</td>
+<td>FTP / SFTP Transport</td>
+<td><code>10</code> 许可证检查、<code>11</code> 安全检查、序 1</td>
+<td>引入新依赖，须先过合规</td>
+</tr>
+<tr>
+<td>4</td>
+<td>7</td>
+<td>BT / 磁力：<code>anacrolix/torrent</code> 接入、tracker、private flag、做种</td>
+<td>ADR-0004、MPL 修改清单、序 1</td>
+<td>最大工作包</td>
+</tr>
+<tr>
+<td>5</td>
+<td>10</td>
+<td>插件引擎 goja / manifest / SSRF Guard / 规则热更新</td>
+<td>ADR-0014、序 1</td>
+<td>与序 2 解耦</td>
+</tr>
+<tr>
+<td>6</td>
+<td>11</td>
+<td>互操作套件 v1</td>
+<td>序 2–5</td>
+<td>真实 BT 客户端 + 自建 tracker 矩阵</td>
+</tr>
+</tbody>
+</table>
+<p><strong>门禁</strong>：每个 PR 需 <code>make lint</code> / <code>make test</code> / <code>make build</code> / <code>make gates</code> 全绿；序 1 完成前任何 P1 功能 PR 不予合入。R-16 在阈值达标并把 <code>--strict</code> 接入 CI 后方可降级。里程碑评审按 <code>15</code> §4 与本文 §8 输出度量。实现进度以 <code>CHANGELOG.md</code> 为唯一真值源。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/14-项目计划与风险管理.md</code></div></article><article class="doc" id="doc-doc-15" data-slug="doc-15"><div class="doc-head"><h1>15 开发规范与协作流程</h1><div class="doc-meta"><span class="badge">草案（P0 评审门禁已接入）</span>文档编号：UD-DOC-15 ｜ 版本：v0.3 ｜ 状态：草案（P0 评审门禁已接入） ｜ 日期：2026-11-09</div></div><h2 id="h-doc-15--1-go">1. 编码规范（Go）</h2>
 <table>
 <thead>
 <tr>
@@ -7082,11 +7150,11 @@ api 只依赖 scheduler + core
 </tr>
 </tbody>
 </table>
-<p>按 ADR-0020 §4「变更同步规则」，新增/修改门禁工具时须同步本文件、<code>12</code>/<code>13</code>/<code>14</code>/<code>17</code> 与 <code>CHANGELOG.md</code>，并跑 <code>python3 tools/build_docs.py --check</code>。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/15-开发规范与协作流程.md</code></div></article><article class="doc" id="doc-doc-17" data-slug="doc-17"><div class="doc-head"><h1>17 P0 里程碑评审材料</h1><div class="doc-meta"><span class="badge">草案（待里程碑评审签署）</span>文档编号：UD-DOC-17 ｜ 版本：v0.1 ｜ 状态：**草案（待里程碑评审签署）** ｜ 日期：2026-11-09 ｜ 上游：`03`、`12`、`14`、`15`、[ADR-0020](adr/ADR-0020-P0实现基线与范围声明.md)</div></div><blockquote>
-<p><strong>本材料的定位</strong>：<code>14</code> §9 记录「WBS 1–6 已交付」，但从交付到「评审通过」之间还有一层证据与决策门槛。本文把可客观复跑的证据、需求追踪完成率、风险登记册更新、ADR 变更清单、未决事项决策简报与签署表集中为一页，供评审会逐项核对。<strong>评审结论需人签字，本文档不代签，也不擅自把 ADR 转为 <code>Accepted</code>。</strong></p>
-<p><strong>强制约束</strong>：<code>14</code> §3 规定「P0 未通过评审不得启动 P1」。在 §9 签署完成前，P1（WBS 7–11）不得启动。</p>
+<p>按 ADR-0020 §4「变更同步规则」，新增/修改门禁工具时须同步本文件、<code>12</code>/<code>13</code>/<code>14</code>/<code>17</code> 与 <code>CHANGELOG.md</code>，并跑 <code>python3 tools/build_docs.py --check</code>。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/15-开发规范与协作流程.md</code></div></article><article class="doc" id="doc-doc-17" data-slug="doc-17"><div class="doc-head"><h1>17 P0 里程碑评审材料</h1><div class="doc-meta"><span class="badge">已批准（P0 里程碑评审已签署）</span>文档编号：UD-DOC-17 ｜ 版本：v0.2 ｜ 状态：**已批准（P0 里程碑评审已签署）** ｜ 日期：2026-11-09 ｜ 上游：`03`、`12`、`14`、`15`、[ADR-0020](adr/ADR-0020-P0实现基线与范围声明.md)</div></div><blockquote>
+<p><strong>本材料的定位</strong>：<code>14</code> §9 记录「WBS 1–6 已交付」，但从交付到「评审通过」之间还有一层证据与决策门槛。本文把可客观复跑的证据、需求追踪完成率、风险登记册更新、ADR 变更清单、未决事项决策结论与签署表集中为一页，供评审会逐项核对。<strong>评审结论由项目发起人（用户）于 2026-11-09 一次性全权批准，本文记录授权结论与代签依据，不虚构个人签名；ADR 已按 §7 批量转 <code>Accepted</code>。</strong></p>
+<p><strong>门禁状态</strong>：<code>14</code> §3 的「P0 未通过评审不得启动 P1」已于 2026-11-09 解除——§9 的 1–4 项完成、第 5 项的门禁部分完成且余量转为 §1 附加条件。P1 已解锁，排期见 <code>14</code> §11。</p>
 </blockquote>
-<h2 id="h-doc-17--1">1. 评审范围与结论（待签）</h2>
+<h2 id="h-doc-17--1">1. 评审范围与结论（已签署）</h2>
 <table>
 <thead>
 <tr>
@@ -7112,12 +7180,16 @@ api 只依赖 scheduler + core
 <td><code>03</code> §7、<code>05</code> §12、<code>12</code> §8/§9、<code>14</code> §2/§9、<code>15</code> §6、ADR-0020</td>
 </tr>
 <tr>
-<td>建议结论</td>
-<td>⬜ 通过 ⬜ 有条件通过 ⬜ 不通过（由评审组勾选）</td>
+<td><strong>评审结论</strong></td>
+<td>✅ <strong>有条件通过</strong>（2026-11-09）</td>
+</tr>
+<tr>
+<td>批准方式</td>
+<td>项目发起人（用户）一次性全权批准，代行下表五个签署角色；不虚构个人签名</td>
 </tr>
 </tbody>
 </table>
-<p><strong>签署表</strong>（全部签署后 §9 才生效）</p>
+<p><strong>签署表</strong>（2026-11-09 全部完成，§9 生效）</p>
 <table>
 <thead>
 <tr>
@@ -7131,35 +7203,45 @@ api 只依赖 scheduler + core
 <tr>
 <td>架构师（否决权）</td>
 <td><code>Resource</code> 冻结、单调度器、ADR 一致性</td>
-<td>⬜</td>
-<td>—</td>
+<td>✅ 同意</td>
+<td>项目发起人全权批准（代）· 2026-11-09</td>
 </tr>
 <tr>
 <td>QA</td>
 <td>追踪矩阵、门禁证据、覆盖率债处置</td>
-<td>⬜</td>
-<td>—</td>
+<td>✅ 同意（附条件）</td>
+<td>项目发起人全权批准（代）· 2026-11-09</td>
 </tr>
 <tr>
 <td>安全</td>
 <td>SSRF / 凭据 / 依赖漏洞 / 许可证</td>
-<td>⬜</td>
-<td>—</td>
+<td>✅ 同意</td>
+<td>项目发起人全权批准（代）· 2026-11-09</td>
 </tr>
 <tr>
 <td>法务</td>
 <td>OPEN-01 许可证定档、<code>10</code> §4 合规矩阵</td>
-<td>⬜</td>
-<td>—</td>
+<td>✅ 同意</td>
+<td>项目发起人全权批准（代）· 2026-11-09</td>
 </tr>
 <tr>
 <td>产品</td>
 <td>OPEN-02 UI 定档、对外文案口径</td>
-<td>⬜</td>
-<td>—</td>
+<td>✅ 同意</td>
+<td>项目发起人全权批准（代）· 2026-11-09</td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>上表是<strong>授权式签署</strong>：项目发起人明确「需要我批准的，全批准」，一次性批准全部待决事项并代行各角色职责。本文不伪造具体自然人签名；如需逐角色实名签字，应由相应责任人另行补签，不影响本次结论生效。</p>
+</blockquote>
+<p><strong>「有条件通过」的附加条件</strong>（未满足前不得合入 P1 首个 PR）：</p>
+<ol>
+<li><strong>覆盖率债</strong>（§5）：P1 首个 PR 前把 8 个未达标包补到 <code>12</code> §1/§8 的阈值（<code>core</code>/<code>security</code> ≥ 90%，其余 P0 关键路径包 ≥ 80%），并把 <code>tools/gates.py --strict</code> 接入 CI；当前 WARN <strong>不得记作通过</strong>。</li>
+<li><strong>许可证履行</strong>：OPEN-01 定档 MPL-2.0 后，每个分发二进制须随附 <code>LICENSE</code> 与 <code>THIRD_PARTY_NOTICES.md</code>，修改过的 MPL 文件按 MPL-2.0 提供并记录修改清单（<code>10</code> §4）。</li>
+<li><strong>风险等级</strong>：R-08 / R-14 / R-07 维持现有等级；签名校验、规则供应链扫描与法务独立复核仍属 P1+，不因本次授权视为完成。</li>
+</ol>
+<p>除此之外，<code>14</code> §2 的 P0 验收项与 §3 的客观门禁均为 PASS，无遗留阻塞项。<code>WARN</code> 的覆盖率阈值是唯一未达标项，故结论只能是「有条件通过」而不是「通过」。</p>
 <h2 id="h-doc-17--2-p0">2. P0 验收逐条核对</h2>
 <table>
 <thead>
@@ -7259,6 +7341,7 @@ api 只依赖 scheduler + core
 <blockquote>
 <p><strong>口径澄清</strong>：<code>12</code> §1 写「<code>core</code>/<code>security</code> ≥ 90%」、§8 写「核心包 ≥ 80%（<code>security</code> ≥ 90%）」，两处不一致。v0.3 已统一为：<code>core</code>/<code>security</code> ≥ 90%，其余 P0 关键路径包 ≥ 80%，<code>cmd/*</code> 与 <code>internal/version</code> 只报告不设门禁。<code>WARN</code> 是真实的未达标项，<strong>不是通过</strong>。</p>
 <p><strong>基准口径</strong>：回环吞吐是回归基线，<strong>不能替代 NFR-PERF-01</strong>（千兆内网 1GiB ≥ 80MB/s）；L4 互操作、1000 任务长稳、故障注入全套仍属 P1+，不得据本次结果宣称达标。</p>
+<p><strong>评审日复跑（2026-11-09 18:59）</strong>：<code>make gates</code> 为 <strong>4 PASS / 2 WARN / 0 FAIL</strong>——覆盖率债（真实，见 §5）与本机 <code>govulncheck</code> 未安装（工具缺失；CI 工作流会安装后扫描，不构成新的安全发现）。首次扫描发现并修复 <code>GO-2026-6809</code> 的结论不变；本次结论「有条件通过」仅依据覆盖率债这一项实质 WARN。</p>
 </blockquote>
 <h2 id="h-doc-17--4">4. 本轮发现并修复的真实缺陷</h2>
 <table>
@@ -7305,7 +7388,7 @@ api 只依赖 scheduler + core
 </table>
 <h2 id="h-doc-17--5">5. 需求追踪完成率与覆盖率债</h2>
 <p><strong>追踪矩阵</strong>：<code>03</code> §8 中标记 P0 的 <code>M</code> 需求已全部映射到自动化用例（<code>12</code> §9 逐条列出），P0 行完成率 <strong>100%</strong>；P1+ 行保持空格是正确的排期状态，不是遗漏。</p>
-<p><strong>覆盖率债（建议随评审结论一并决定是否列为「有条件通过」的条件）</strong>：</p>
+<p><strong>覆盖率债（已列为 §1「有条件通过」的附加条件）</strong>：</p>
 <table>
 <thead>
 <tr>
@@ -7332,13 +7415,13 @@ api 只依赖 scheduler + core
 <td><code>internal/scheduler</code></td>
 <td>71.4%</td>
 <td>80%</td>
-<td>P1 启动前补齐控制流分支</td>
+<td>P1 首个 PR 前补齐控制流分支</td>
 </tr>
 <tr>
 <td><code>internal/config</code></td>
 <td>70.1%</td>
 <td>80%</td>
-<td>P1 启动前补齐校验分支</td>
+<td>P1 首个 PR 前补齐校验分支</td>
 </tr>
 <tr>
 <td><code>internal/postproc</code></td>
@@ -7350,19 +7433,19 @@ api 只依赖 scheduler + core
 <td><code>internal/api</code></td>
 <td>61.2%</td>
 <td>80%</td>
-<td>P1 启动前补齐错误路径</td>
+<td>P1 首个 PR 前补齐错误路径</td>
 </tr>
 <tr>
 <td><code>internal/store</code></td>
 <td>59.5%</td>
 <td>80%</td>
-<td>P1 启动前补齐 <code>ListTasks</code>/<code>DeleteTask</code>/<code>VerifyAllChunks</code> 等</td>
+<td>P1 首个 PR 前补齐 <code>ListTasks</code>/<code>DeleteTask</code>/<code>VerifyAllChunks</code> 等</td>
 </tr>
 <tr>
 <td><code>internal/transport/http</code></td>
 <td>55.1%</td>
 <td>80%</td>
-<td>P1 启动前补齐重定向、镜像轮换、退避分支</td>
+<td>P1 首个 PR 前补齐重定向、镜像轮换、退避分支</td>
 </tr>
 <tr>
 <td><code>internal/resolve</code> / <code>internal/app</code></td>
@@ -7373,7 +7456,7 @@ api 只依赖 scheduler + core
 </tbody>
 </table>
 <blockquote>
-<p>这些是<strong>发布门禁</strong>（<code>12</code> §8）而非 <code>14</code> §2 的 P0 验收项。若评审组选择「有条件通过」，建议把「P1 首个 PR 前核心路径包达到阈值」写入条件，而不是把当前 WARN 记作通过。</p>
+<p>这些是<strong>发布门禁</strong>（<code>12</code> §8）而非 <code>14</code> §2 的 P0 验收项。评审已选择「有条件通过」，并把「P1 首个 PR 前核心路径包达到阈值并把 <code>--strict</code> 接入 CI」写入 §1 附加条件；当前 WARN 仍记为 WARN，不记作通过。</p>
 </blockquote>
 <h2 id="h-doc-17--6-14-5">6. 风险登记册更新（<code>14</code> §5）</h2>
 <table>
@@ -7407,15 +7490,15 @@ api 只依赖 scheduler + core
 </tr>
 </tbody>
 </table>
-<h2 id="h-doc-17--7-adr">7. ADR 变更清单（待评审批量决议）</h2>
-<p><code>docs/adr/README.md</code> 中 0001–0020 <strong>全部仍为 <code>Proposed</code></strong>。P0 代码已按这些 ADR 落地，但状态未转 <code>Accepted</code>，因此 <code>docs/README.md</code> 的状态机仍把整套文档视为「草案」。评审通过后的批量动作：</p>
+<h2 id="h-doc-17--7-adr">7. ADR 变更清单（已批量决议）</h2>
+<p>2026-11-09 P0 里程碑评审批准：<code>docs/adr/README.md</code> 中 0001–0020 <strong>全部转为 <code>Accepted</code></strong>。此前代码已按这些 ADR 落地但状态未转，导致 <code>docs/README.md</code> 的状态机把整套文档视为「草案」；本次批量决议消除了「实现跑在未批准决策上」的返工风险（R-01）。</p>
 <table>
 <thead>
 <tr>
 <th>范围</th>
-<th>现状</th>
-<th>拟变更</th>
-<th>生效条件</th>
+<th>决议前</th>
+<th>决议后</th>
+<th>执行结果</th>
 </tr>
 </thead>
 <tbody>
@@ -7423,68 +7506,117 @@ api 只依赖 scheduler + core
 <td>ADR-0001 … ADR-0019（19 篇）</td>
 <td><code>Proposed</code></td>
 <td><code>Accepted</code></td>
-<td>架构师逐篇确认无冲突后批量转，并同步 <code>adr/README.md</code> 索引与状态分布</td>
+<td>✅ 逐篇改状态行，索引同步；「架构师逐篇确认无冲突」由项目发起人全权批准覆盖</td>
 </tr>
 <tr>
 <td>ADR-0020（P0 实现基线与范围声明）</td>
 <td><code>Proposed</code></td>
 <td><code>Accepted</code></td>
-<td>评审确认三处规范修正、两处补定义、范围边界与 5 条已知限制</td>
+<td>✅ 确认三处规范修正、两处补定义、范围边界与 5 条已知限制</td>
 </tr>
 <tr>
-<td><code>docs/README.md</code> §一 状态机</td>
-<td>整套文档「草案」</td>
-<td>按文档粒度标注「已批准」</td>
-<td>ADR 批量转 <code>Accepted</code> 之后</td>
+<td><code>docs/adr/README.md</code> 索引</td>
+<td>20 行 <code>Proposed</code></td>
+<td>20 行 <code>Accepted</code></td>
+<td>✅ 升至 v0.3，状态定义表不变</td>
 </tr>
 <tr>
-<td><code>CHANGELOG.md</code></td>
-<td><code>[0.1.0]</code> 未打 tag</td>
-<td>打 <code>v0.1.0</code> 附注标签</td>
-<td><code>15</code> §3：标签附 changelog；仓库当前尚未初始化 git，需先完成</td>
+<td>文档门户状态首页</td>
+<td>已决定 1 篇</td>
+<td>已决定 23 篇</td>
+<td>✅ <code>make docs</code> 重建；计数由版本头/索引自动解析，不另维护清单</td>
+</tr>
+<tr>
+<td><code>v0.1.0</code> 附注标签</td>
+<td>未打</td>
+<td>已打</td>
+<td>✅ 见 §9 第 4 条与 <code>CHANGELOG.md</code></td>
 </tr>
 </tbody>
 </table>
 <blockquote>
-<p><strong>不得跳过</strong>：按 <code>15</code> §4「决策的唯一真值源是 ADR」，在 ADR 仍是 <code>Proposed</code> 时启动 P1，等于让实现跑在未批准的决策上，正是 <code>14</code> §3 要防的返工（R-01）。</p>
+<p><code>14</code> §3「P0 未通过评审不得启动 P1」的前置已满足：ADR 现为 <code>Accepted</code>，符合 <code>15</code> §4「只有已批准 ADR 可作为实现依据」。</p>
 </blockquote>
-<h2 id="h-doc-17--8">8. 未决事项决策简报（不代签）</h2>
+<h2 id="h-doc-17--8">8. 未决事项决策结论（已定档）</h2>
 <table>
 <thead>
 <tr>
 <th>ID</th>
-<th>选项</th>
-<th>事实与倾向</th>
-<th>需谁决定</th>
+<th>结论</th>
+<th>依据</th>
+<th>生效与后续</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>OPEN-01 代码许可证</td>
-<td>MPL-2.0 / Apache-2.0</td>
-<td>当前 12 个链接模块为 BSD/MIT/Apache，无 copyleft；<code>10</code> §4 建议 MPL-2.0 以匹配未来 <code>anacrolix/torrent</code>（MPL-2.0）；若重视专利授权与生态兼容，Apache-2.0 更稳。<strong>阻塞依赖合入，且 <code>14</code> §7 的截止时间是「立项前」，已逾期</strong></td>
-<td>法务 + 架构</td>
+<td><strong>MPL-2.0</strong></td>
+<td><code>10</code> §4 建议 MPL-2.0 以匹配未来 <code>anacrolix/torrent</code>（同为 MPL-2.0）；当前 12 个实际链接依赖为 BSD/MIT/Apache、0 copyleft、0 未识别，与 MPL-2.0 的文件级弱 copyleft 兼容。Apache-2.0 的专利授权优势不足以抵消与主力 BT 依赖的许可分裂成本</td>
+<td>根目录 <code>LICENSE</code> 已入库；分发须随附 <code>LICENSE</code> 与 <code>THIRD_PARTY_NOTICES.md</code>，修改过的 MPL 文件按 MPL 提供并记录修改清单；<code>14</code> §7 已关闭</td>
 </tr>
 <tr>
 <td>OPEN-02 UI 定档</td>
-<td>Flutter / Tauri</td>
-<td>P0 最小 UI 是 <code>go:embed</code> 占位件，daemon + REST/WS 已解耦（ADR-0016）；Flutter 一套覆盖 6 端，Tauri 更轻但移动端弱。<code>14</code> §7 截止「P0 结束前」，已到期</td>
-<td>客户端 + 产品</td>
+<td><strong>Flutter</strong></td>
+<td>ADR-0016 已把核心 daemon 与 UI 解耦（REST/WS + <code>go:embed</code> 占位件）；Flutter 一套覆盖 6 端（含 iOS/Android，与 NFR-PORT-01 一致），Tauri 更轻但移动端弱</td>
+<td><code>14</code> §7 已关闭；P0 最小 UI 继续作为契约验证占位件，<strong>正式 UI 不进入 P1（WBS 7–11）编码范围</strong>，按 <code>14</code> §11 单独排期</td>
 </tr>
 </tbody>
 </table>
 <blockquote>
-<p>这两项属于<strong>人的决策</strong>，本材料只列事实与倾向，评审会上必须给出结论或明确的新截止日期，不能继续以「未决」状态带入 P1。</p>
+<p>两项逾期未决事项由项目发起人 2026-11-09 全权批准定档，本文记录结论与依据，不虚构法务 / 客户端 / 产品个人签字。OPEN-03 … OPEN-06 的截止期在 P2/P3，不受本次决议影响。</p>
 </blockquote>
-<h2 id="h-doc-17--9-p1">9. 评审后动作（P1 启动前置条件）</h2>
-<ol>
-<li>§1 签署表全部完成，结论记录进 <code>14</code> 的新增「评审结论」段与 <code>CHANGELOG.md</code>。</li>
-<li>§7 ADR 批量转 <code>Accepted</code>，同步 <code>adr/README.md</code> 索引，重建门户（状态首页的「已决定」计数应随之变化）。</li>
-<li>§8 OPEN-01 / OPEN-02 给出结论或新截止日期，更新 <code>14</code> §7。</li>
-<li>初始化 git 仓库并打 <code>v0.1.0</code> 附注标签（<code>15</code> §3），把 <code>dist/</code> 证据留在 CI artifact 而非版本库。</li>
-<li>把 <code>make gates</code> 接入 CI（已在本轮加入），P1 首个 PR 前把覆盖率阈值改为 <code>--strict</code> 并消除 §5 的债务。</li>
-<li>完成上述 1–5 后，方可按 <code>14</code> §3 启动 P1（WBS 7–11）。</li>
-</ol>
+<h2 id="h-doc-17--9">9. 评审后动作（执行结果）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>动作</th>
+<th>状态</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>§1 签署表、结论记入 <code>14</code> 与 <code>CHANGELOG.md</code></td>
+<td>✅</td>
+<td>结论「有条件通过」已写入 <code>14</code> §10 与 CHANGELOG</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ADR 批量转 <code>Accepted</code>、同步索引、重建门户</td>
+<td>✅</td>
+<td>见 §7；<code>make docs</code> 已重建，41 篇 0 断链</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OPEN-01 / OPEN-02 给出结论、更新 <code>14</code> §7</td>
+<td>✅</td>
+<td>见 §8；MPL-2.0 / Flutter 已定档，<code>LICENSE</code> 已入库</td>
+</tr>
+<tr>
+<td>4</td>
+<td>初始化 git 并打 <code>v0.1.0</code> 附注标签</td>
+<td>✅</td>
+<td>仓库 2026-11-09 初始化并推送 GitHub；附注标签已建，<code>dist/</code> 证据仍只在 CI artifact</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>make gates</code> 接入 CI；补覆盖率债并启用 <code>--strict</code></td>
+<td>⏳ <strong>条件项</strong></td>
+<td>门禁接入 CI <strong>已完成</strong>；8 个包补测与 <code>--strict</code> 按 §1 附加条件延后至 <strong>P1 首个 PR 前</strong>，当前 WARN 不记作通过</td>
+</tr>
+<tr>
+<td>6</td>
+<td>完成 1–5 后按 <code>14</code> §3 启动 P1（WBS 7–11）</td>
+<td>✅</td>
+<td>1–4 完成、5 的门禁部分完成且余量转为附带条件，<strong>P1 已解锁</strong>；见 <code>14</code> §11</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>第 5 项是「有条件通过」的条件而非 P0 验收项：允许 P1 启动（准备与不新增覆盖率债的工作），但<strong>首个 PR 合入前</strong>必须补齐阈值并把 <code>--strict</code> 接入 CI。</p>
+</blockquote>
 <h2 id="h-doc-17--10">10. 证据文件索引</h2>
 <table>
 <thead>
@@ -7543,6 +7675,10 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <code>MAJOR.MINOR.PATCH</code> 正式启用于 P3 结束后的首个稳定版。每次代码变更必须在合入前写入本文件，
 并同步受影响的 <code>docs/</code> 文档（见 <a href="#/readme">docs/README.md</a> 与 <a href="#/doc-15">docs/15-开发规范与协作流程.md</a>）。</p>
 <h2 id="h-changelog--unreleased"><a href="https://github.com/asdfgh129/ud/compare/v0.1.0...HEAD" target="_blank" rel="noopener noreferrer">Unreleased</a></h2>
+<blockquote>
+<p>本段内容已随 <code>v0.1.0</code> 附注标签（2026-11-09 评审闭环提交）发布；自该标签起暂无新变更，
+P1 变更将记入新版本段。标签 message 附本文件摘要。</p>
+</blockquote>
 <h3 id="h-changelog--security">Security</h3>
 <ul>
 <li><strong>Go 工具链升至 1.27.3</strong>：<code>govulncheck</code> 首次扫描发现 <code>GO-2026-6809</code>——Go 1.27.2 标准库
@@ -7556,6 +7692,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 </ul>
 <h3 id="h-changelog--added">Added</h3>
 <ul>
+<li><strong>代码许可证 <code>LICENSE</code>（MPL-2.0 全文）</strong>：OPEN-01 于 2026-11-09 定档，来源为 GitHub 官方许可证文本；分发须随附 <code>LICENSE</code> 与 <code>THIRD_PARTY_NOTICES.md</code>，修改过的 MPL 文件按 MPL-2.0 提供并记录修改清单（<code>docs/10</code> §4）。文档仍为 CC-BY-4.0。</li>
 <li><strong>P0 里程碑评审门禁链</strong> <code>tools/gates.py</code> + <code>make gates</code>：六项可复跑门禁（覆盖率阈值、
   CycloneDX SBOM、许可证扫描、<code>govulncheck</code>、HTTP 回环吞吐基准、备份/回滚演练），
   机器可读证据统一落在 <code>dist/gates.json</code>，Markdown 汇总为 <code>dist/GATES.md</code>。
@@ -7577,6 +7714,12 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 </ul>
 <h3 id="h-changelog--changed">Changed</h3>
 <ul>
+<li><strong>P0 里程碑评审闭环（2026-11-09，「有条件通过」）</strong>：项目发起人全权批准并代行五个签署角色；
+  ADR 0001–0020 全部由 <code>Proposed</code> 转 <code>Accepted</code>（索引 v0.3）、OPEN-01 定档 MPL-2.0、OPEN-02 定档 Flutter；
+  <code>docs/17</code> 结论/签署/决策/评审后动作、<code>docs/14</code> §7/§9/§10 与新增 §11（P1 启动顺序）、<code>docs/README</code> v0.6、
+  <code>docs/03</code> §10、<code>docs/10</code> §4、<code>docs/11</code> §10、ADR-0013/0016/0020、根 <code>README.md</code> 全部同步；
+  文档门户状态首页「已决定」由 1 篇升至 23 篇（41 篇 0 断链）；<code>v0.1.0</code> 附注标签已打，<code>14</code> §3 的 P1 门禁解除。
+  覆盖率 8 个包未达标作为附加条件延后至 P1 首个 PR 前，当前 WARN 不记作通过。</li>
 <li><strong>Go module 路径与仓库地址统一为 <code>github.com/asdfgh129/ud</code></strong>：首次推送 GitHub 时把 <code>go.mod</code>、
   全部 Go import、<code>Makefile</code> 的 <code>-X</code> 链接参数、<code>tools/check_arch.py</code> / <code>tools/gates.py</code> 的
   <code>MODULE</code> 常量、CHANGELOG 版本比较/发布链接同步为实际仓库地址；<code>docs/_site/index.html</code>
@@ -7603,10 +7746,12 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
   被误标为「已决定」；现在只取括号前的主状态词。</li>
 </ul>
 <p>P0 全部构建批次（含收尾修复与文档同步）仍汇总于下方 <code>0.1.0</code>；P1 待办见 <code>ADR-0020</code> 与 <code>docs/14</code> §9/§10。
-<strong>未决</strong>：P0 里程碑尚未评审签署，ADR 0001–0020 仍为 <code>Proposed</code>，按 <code>docs/14</code> §3 不得启动 P1；
-覆盖率仍有 8 个包低于阈值，详见 <code>docs/17</code> §5。</p>
+<strong>P0 里程碑评审决议（2026-11-09，随 <code>v0.1.0</code> 发布）</strong>：结论「<strong>有条件通过</strong>」，由项目发起人一次性全权批准并代行五个签署角色；
+ADR 0001–0020 全部转 <code>Accepted</code>；OPEN-01 定档 <strong>MPL-2.0</strong>（<code>LICENSE</code> 已入库）、OPEN-02 定档 <strong>Flutter</strong>；
+<code>v0.1.0</code> 附注标签已打，<code>14</code> §3 的 P1 门禁解除（<code>14</code> §11 给出 WBS 7–11 启动顺序）。
+<strong>附加条件</strong>：覆盖率仍有 8 个包低于阈值，P1 首个 PR 前须补齐并把 <code>gates.py --strict</code> 接入 CI；当前 WARN 不记作通过。详见 <code>docs/17</code> §1/§5/§7/§8/§9。</p>
 <h2 id="h-changelog--010-2026-11-08"><a href="https://github.com/asdfgh129/ud/releases/tag/v0.1.0" target="_blank" rel="noopener noreferrer">0.1.0</a> - 2026-11-08</h2>
-<p>P0 骨架首个可运行基线：一条 HTTP(S) 直链走完 <code>Resolver → Resource → Transport → PostProcessor → Store</code> 全流水线。本条目汇总同日的多个构建批次（骨架 → 控制面 → 冒烟 → 测试门禁 → 安全加固 → 文档同步），尚未打 tag。</p>
+<p>P0 骨架首个可运行基线：一条 HTTP(S) 直链走完 <code>Resolver → Resource → Transport → PostProcessor → Store</code> 全流水线。本条目汇总 2026-11-08 的多个构建批次（骨架 → 控制面 → 冒烟 → 测试门禁 → 安全加固 → 文档同步）与 2026-11-09 的评审门禁收尾、里程碑决议（见上方 <code>[Unreleased]</code> 段，已随本标签发布），<strong>2026-11-09 打 <code>v0.1.0</code> 附注标签</strong>。</p>
 <h3 id="h-changelog--added_1">Added</h3>
 <ul>
 <li><strong>工程骨架</strong>：Go 模块、<code>Makefile</code>（lint / test / build / docs / sbom）、GitHub Actions CI、
@@ -7635,7 +7780,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><strong>控制面 <code>internal/api</code> + <code>internal/app</code> + <code>cmd/</code></strong>：<code>07</code> §2 的 L0 REST 端点（创建/列表/详情/选项/暂停/恢复/取消/删除/批量、
   <code>/resolve</code>、<code>/capabilities</code>、<code>/config</code> GET+PATCH、<code>/stats</code>、<code>/healthz</code>、<code>/credentials</code>、幂等键、游标分页、统一错误码），
   WebSocket 事件推送（<code>07</code> §4）、Bearer 鉴权、<code>udd</code> daemon（随机端口 + 本地发现文件，不占 6800）、
-  <code>udctl</code> CLI 的 P0 子集、以及单文件 Web 最小 UI（WBS 6，仅用于验证契约，可替换，OPEN-02 保持未决）。</li>
+  <code>udctl</code> CLI 的 P0 子集、以及单文件 Web 最小 UI（WBS 6，仅用于验证契约，可替换；OPEN-02 当时保持未决，2026-11-09 已定档 Flutter）。</li>
 <li><strong>文档</strong>：<code>CHANGELOG.md</code>（本文件，Keep a Changelog 1.1.0 + SemVer 格式），以 <code>@root:CHANGELOG.md</code> 登记进 <code>tools/build_docs.py</code> 的 <code>GROUPS</code>，slug <code>changelog</code>，可在 <code>docs/_site/index.html</code> 门户中检索。</li>
 <li><strong>架构决策</strong>：<code>ADR-0020-P0实现基线与范围声明.md</code>，归档三处规范修正、两处未定义细节与 P0 范围外能力清单；ADR 索引时间线补充该节点。</li>
 <li><strong>测试门禁</strong>：<code>tools/check_arch.py</code> 6 条架构守卫、CI 工作流、竞态检测与 P0 契约/集成测试矩阵（见 <code>docs/12</code> §9）。</li>
@@ -7686,7 +7831,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
   <code>14</code> 补 §9 P0 验收结果；<code>15</code> 补 §10 变更日志规范与 §11 架构检查链；ADR 索引升 v0.2 并登记 0020。</li>
 <li><strong>文档门户</strong>：<code>tools/build_docs.py</code> 支持 <code>@root:</code> 前缀登记根目录文档，<code>GROUPS</code> 新增「变更记录」分组，
   slug 规则显式固定 <code>changelog</code>；<code>docs/_site/index.html</code> 已重建。</li>
-</ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>CHANGELOG.md</code></div></article><article class="doc" id="doc-adr-index" data-slug="adr-index"><div class="doc-head"><h1>架构决策记录（ADR）索引</h1><div class="doc-meta">文档编号：UD-ADR-00 ｜ 版本：v0.2 ｜ 日期：2026-11-08 ｜ 维护：架构组</div></div><p>ADR 是本项目<strong>架构决策的唯一真值源</strong>。任何与已接受 ADR 冲突的实现视为缺陷；要改变结论必须提交新 ADR 并把旧记录标为 <code>Superseded</code>，不得就地修改历史记录或只在聊天里达成共识。</p>
+</ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>CHANGELOG.md</code></div></article><article class="doc" id="doc-adr-index" data-slug="adr-index"><div class="doc-head"><h1>架构决策记录（ADR）索引</h1><div class="doc-meta">文档编号：UD-ADR-00 ｜ 版本：v0.3 ｜ 日期：2026-11-09 ｜ 维护：架构组</div></div><p>ADR 是本项目<strong>架构决策的唯一真值源</strong>。任何与已接受 ADR 冲突的实现视为缺陷；要改变结论必须提交新 ADR 并把旧记录标为 <code>Superseded</code>，不得就地修改历史记录或只在聊天里达成共识。</p>
 <h2 id="h-adr-index--_1">状态定义</h2>
 <table>
 <thead>
@@ -7715,7 +7860,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 </tbody>
 </table>
 <blockquote>
-<p>0001–0019 由 2026-11-08 架构讨论及七轮追问结论整理，状态统一为 <code>Proposed</code>，待立项评审批量转 <code>Accepted</code>。0020 为 P0 编码完成后补充的实现基线与范围声明，同样待 P0 里程碑评审。<strong>注意：代码已依据这些 ADR 实现，但 ADR 状态不等于 <code>Accepted</code>——<code>15</code> §4「只有已批准 ADR 可作为实现依据」的正式批准动作仍待评审完成</strong>，本次是「按 Proposed ADR 先行构建骨架」的例外，已在 <code>14</code> §9 标注。</p>
+<p><strong>2026-11-09 P0 里程碑评审批量决议</strong>：0001–0020 全部由 <code>Proposed</code> 转为 <code>Accepted</code>。依据 <code>docs/17</code> §1 的「有条件通过」结论与 §7 的变更清单，项目发起人（用户）一次性全权批准并代行架构师逐篇确认；<code>docs/README.md</code> §三 中本索引状态同步为「已批准」。此前「代码已按 Proposed ADR 先行构建骨架」的例外自此消除，满足 <code>15</code> §4「只有已批准 ADR 可作为实现依据」。覆盖率债等附加条件见 <code>17</code> §1，不影响 ADR 生效。</p>
 </blockquote>
 <h2 id="h-adr-index--adr-0000-md">记录模板（<code>ADR-0000-模板.md</code>）</h2>
 <pre><code># ADR-NNNN 标题
@@ -7740,121 +7885,121 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <tr>
 <td><a href="#/adr-0001">0001</a></td>
 <td>核心语言选择 Go，坚持纯 Go 单二进制</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>01、04、10、13</td>
 </tr>
 <tr>
 <td><a href="#/adr-0002">0002</a></td>
 <td>采用 Resolver→Resource→Transport 统一流水线与单调度器</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>03、04、05、07</td>
 </tr>
 <tr>
 <td><a href="#/adr-0003">0003</a></td>
 <td>完全移除 aria2 二进制，只保留其 wire protocol 规范</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>04、07、10</td>
 </tr>
 <tr>
 <td><a href="#/adr-0004">0004</a></td>
 <td>BT 引擎进程内自研，不外包给 aria2</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>04、10、16</td>
 </tr>
 <tr>
 <td><a href="#/adr-0005">0005</a></td>
 <td>ed2k 采用 goed2k（MIT，纯 Go）</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>10、16、12</td>
 </tr>
 <tr>
 <td><a href="#/adr-0006">0006</a></td>
 <td>Metalink 自写纯 Go 解析，撤回 libmetalink</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>08、10</td>
 </tr>
 <tr>
 <td><a href="#/adr-0007">0007</a></td>
 <td>迅雷链接仅解码，不做 P2SP</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>01、03、16</td>
 </tr>
 <tr>
 <td><a href="#/adr-0008">0008</a></td>
 <td>Sidecar 判定标准与零 sidecar 基线</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>04、09、13</td>
 </tr>
 <tr>
 <td><a href="#/adr-0009">0009</a></td>
 <td>Telegram 改 gotd/td 纯 Go，移除 Telethon</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>09、10</td>
 </tr>
 <tr>
 <td><a href="#/adr-0010">0010</a></td>
 <td>视频站双层：lux 进程内 + yt-dlp 仅吐 JSON</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>04、09</td>
 </tr>
 <tr>
 <td><a href="#/adr-0011">0011</a></td>
 <td>ffmpeg 降级为桌面可选 Transcode 插件</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>09、11、13</td>
 </tr>
 <tr>
 <td><a href="#/adr-0012">0012</a></td>
 <td>PostProcessor 输入本地路径、输出 .part + 原子提交</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>05、09、13</td>
 </tr>
 <tr>
 <td><a href="#/adr-0013">0013</a></td>
 <td>Resource 在 P0 一次性纳入多文件与协议身份字段</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>05、06、07、14</td>
 </tr>
 <tr>
 <td><a href="#/adr-0014">0014</a></td>
 <td>插件引擎 goja 起步，wazero/Extism 可选硬隔离</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>08、11</td>
 </tr>
 <tr>
 <td><a href="#/adr-0015">0015</a></td>
 <td>SQLite(modernc) + 系统钥匙串</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>06、11</td>
 </tr>
 <tr>
 <td><a href="#/adr-0016">0016</a></td>
 <td>核心为 daemon，UI 用 Flutter/Tauri 且可替换</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>04、07、13</td>
 </tr>
 <tr>
 <td><a href="#/adr-0017">0017</a></td>
 <td>P2P 保持诚实 PeerID，不承诺私有 tracker 准入</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>11、16</td>
 </tr>
 <tr>
 <td><a href="#/adr-0018">0018</a></td>
 <td>微信能力单独分发、默认不安装</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>09、11、14</td>
 </tr>
 <tr>
 <td><a href="#/adr-0019">0019</a></td>
 <td>RPC 兼容分 L0/L1/L2 三档，P0/P1 停在 L0</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>07、14</td>
 </tr>
 <tr>
 <td><a href="#/adr-0020">0020</a></td>
 <td>声明 P0 实现基线、三处规范修正与范围外能力清单</td>
-<td>Proposed</td>
+<td>Accepted</td>
 <td>03–07、10–15、CHANGELOG</td>
 </tr>
 </tbody>
@@ -7872,9 +8017,9 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <h2 id="h-adr-index--_4">关联文档</h2>
 <p><code>04-架构设计说明书-SAD.md</code> §10 给出架构决策点到 ADR 的映射；<code>14-项目计划与风险管理.md</code> §5 记录由这些决策引出的风险、§9 记录 P0 验收结果；<code>15-开发规范与协作流程.md</code> §4 规定 ADR 的变更流程、§10 规定变更日志规范；<code>ADR-0020</code> §「合规与验证」给出 P0 的落地检查清单。</p>
 <blockquote>
-<p><strong>状态变更待办（2026-11-09）</strong>：本表 0001–0020 仍全部为 <code>Proposed</code>。P0 代码已按这些 ADR 落地，评审材料 <a href="#/doc-17"><code>17</code></a> §7 给出批量转 <code>Accepted</code> 的清单与生效条件。<strong>在评审签署并完成状态变更前不得启动 P1</strong>（<code>14</code> §3）；状态变更必须同步本索引，并重建文档门户以更新首页的「已决定」计数。</p>
+<p><strong>状态变更已完成（2026-11-09）</strong>：本表 0001–0020 已全部由 <code>Proposed</code> 转为 <code>Accepted</code>，依据 <a href="#/doc-17"><code>17</code></a> §1/§7 的「有条件通过」结论与批量决议；本索引同步升 v0.3，文档门户由 <code>make docs</code> 重建并更新首页「已决定」计数。<code>14</code> §3 的 P1 门禁随之解除，排期见 <code>14</code> §11。</p>
 </blockquote><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/README.md</code></div></article><article class="doc" id="doc-adr-0001" data-slug="adr-0001"><div class="doc-head"><h1>ADR-0001 核心语言选择 Go，坚持纯 Go 单二进制</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed（待立项评审批量转 Accepted）</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>01</code> §8 C-01、<code>04</code> §1、<code>10</code> §2、<code>13</code> §2</li>
@@ -7930,7 +8075,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><code>go version -m</code> 与 SBOM 一致，无未登记的原生依赖。</li>
 <li>每次 PR 检查传输包中无 <code>exec.Command</code>、无 <code>import "C"</code>。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0001-核心语言选择Go.md</code></div></article><article class="doc" id="doc-adr-0002" data-slug="adr-0002"><div class="doc-head"><h1>ADR-0002 采用 Resolver → Resource → Transport 统一流水线与单调度器</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>04</code> §2/§4/§5、<code>05</code>、<code>07</code>、<code>03</code> FR-TRN-09</li>
@@ -7979,7 +8124,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>集成测试：全局限速设为 X 时，任意数量与任意协议组合的任务总吞吐 ≤ X（<code>12</code> 故障注入与性能基准）。</li>
 <li>取消任务能可靠终止全部子进程与分片写入。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0002-统一流水线与单调度器.md</code></div></article><article class="doc" id="doc-adr-0003" data-slug="adr-0003"><div class="doc-head"><h1>ADR-0003 完全移除 aria2 二进制，只保留其 wire protocol 规范</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08（经三轮追问收敛）</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>04</code> §5、<code>07</code> §5、<code>10</code> §5、ADR-0002、ADR-0019</li>
@@ -8037,7 +8182,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>若启用 L1 facade：以 <strong>AriaNg 作为验收测试套件</strong>，只声明 compat subset（约 25 方法），不承诺 100% 兼容。</li>
 <li>Metalink 属不可信输入：SSRF 白名单、镜像数上限、XML 大小上限、整文件与分块哈希校验（<code>11</code> §2）。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0003-完全移除aria2二进制.md</code></div></article><article class="doc" id="doc-adr-0004" data-slug="adr-0004"><div class="doc-head"><h1>ADR-0004 BT 引擎进程内自研（anacrolix/torrent），不外包给 aria2</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>04</code> §5.2、<code>10</code> §3、<code>16</code> §2、<code>12</code> §3.1</li>
@@ -8132,7 +8277,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>抓包验证 <code>private=1</code> 任务无 DHT/PEX 流量（BT-08）、PeerID 诚实（BT-14）。</li>
 <li>升级 <code>anacrolix/torrent</code> 必须重跑互操作套件（<code>15</code> §7）。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0004-BT引擎选用anacrolix-torrent.md</code></div></article><article class="doc" id="doc-adr-0005" data-slug="adr-0005"><div class="doc-head"><h1>ADR-0005 ed2k 采用 goed2k（MIT，纯 Go）</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>10</code> §3、<code>16</code> §3/§5、<code>12</code> §3.2、<code>14</code> R-06</li>
@@ -8180,7 +8325,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>产品文案只写「兼容标准 eD2k / Kad 网络」，禁止承诺速度与冷门资源（<code>16</code> §7）。</li>
 <li>与 <code>16</code> §4 一致：eD2k 身份字段在 P0 的 <code>Resource</code> 中预留，避免 P3 改表。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0005-ed2k引擎选用goed2k.md</code></div></article><article class="doc" id="doc-adr-0006" data-slug="adr-0006"><div class="doc-head"><h1>ADR-0006 Metalink 自写纯 Go 解析，撤回 libmetalink</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed（<strong>修订初版推荐</strong>）</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>08</code> §7、<code>10</code> §3/§5、<code>11</code> §2、ADR-0003</li>
@@ -8230,7 +8375,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><code>11</code> §2 SSRF 用例集中包含 <code>Link: rel=duplicate</code> 指向私网与云元数据的场景。</li>
 <li>产品文案只写「支持 Metalink 多源清单解析」，不写「完整 Metalink 生态」。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0006-Metalink纯Go解析.md</code></div></article><article class="doc" id="doc-adr-0007" data-slug="adr-0007"><div class="doc-head"><h1>ADR-0007 迅雷链接仅做解码，不支持 P2SP</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组 + 产品 + 法务</li>
 <li><strong>关联</strong>：<code>01</code> §5 NG-01、<code>08</code> §6、<code>16</code> §7</li>
@@ -8277,7 +8422,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>发布前由产品/法务对照 <code>01</code> §5、<code>16</code> §7 检查全部对外文案（<code>11</code> §7）。</li>
 <li>UI 在解析后显示「已还原为普通链接，不提供 P2SP 加速」的提示文案。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0007-迅雷链接仅解码不支持P2SP.md</code></div></article><article class="doc" id="doc-adr-0008" data-slug="adr-0008"><div class="doc-head"><h1>ADR-0008 Sidecar 判定标准与零 sidecar 基线</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08（多轮修订后的最终版）</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>04</code> §6、<code>09</code>、<code>13</code> §9、<code>03</code> FR-PLT-06</li>
@@ -8357,7 +8502,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><code>13</code> 移动端包中不含任何 sidecar 二进制；iOS 不得按需下载可执行码。</li>
 <li><code>09</code> §3 的能力演进表作为每个里程碑的能力面板依据。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0008-Sidecar边界与最小集合.md</code></div></article><article class="doc" id="doc-adr-0009" data-slug="adr-0009"><div class="doc-head"><h1>ADR-0009 Telegram 改用 gotd/td 纯 Go，移除 Telethon</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>04</code> §6、<code>09</code> §3、<code>10</code> §3</li>
@@ -8410,7 +8555,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><code>12</code> 用例：2GB 文件完成且哈希一致；<code>FLOOD_WAIT</code> 按给定秒数退避而非暴力重试。</li>
 <li>遵守平台限速与条款，能力限定为下载用户有权访问的内容。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0009-Telegram改用gotd-td.md</code></div></article><article class="doc" id="doc-adr-0010" data-slug="adr-0010"><div class="doc-head"><h1>ADR-0010 视频站双层解析：lux 进程内 + yt-dlp 仅吐 JSON</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>04</code> §6、<code>09</code> §7、<code>03</code> FR-SRC、<code>14</code> R-03/R-04</li>
@@ -8470,7 +8615,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>抓包/日志验证 yt-dlp 未写最终文件、未拉流；Deno 仅被 yt-dlp 调用。</li>
 <li>能力限定为下载用户有权保存的内容，不提供会员/DRM 绕过（<code>11</code> §7）。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0010-视频站双层解析策略.md</code></div></article><article class="doc" id="doc-adr-0011" data-slug="adr-0011"><div class="doc-head"><h1>ADR-0011 ffmpeg 降级为桌面可选 Transcode 插件</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed（<strong>修订初版「ffmpeg 必需」定位</strong>）</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组 + 法务</li>
 <li><strong>关联</strong>：<code>09</code> §6、<code>11</code> §6、<code>13</code> §5/§6、ADR-0012</li>
@@ -8536,7 +8681,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>发布前锁定 LGPL 构建、校验 sha256 与 buildconf、随附源码获取方式、法务签字（<code>11</code> §6）。</li>
 <li><code>09</code> §6 的 7 条强制实现约束纳入代码评审清单。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0011-ffmpeg降级为可选后处理插件.md</code></div></article><article class="doc" id="doc-adr-0012" data-slug="adr-0012"><div class="doc-head"><h1>ADR-0012 PostProcessor 输入必须是本地文件路径，输出 .part + 原子提交</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>05</code> §9、<code>09</code> §6、<code>13</code> §10、<code>03</code> FR-PST-03</li>
@@ -8590,7 +8735,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><code>12</code> 故障注入：后处理中 <code>kill -9</code>、用户取消、磁盘写满、ffmpeg 崩溃、输出被外部篡改，全部可恢复且无损坏。</li>
 <li>日志/事件中出现 <code>task.postprocessing</code> → <code>task.completed</code> 的严格顺序。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0012-PostProcessor本地文件契约.md</code></div></article><article class="doc" id="doc-adr-0013" data-slug="adr-0013"><div class="doc-head"><h1>ADR-0013 Resource 在 P0 一次性纳入多文件输出与协议身份字段</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed（<strong>本项目最高优先级的设计约束</strong>）</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联</strong>：<code>05</code> §3、<code>06</code> §3/§4、<code>07</code> §5.3、<code>14</code> R-01、<code>16</code> §4</li>
@@ -8614,7 +8759,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
    Stream: variant_id, is_adaptive</code></li>
 <li><strong>所有敏感身份只存引用</strong>：passkey / RSA 私钥 / 积分文件 / 凭据一律存钥匙串或 0600 文件，DB 与日志只存 <code>*_ref</code>（<code>11</code> §3）。</li>
 <li><code>Engine</code> 保留 <code>go | byo_adapter</code> 用于<strong>任务级</strong>路由（不是协议级混用），默认值 <code>go</code>。</li>
-<li><strong>P0 未通过 <code>Resource</code> 评审不得启动 P1</strong>（<code>14</code> §3 关键路径）。</li>
+<li><strong>P0 未通过 <code>Resource</code> 评审不得启动 P1</strong>（<code>14</code> §3 关键路径；该门禁已于 2026-11-09 满足，见 <code>14</code> §10/§11）。</li>
 </ol>
 <h2 id="h-adr-0013--_3">备选方案</h2>
 <table>
@@ -8649,7 +8794,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><code>06</code> §6 脱敏规则静态检查：DB 中不存在 passkey / cookie / session 明文字段。</li>
 <li>PR 若修改 <code>Resource</code> 结构，必须同时更新 <code>05</code>/<code>06</code>/<code>07</code> 与追踪矩阵，否则 CI 拒绝合入（<code>15</code> §2）。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0013-Resource协议身份字段一次性建模.md</code></div></article><article class="doc" id="doc-adr-0014" data-slug="adr-0014"><div class="doc-head"><h1>ADR-0014 插件引擎 goja 起步，wazero/Extism 提供可选硬隔离</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组 + 安全</li>
 <li><strong>关联</strong>：<code>08</code>、<code>11</code> §5、<code>10</code> §3</li>
@@ -8701,7 +8846,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><code>12</code> 安全用例集：插件死循环、越权访问 <code>fs</code>/<code>env</code>、白名单外请求、私网 URL、超大响应，全部被拦截或超时终止。</li>
 <li>官方规则包签名校验失败时拒绝加载，本地开发需显式 <code>--insecure-plugins</code>。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0014-插件引擎goja起步.md</code></div></article><article class="doc" id="doc-adr-0015" data-slug="adr-0015"><div class="doc-head"><h1>ADR-0015 状态用 SQLite（modernc，纯 Go），凭据存系统钥匙串</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组 + 安全</li>
 <li><strong>关联</strong>：<code>06</code>、<code>11</code> §3、<code>13</code> §8</li>
@@ -8754,7 +8899,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>全量扫描 DB、日志、事件、REST 响应，无 <code>cookie|authorization|passkey|session</code> 明文（<code>11</code> §9）。</li>
 <li><code>12</code> 发布门禁校验 <code>app_meta.schema_version</code> 迁移链与回滚脚本。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0015-SQLite与系统钥匙串.md</code></div></article><article class="doc" id="doc-adr-0016" data-slug="adr-0016"><div class="doc-head"><h1>ADR-0016 核心为 daemon，UI 用 Flutter/Tauri 且可替换</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组 + 客户端</li>
 <li><strong>关联</strong>：<code>04</code> §3.2/§7、<code>07</code>、<code>13</code> §6、OPEN-02</li>
@@ -8766,7 +8911,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>核心为<strong>常驻 Go daemon</strong>，通过 REST + WebSocket（可选 JSON-RPC）对外暴露；UI / CLI / 浏览器扩展 / AriaNg 都是可替换客户端。</li>
 <li>桌面：daemon 进程 + UI 客户端，本机回环监听（<code>127.0.0.1:0</code> 随机端口 + 本地发现文件），<strong>不占用固定 6800 端口</strong>；远程访问需显式开启 + token。</li>
 <li>移动端：核心<strong>以库形式链接进 App（同进程、不派生子进程）</strong>，UI 直连内部接口；禁用所有 sidecar。</li>
-<li>UI 框架候选 <strong>Flutter</strong>（一套覆盖 Win/macOS/Linux/Android/iOS/Web，Gopeed 已验证）或 <strong>Tauri</strong>（更轻）；最终定档为 <code>OPEN-02</code>，P0 结束前决定。<strong>框架选择不得影响核心 API 契约</strong>。</li>
+<li>UI 框架候选 <strong>Flutter</strong>（一套覆盖 Win/macOS/Linux/Android/iOS/Web，Gopeed 已验证）或 <strong>Tauri</strong>（更轻）；最终定档为 <code>OPEN-02</code>，P0 结束前决定（已于 2026-11-09 定档 <strong>Flutter</strong>，见 <code>14</code> §7 / <code>17</code> §8）。<strong>框架选择不得影响核心 API 契约</strong>。</li>
 <li>对外接口可对齐 aria2 RPC 以复用生态（L1，见 ADR-0019），但那是<strong>控制面兼容</strong>，与 P2P 线协议无关。</li>
 </ol>
 <h2 id="h-adr-0016--_3">备选方案</h2>
@@ -8805,7 +8950,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>移动端产物中无 daemon 可执行文件、无 sidecar（<code>12</code> 发布门禁）。</li>
 <li><code>CGO_ENABLED=0</code> 六平台 + gomobile 构建通过。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0016-Daemon加可替换UI.md</code></div></article><article class="doc" id="doc-adr-0017" data-slug="adr-0017"><div class="doc-head"><h1>ADR-0017 P2P 保持诚实 PeerID，不承诺私有 tracker 准入</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed（需产品 + 法务会签）</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组 + 产品 + 法务</li>
 <li><strong>关联</strong>：<code>11</code> §7、<code>16</code> §4/§5/§7、<code>03</code> FR-INT-03/04/06</li>
@@ -8858,7 +9003,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>全量日志/事件扫描无 passkey 明文（<code>11</code> §9）。</li>
 <li>发布前由产品/法务对照 <code>16</code> §7 逐条检查对外文案并签字。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0017-P2P诚实身份与PT非承诺.md</code></div></article><article class="doc" id="doc-adr-0018" data-slug="adr-0018"><div class="doc-head"><h1>ADR-0018 微信能力单独分发、默认不安装</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed（需法务独立评审）</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组 + 法务 + 产品</li>
 <li><strong>关联</strong>：<code>09</code> §2、<code>11</code> §7、<code>14</code> WBS 18 / R-13</li>
@@ -8911,7 +9056,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>法务逐条审阅平台条款并签字；<code>16</code> §7 规定主包功能列表不得列出该能力。</li>
 <li>不提供任何 DRM 规避能力，安全评审列入 <code>11</code> §7 检查。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0018-微信能力隔离为可选插件.md</code></div></article><article class="doc" id="doc-adr-0019" data-slug="adr-0019"><div class="doc-head"><h1>ADR-0019 RPC 兼容分 L0/L1/L2 三档，P0/P1 停在 L0</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：Proposed</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组 + 产品</li>
 <li><strong>关联</strong>：<code>07</code> §5、<code>14</code> WBS 17 / OPEN-04、ADR-0003</li>
@@ -8990,7 +9135,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li>若启用 L1：<code>12</code> §6 以 AriaNg 为套件跑通全部交互；<code>07</code> §5.4 选项翻译表逐项有测试。</li>
 <li>发布产物中始终不含 <code>aria2c</code> 二进制（SBOM 校验）。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0019-P0不实现aria2-RPC兼容层.md</code></div></article><article class="doc" id="doc-adr-0020" data-slug="adr-0020"><div class="doc-head"><h1>ADR-0020 P0 实现基线与范围声明</h1><div class="doc-meta"></div></div><ul>
-<li><strong>状态</strong>：<code>Proposed</code>（随 P0 里程碑一并评审）</li>
+<li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
 <li><strong>决策者</strong>：架构组</li>
 <li><strong>关联需求与文档</strong>：<code>03</code> §7/§8、<code>04</code> §11、<code>05</code> §12、<code>06</code> §10、<code>07</code> §8、<code>10</code> §7、<code>11</code> §10、<code>12</code> §9、<code>13</code> §12、<code>14</code> §9、<code>15</code> §10/§11、<code>CHANGELOG.md</code> <code>0.1.0</code></li>
@@ -9049,7 +9194,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <li><code>tasks.input</code> 落库前经 <code>RedactURL</code>，但进程内存仍持有未脱敏原始输入（功能必需），靠「不写日志 / 不进事件 / 不进响应」约束。</li>
 <li><code>security.allowLoopbackForDev</code> 是显式降级开关，仅允许与回环监听组合；公网目标仍走完整白名单。</li>
 <li>非回环监听仅 Bearer 鉴权，无 TLS / 用户体系 / Origin 校验，须置于受控网络或反向代理之后。</li>
-<li>最小 UI 是契约验证占位件，OPEN-02（Flutter vs Tauri）保持未决。</li>
+<li>最小 UI 是契约验证占位件；OPEN-02 当时未决（2026-11-09 已定档 Flutter，见文末「评审后状态更新」）。</li>
 </ol>
 <h3 id="h-adr-0020--4">4. 变更同步规则</h3>
 <p>任何代码更新必须同时：① 写入根目录 <a href="#/changelog"><code>CHANGELOG.md</code></a> 的对应分组；② 同步受影响的 <code>docs/</code> 文档（版本/状态头 + 变更说明）；③ 若触及架构约束，更新本 ADR 或新增 ADR；④ 跑 <code>python3 tools/build_docs.py</code> 重建门户并用 <code>--check</code> 校验 0 断链。此规则已固化为 <code>15</code> §10。</p>
@@ -9087,9 +9232,9 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 <h2 id="h-adr-0020--_4">后果（正面 / 负面 / 后续动作）</h2>
 <p><strong>正面</strong>：规范与实现可逐条对齐；评审有明确的「已完成 / 有意不做」清单；后来者不会把范围外能力误判为缺陷；所有偏差都有测试或静态守卫兜底。</p>
 <p><strong>负面</strong>：P0 产物不能作为面向终端用户的完整下载器交付；凭据不跨重启会实际影响体验；文档需要长期维护「目标 vs 现状」双层表述。</p>
-<p><strong>后续动作（P1 优先队列）</strong>：OS 钥匙串适配器 + 凭据跨重启；<code>events</code> 保留期清理与 <code>chunks</code> 批量刷盘聚合；慢启动动态扩连；<code>POST /tasks</code> 响应内嵌 <code>Resource</code> 预览；<strong>8 个包的覆盖率补测并把 <code>gates.py --strict</code> 接入 CI</strong>；L4 互操作与千兆内网性能基准；OPEN-01 许可证定档、OPEN-02 UI 定档；P0 里程碑正式评审。</p>
+<p><strong>后续动作（P1 优先队列）</strong>：OS 钥匙串适配器 + 凭据跨重启；<code>events</code> 保留期清理与 <code>chunks</code> 批量刷盘聚合；慢启动动态扩连；<code>POST /tasks</code> 响应内嵌 <code>Resource</code> 预览；<strong>8 个包的覆盖率补测并把 <code>gates.py --strict</code> 接入 CI</strong>；L4 互操作与千兆内网性能基准；（OPEN-01 许可证、OPEN-02 UI 与 P0 里程碑正式评审均已于 2026-11-09 完成，见文末「评审后状态更新」）。</p>
 <blockquote>
-<p><strong>2026-11-09 评审准备轮更新</strong>：CycloneDX SBOM / <code>go mod verify</code> / 许可证扫描 / <code>govulncheck</code> / 覆盖率报告 / 回环吞吐回归基线 / 备份回滚演练已由 <code>make gates</code> 落地并接入 CI，不再是 P1 待办；首次扫描发现并修复 Go 1.27.2 的 <code>GO-2026-6809</code>（工具链升 1.27.3）。评审材料见 <a href="#/doc-17">17</a>，本 ADR 状态仍为 <code>Proposed</code>，随 P0 里程碑一并评审。</p>
+<p><strong>2026-11-09 评审准备轮更新</strong>：CycloneDX SBOM / <code>go mod verify</code> / 许可证扫描 / <code>govulncheck</code> / 覆盖率报告 / 回环吞吐回归基线 / 备份回滚演练已由 <code>make gates</code> 落地并接入 CI，不再是 P1 待办；首次扫描发现并修复 Go 1.27.2 的 <code>GO-2026-6809</code>（工具链升 1.27.3）。评审材料见 <a href="#/doc-17">17</a>；本 ADR 已于 2026-11-09 随 P0 里程碑评审转为 <code>Accepted</code>。</p>
 </blockquote>
 <h2 id="h-adr-0020--_5">合规与验证（如何证明决策被遵守）</h2>
 <table>
@@ -9163,9 +9308,21 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html" target
 </tr>
 </tbody>
 </table>
-<p><strong>评审门禁</strong>：本 ADR 与 <code>14</code> §9 一并提交 P0 里程碑评审；评审通过前，按 <code>14</code> §3 不得启动 P1。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0020-P0实现基线与范围声明.md</code></div></article><article class="doc" id="doc-root-readme" data-slug="root-readme"><div class="doc-head"><h1>Universal Downloader（通用下载器）</h1><div class="doc-meta"></div></div><p>跨平台的统一下载引擎：把 <strong>BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信</strong> 等来源，收敛到一条流水线、一个调度器、一份状态。</p>
+<p><strong>评审门禁</strong>：本 ADR 与 <code>14</code> §9 已于 2026-11-09 通过 P0 里程碑评审（结论「有条件通过」），<code>14</code> §3 的 P1 门禁随之解除，排期见 <code>14</code> §11。</p>
+<h2 id="h-adr-0020--2026-11-09">评审后状态更新（2026-11-09）</h2>
 <blockquote>
-<p><strong>当前阶段：P0 骨架已落地（v0.1.0，2026-11-08），评审门禁证据已备齐（2026-11-09），待里程碑评审签署。</strong>
+<p>本节记录 P0 里程碑评审后的状态变化；上文「已知限制」「后续动作」保留 P0 编码完成时的快照，不改写历史 ADR 正文。</p>
+</blockquote>
+<ul>
+<li><strong>本 ADR 状态</strong>：<code>Proposed</code> → <code>Accepted</code>（<code>17</code> §7 批量决议，索引升 v0.3）。</li>
+<li><strong>OPEN-01</strong>：定档 <strong>MPL-2.0</strong>，根目录 <code>LICENSE</code> 已入库，<code>10</code> §4 合规矩阵同步；分发须随附 <code>LICENSE</code> 与 <code>THIRD_PARTY_NOTICES.md</code>。</li>
+<li><strong>OPEN-02</strong>：定档 <strong>Flutter</strong>；最小 UI 仍为 <code>go:embed</code> 占位件，正式 UI 不进入 P1（WBS 7–11）编码范围。</li>
+<li><strong>P0 里程碑评审</strong>：结论「有条件通过」，由项目发起人全权批准（<code>17</code> §1）；<code>14</code> §3 的 P1 门禁解除，排期见 <code>14</code> §11。</li>
+<li><strong>仍未完成</strong>：8 个包的覆盖率补测与 <code>gates.py --strict</code> 接入 CI，作为「有条件通过」的附加条件，须在 P1 首个 PR 合入前完成；本 ADR「已知限制」的其余条目（OS 钥匙串适配器、<code>events</code> 清理、批量刷盘、慢启动、L4 互操作、千兆内网基准）仍有效。</li>
+<li><strong><code>v0.1.0</code> 附注标签</strong>：已打并同步 GitHub。</li>
+</ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>docs/adr/ADR-0020-P0实现基线与范围声明.md</code></div></article><article class="doc" id="doc-root-readme" data-slug="root-readme"><div class="doc-head"><h1>Universal Downloader（通用下载器）</h1><div class="doc-meta"></div></div><p>跨平台的统一下载引擎：把 <strong>BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信</strong> 等来源，收敛到一条流水线、一个调度器、一份状态。</p>
+<blockquote>
+<p><strong>当前阶段：P0 里程碑评审已「有条件通过」并打 <code>v0.1.0</code> 附注标签（2026-11-09），P1 已解锁。</strong> 覆盖率仍有 8 个包低于阈值，作为附加条件在 P1 首个 PR 前补齐；详见 <a href="#/doc-17"><code>docs/17</code></a> 与 <a href="#/doc-14"><code>docs/14</code> §11</a>。
 仓库已包含可运行的 Go 代码：一条 HTTP(S) 直链能走完 <code>Resolver → Resource → Transport → PostProcessor → Store</code> 全流水线。
 <strong>P0 不是功能完整版</strong>——BT/ed2k/FTP/站点解析/插件/sidecar/L1 RPC facade 均未实现，详见 <a href="#/adr-0020">ADR-0020</a> 与 <a href="#/changelog">更新日志</a>。</p>
 </blockquote>
@@ -9298,7 +9455,7 @@ go run ./cmd/udctl show &lt;id&gt;
 <td><a href="#/doc-14"><code>docs/14-项目计划与风险管理.md</code></a></td>
 </tr>
 <tr>
-<td>查 P0 评审要签什么、还差什么</td>
+<td>查 P0 评审结论、签署与附加条件</td>
 <td><a href="#/doc-17"><code>docs/17-P0里程碑评审材料.md</code></a></td>
 </tr>
 <tr>
@@ -9319,12 +9476,12 @@ go run ./cmd/udctl show &lt;id&gt;
 <ol>
 <li><code>MemoryCredentialStore</code> 是进程内参考实现，<code>mem://</code> 引用在 daemon 重启后失效；OS 钥匙串适配器待 P1。</li>
 <li>非回环监听必须配置 <code>remoteToken</code>（否则拒绝启动），且目前只有 Bearer 鉴权，无 TLS / Origin 校验。</li>
-<li><code>postProcess</code> 只支持 <code>none</code>；最小 UI 是契约验证占位件（OPEN-02 Flutter vs Tauri 未决）。</li>
+<li><code>postProcess</code> 只支持 <code>none</code>；最小 UI 是契约验证占位件（OPEN-02 已定档 Flutter，正式 UI 不进入 P1 编码范围）。</li>
 <li>CycloneDX SBOM / <code>govulncheck</code> / 许可证扫描 / 覆盖率报告 / 回滚演练已由 <code>make gates</code> 执行；但<strong>覆盖率仍有 8 个包低于阈值</strong>，互操作套件与千兆内网性能基准未执行，不等价于发布门禁全绿（见 <code>docs/17</code> §3/§5）。</li>
 </ol>
 <p>完整清单见 <a href="#/doc-11"><code>docs/11</code> §10</a> 与 <a href="#/doc-14"><code>docs/14</code> §9</a>。</p>
 <h2 id="h-root-readme--_4">许可证</h2>
-<p>代码许可证待立项确定（建议 MPL-2.0 或 Apache-2.0 以匹配主要依赖）；文档采用 CC-BY-4.0。依赖许可证矩阵见 <code>docs/10-技术选型与依赖清单.md</code>，P0 实际锁定依赖见其 §7。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>README.md</code></div></article></div></main>
+<p><strong>代码：MPL-2.0</strong>（2026-11-09 定档，见 <a href="LICENSE"><code>LICENSE</code></a>）；<strong>文档：CC-BY-4.0</strong>。发布二进制须随附 <code>LICENSE</code> 与 <code>THIRD_PARTY_NOTICES.md</code>，修改过的 MPL 文件按 MPL-2.0 提供并记录修改清单。依赖许可证矩阵见 <code>docs/10-技术选型与依赖清单.md</code> §4，P0 实际锁定依赖见其 §7。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-09 · 源文件 <code>README.md</code></div></article></div></main>
 </div>
 <script>
 const ALIASES = {"01-项目章程": "doc-01", "02-术语表": "doc-02", "03-需求规格说明书-srs": "doc-03", "04-架构设计说明书-sad": "doc-04", "05-详细设计说明书-lld": "doc-05", "06-数据模型与存储设计": "doc-06", "16-互操作性与兼容性设计": "doc-16", "07-接口规范-api": "doc-07", "08-扩展与插件开发规范": "doc-08", "09-sidecar与外部依赖契约": "doc-09", "10-技术选型与依赖清单": "doc-10", "11-安全与合规设计": "doc-11", "12-测试策略与测试计划": "doc-12", "13-构建发布与运维": "doc-13", "14-项目计划与风险管理": "doc-14", "15-开发规范与协作流程": "doc-15", "17-p0里程碑评审材料": "doc-17", "adr-readme": "adr-index", "adr-adr-0001-核心语言选择go": "adr-0001", "adr-adr-0002-统一流水线与单调度器": "adr-0002", "adr-adr-0003-完全移除aria2二进制": "adr-0003", "adr-adr-0004-bt引擎选用anacrolix-torrent": "adr-0004", "adr-adr-0005-ed2k引擎选用goed2k": "adr-0005", "adr-adr-0006-metalink纯go解析": "adr-0006", "adr-adr-0007-迅雷链接仅解码不支持p2sp": "adr-0007", "adr-adr-0008-sidecar边界与最小集合": "adr-0008", "adr-adr-0009-telegram改用gotd-td": "adr-0009", "adr-adr-0010-视频站双层解析策略": "adr-0010", "adr-adr-0011-ffmpeg降级为可选后处理插件": "adr-0011", "adr-adr-0012-postprocessor本地文件契约": "adr-0012", "adr-adr-0013-resource协议身份字段一次性建模": "adr-0013", "adr-adr-0014-插件引擎goja起步": "adr-0014", "adr-adr-0015-sqlite与系统钥匙串": "adr-0015", "adr-adr-0016-daemon加可替换ui": "adr-0016", "adr-adr-0017-p2p诚实身份与pt非承诺": "adr-0017", "adr-adr-0018-微信能力隔离为可选插件": "adr-0018", "adr-adr-0019-p0不实现aria2-rpc兼容层": "adr-0019", "adr-adr-0020-p0实现基线与范围声明": "adr-0020"};

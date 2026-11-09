@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+> 本段内容已随 `v0.1.0` 附注标签（2026-11-09 评审闭环提交）发布；自该标签起暂无新变更，
+> P1 变更将记入新版本段。标签 message 附本文件摘要。
+
+
 ### Security
 - **Go 工具链升至 1.27.3**：`govulncheck` 首次扫描发现 `GO-2026-6809`——Go 1.27.2 标准库
   `crypto/x509`「Distrust compromised intermediate certificates」，本项目调用链
@@ -22,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **代码许可证 `LICENSE`（MPL-2.0 全文）**：OPEN-01 于 2026-11-09 定档，来源为 GitHub 官方许可证文本；分发须随附 `LICENSE` 与 `THIRD_PARTY_NOTICES.md`，修改过的 MPL 文件按 MPL-2.0 提供并记录修改清单（`docs/10` §4）。文档仍为 CC-BY-4.0。
 - **P0 里程碑评审门禁链** `tools/gates.py` + `make gates`：六项可复跑门禁（覆盖率阈值、
   CycloneDX SBOM、许可证扫描、`govulncheck`、HTTP 回环吞吐基准、备份/回滚演练），
   机器可读证据统一落在 `dist/gates.json`，Markdown 汇总为 `dist/GATES.md`。
@@ -42,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **P0 里程碑评审闭环（2026-11-09，「有条件通过」）**：项目发起人全权批准并代行五个签署角色；
+  ADR 0001–0020 全部由 `Proposed` 转 `Accepted`（索引 v0.3）、OPEN-01 定档 MPL-2.0、OPEN-02 定档 Flutter；
+  `docs/17` 结论/签署/决策/评审后动作、`docs/14` §7/§9/§10 与新增 §11（P1 启动顺序）、`docs/README` v0.6、
+  `docs/03` §10、`docs/10` §4、`docs/11` §10、ADR-0013/0016/0020、根 `README.md` 全部同步；
+  文档门户状态首页「已决定」由 1 篇升至 23 篇（41 篇 0 断链）；`v0.1.0` 附注标签已打，`14` §3 的 P1 门禁解除。
+  覆盖率 8 个包未达标作为附加条件延后至 P1 首个 PR 前，当前 WARN 不记作通过。
 - **Go module 路径与仓库地址统一为 `github.com/asdfgh129/ud`**：首次推送 GitHub 时把 `go.mod`、
   全部 Go import、`Makefile` 的 `-X` 链接参数、`tools/check_arch.py` / `tools/gates.py` 的
   `MODULE` 常量、CHANGELOG 版本比较/发布链接同步为实际仓库地址；`docs/_site/index.html`
@@ -67,12 +78,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   被误标为「已决定」；现在只取括号前的主状态词。
 
 P0 全部构建批次（含收尾修复与文档同步）仍汇总于下方 `0.1.0`；P1 待办见 `ADR-0020` 与 `docs/14` §9/§10。
-**未决**：P0 里程碑尚未评审签署，ADR 0001–0020 仍为 `Proposed`，按 `docs/14` §3 不得启动 P1；
-覆盖率仍有 8 个包低于阈值，详见 `docs/17` §5。
+**P0 里程碑评审决议（2026-11-09，随 `v0.1.0` 发布）**：结论「**有条件通过**」，由项目发起人一次性全权批准并代行五个签署角色；
+ADR 0001–0020 全部转 `Accepted`；OPEN-01 定档 **MPL-2.0**（`LICENSE` 已入库）、OPEN-02 定档 **Flutter**；
+`v0.1.0` 附注标签已打，`14` §3 的 P1 门禁解除（`14` §11 给出 WBS 7–11 启动顺序）。
+**附加条件**：覆盖率仍有 8 个包低于阈值，P1 首个 PR 前须补齐并把 `gates.py --strict` 接入 CI；当前 WARN 不记作通过。详见 `docs/17` §1/§5/§7/§8/§9。
 
 ## [0.1.0] - 2026-11-08
 
-P0 骨架首个可运行基线：一条 HTTP(S) 直链走完 `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。本条目汇总同日的多个构建批次（骨架 → 控制面 → 冒烟 → 测试门禁 → 安全加固 → 文档同步），尚未打 tag。
+P0 骨架首个可运行基线：一条 HTTP(S) 直链走完 `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。本条目汇总 2026-11-08 的多个构建批次（骨架 → 控制面 → 冒烟 → 测试门禁 → 安全加固 → 文档同步）与 2026-11-09 的评审门禁收尾、里程碑决议（见上方 `[Unreleased]` 段，已随本标签发布），**2026-11-09 打 `v0.1.0` 附注标签**。
 
 ### Added
 - **工程骨架**：Go 模块、`Makefile`（lint / test / build / docs / sbom）、GitHub Actions CI、
@@ -101,7 +114,7 @@ P0 骨架首个可运行基线：一条 HTTP(S) 直链走完 `Resolver → Resou
 - **控制面 `internal/api` + `internal/app` + `cmd/`**：`07` §2 的 L0 REST 端点（创建/列表/详情/选项/暂停/恢复/取消/删除/批量、
   `/resolve`、`/capabilities`、`/config` GET+PATCH、`/stats`、`/healthz`、`/credentials`、幂等键、游标分页、统一错误码），
   WebSocket 事件推送（`07` §4）、Bearer 鉴权、`udd` daemon（随机端口 + 本地发现文件，不占 6800）、
-  `udctl` CLI 的 P0 子集、以及单文件 Web 最小 UI（WBS 6，仅用于验证契约，可替换，OPEN-02 保持未决）。
+  `udctl` CLI 的 P0 子集、以及单文件 Web 最小 UI（WBS 6，仅用于验证契约，可替换；OPEN-02 当时保持未决，2026-11-09 已定档 Flutter）。
 - **文档**：`CHANGELOG.md`（本文件，Keep a Changelog 1.1.0 + SemVer 格式），以 `@root:CHANGELOG.md` 登记进 `tools/build_docs.py` 的 `GROUPS`，slug `changelog`，可在 `docs/_site/index.html` 门户中检索。
 - **架构决策**：`ADR-0020-P0实现基线与范围声明.md`，归档三处规范修正、两处未定义细节与 P0 范围外能力清单；ADR 索引时间线补充该节点。
 - **测试门禁**：`tools/check_arch.py` 6 条架构守卫、CI 工作流、竞态检测与 P0 契约/集成测试矩阵（见 `docs/12` §9）。
