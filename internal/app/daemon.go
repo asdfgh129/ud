@@ -24,7 +24,9 @@ import (
 	"github.com/asdfgh129/ud/internal/security"
 	"github.com/asdfgh129/ud/internal/store"
 	"github.com/asdfgh129/ud/internal/transport"
+	ftptransport "github.com/asdfgh129/ud/internal/transport/ftp"
 	httptransport "github.com/asdfgh129/ud/internal/transport/http"
+	sftptransport "github.com/asdfgh129/ud/internal/transport/sftp"
 	"github.com/asdfgh129/ud/internal/version"
 )
 
@@ -39,7 +41,20 @@ func newBuiltinResolvers(guard core.URLGuard) *resolve.Registry {
 	r.Register(resolve.NewMetalinkResolver(guard))
 	r.Register(resolve.NewWrapperResolver(guard))
 	r.Register(resolve.NewDirectHTTP(guard))
+	r.Register(resolve.NewDirectFile(guard))
 	r.Register(resolve.Unsupported{})
+	return r
+}
+
+// newBuiltinTransports wires the byte movers. HTTP stays first so the
+// capabilities list is stable for existing clients (scheduler/extra_test.go).
+// FTP/FTPS and SFTP were added in P1 WBS 9; both need the credential store
+// because plaintext secrets must never be carried by a Resource.
+func newBuiltinTransports(guard core.URLGuard, creds core.CredentialStore) *transport.Registry {
+	r := transport.NewRegistry()
+	r.Register(httptransport.New(guard))
+	r.Register(ftptransport.New(guard, creds))
+	r.Register(sftptransport.New(guard, creds))
 	return r
 }
 
@@ -135,8 +150,7 @@ func Run(ctx context.Context, opts Options) error {
 	creds := security.NewMemoryCredentialStore()
 
 	resolvers := newBuiltinResolvers(guard)
-	transports := transport.NewRegistry()
-	transports.Register(httptransport.New(guard))
+	transports := newBuiltinTransports(guard, creds)
 	postprocs := postproc.NewRegistry()
 
 	sch, err := scheduler.New(scheduler.Options{

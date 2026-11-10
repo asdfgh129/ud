@@ -16,6 +16,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Security
+- **FTP 被动数据通道 SSRF 防护（WBS 9）**：EPSV/PASV 响应由服务器给出第二个 socket 地址，
+  控制连接的 DNS pin 覆盖不到。新增 `security.SSRFGuard.DialDataContext` / `CheckDataAddr`，
+  强制：数据地址为字面 IP（无二次 DNS）、必须等于已校验的控制连接 IP、仍过当前私网/保留
+  地址策略、端口 ≥ 1024（防止被导向同主机的特权服务）；任一不满足即
+  `E_RESOLVE_SSRF_BLOCKED` fail closed。`jlaffaye/ftp` 保持 `DialWithTrustPasvIP(false)`，
+  PASV 里注入 `169.254.169.254` 的投毒回环用例可复跑验证。
+- **SFTP 主机密钥强制 pin**：凭据必须含 `host_key`（authorized_keys 行）或
+  `host_key_fingerprint`（`SHA256:...`），缺失即在握手前拒绝；不提供任何跳过校验的开关。
+  内嵌 URL 凭据、控制字符与 `..` 路径段在 `ParseTarget` 处拒绝（FTP 命令注入 / 路径穿越）。
+- **`golang.org/x/crypto` 升至 v0.58.0（合入前拦截）**：本地以真实 `govulncheck`
+  复扫发现 WBS 9 初选的 v0.54.0 存在 `GO-2026-6355` / `GO-2026-6354` 两条
+  `ssh` 通道死锁 DoS，且调用链 `sftp.realDial → ssh.NewClientConn` 可达；官方修复版本
+  为 v0.56.0，本项目直接 pin 到已通过校验的 v0.58.0。复扫 `No vulnerabilities found`，
+  `make gates-strict` 6 PASS / 0 WARN / 0 FAIL。残余 `GO-2026-5932` 只涉及未被引用的
+  `x/crypto/openpgp`（已停止维护），不影响本项目调用链，登记为已知残余风险（`11` §10）。
+- **供应链门禁真实性**：SBOM 只扫描实际链接进二进制的模块（16 个 → 含 WBS 9 新增
+  `jlaffaye/ftp` ISC、`pkg/sftp` BSD-2-Clause、`kr/fs` BSD-3-Clause、`golang.org/x/crypto`
+  BSD-3-Clause），`licenses` 复跑 0 copyleft / 0 unknown；`go mod verify` 通过。
 - **Go 工具链升至 1.27.3**：`govulncheck` 首次扫描发现 `GO-2026-6809`——Go 1.27.2 标准库
   `crypto/x509`「Distrust compromised intermediate certificates」，本项目调用链
   `store.WholeFileChecksum → io.Copy → x509.Certificate.Verify` 可达。已同步 `go.mod`、
@@ -26,6 +44,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **P1 WBS 9：FTP / FTPS / SFTP Transport（2026-11-10）**：序 3 交付，前置 `10` 许可证检查
+  与 `11` 安全检查均已通过，4 个新链接模块全部为 ISC / BSD，0 copyleft、0 未识别。
+  - `internal/transport/ftp`：基于 `jlaffaye/ftp` v0.2.4 的 `core.Transport`。
+    `ftp://` 明文；`ftps://` 默认 990 为隐式 TLS，`ftps://host:21/...` 走 RFC 4217
+    `AUTH TLS` 显式升级；`REST` 偏移续传，`SIZE` 探测，每个镜像在使用时重过 SSRF Guard。
+    **控制与被动数据连接共用 `DialWithDialFunc`**，使数据通道规则可强制执行。
+  - `internal/transport/sftp`：基于 `pkg/sftp` v1.13.12 + `golang.org/x/crypto/ssh` v0.58.0。
+    `ReadAt` 随机读、`Stat` 探测、按 `ChunkWriter` 分片写回；主机密钥按凭据 pin，
+    支持密码 / 私钥（含 passphrase）两种认证。
+  - `internal/transport/tputil`：共享的凭据解析（`core.CredentialRef` → JSON）、
+    `ParseTarget` 目标校验、分片驱动循环、Budget 计费与错误分类；会话并发上限 8。
+  - `internal/resolve/direct_file.go`：`DirectFile` Resolver 把 `ftp/ftps/sftp` 直链
+    归为单文件 `Resource`（此前 `ParseInput` 已分类为 `InputURL`，但落到 `Unsupported`）；
+    与 `DirectHTTP` 共用 `newDirectResource`，不改动 ADR-0013 冻结的 `Resource` 结构。
+  - `internal/app/daemon.go`：`newBuiltinTransports()` 固定注册顺序
+    `http → ftp → sftp`（capabilities 列表向后兼容），Resolver 链加入 `direct-file`。
+  - 凭据经 `POST /api/v1/credentials` 的 `{"value": "<JSON 字符串>"}` 写入，任务用
+    `credentialRef` 引用。JSON 字段：`username`、`password`、`private_key`、
+    `passphrase`、`host_key`、`host_key_fingerprint`；FTP 无 ref 时走匿名登录。
+  - 回环集成测试起真实 FTP 与 SSH+SFTP 服务端，验证 probe / 分片下载 / PASV 投毒 /
+    错误主机密钥拒绝；新增 4 个测试文件，13 个门禁包全部达标
+    （`transport/ftp` 83.3%、`transport/sftp` 83.5%、`tputil` 90.0%）。
+- **门禁新增 3 个受控包**：`tools/gates.py:THRESHOLDS` 纳入 `internal/transport/ftp`、
+  `internal/transport/sftp`、`internal/transport/tputil`（各 ≥ 80%），新 Transport 不得
+  低于既有门槛合入。
 - **P1 WBS 8：链接封装解码与 Metalink 解析（2026-11-10）**：新增两个安全敏感的内置
   Resolver，纯 Go、零 cgo、零网络 I/O——只描述 `Resource`，不解包任何字节。
   - `internal/resolve/wrapper.go`：`WrapperResolver` 实现 `thunder://` / `flashget://` /
@@ -111,6 +154,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   「不包含」清单移出（它们属构建期门禁工具，不是产品能力）。
 
 ### Fixed
+- `tools/gates.py:build_sbom()` 增加二进制与模块图一致性校验：SBOM 版本取自 `dist/`
+  内二进制的 `go version -m`，而许可证原文读的是**当前**模块缓存；依赖升级后若未先
+  `make build`，会产出「旧版本号 + 新许可证」的混合证据却仍报 PASS。现逐模块比对，
+  不一致即 `sbom` FAIL 并提示先 `make build`（已用 v0.54.0 → v0.58.0 实测触发并修复）。
+- `tools/gates.py` 的 SBOM 门禁改为「对实际链接模块逐个查询」而非 `go list -m -json all`：
+  后者会遍历第三方库的**测试专用**传递依赖（testify / x/net / x/term / x/text 等），
+  本地代理受限时报 502 直接 FAIL，即使二进制与供应链证据都完整。
+- `sbom` 门禁失败时，`licenses` 不再读取上一轮遗留的 `dist/sbom.cdx.json` 报 PASS，
+  改为显式 FAIL；符合 gates.py 自身「不得静默声称成功」的设计规则。
 - Metalink 清单声明的 `crc32` 等不支持算法曾被静默忽略（等于绕过完整性校验）；现在解析期
   以 `E_INVALID_INPUT` 明确拒绝；`<hash>` 省略 `@type` 时按 SHA-256 处理。
 - `Digest: sha-256=<64 位 hex>` 会被当作合法 base64 先解成 48 字节而报错；改为先尝试长度

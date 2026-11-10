@@ -1,6 +1,6 @@
 # 03 软件需求规格说明书（SRS）
 
-> 文档编号：UD-DOC-03 ｜ 版本：v0.2 ｜ 状态：草案（P0 追踪矩阵已补全，待评审） ｜ 日期：2026-11-08 ｜ 上游：`01`、`adr/`
+> 文档编号：UD-DOC-03 ｜ 版本：v0.3 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 8/9 已补记，待评审） ｜ 日期：2026-11-10 ｜ 上游：`01`、`adr/`
 
 ## 1. 引言
 
@@ -181,6 +181,16 @@
 | FR-RSV-03 thunder/flashget/qqdl 仅解码 | `08` §6 / ADR-0007 | `wrapper_test.go`：`TestWrapperDecodesAllThreeFormats`、`TestWrapperRejectsMalformedInput`、`TestWrapperPropagatesSSRFBlock` | ✅ |
 | FR-RSV-04 Metalink v3/v4 + RFC 6249 | `08` §7 / ADR-0006 | `metalink_test.go`：`TestMetalinkV4ProducesCompleteResource`、`TestMetalinkV3Dialect`、`TestMetalinkRFC6249Headers`、`TestMetalinkXMLSecurityLimits` | ✅（多 `<file>` 与远端清单抓取为显式不支持） |
 | FR-TRN-02 分片与整文件校验 | `06` §4 / ADR-0006 | `store/checksum_test.go`：`TestWholeFileChecksumAlgo`、`TestVerifyPieceChecksums` | ✅（md5 / sha-1 / sha-256 / sha-512） |
+
+**P1 WBS 9 追踪矩阵补记（2026-11-10）**：本节只记录已落地部分，不代表 P1 全部完成。
+
+| 需求 | 设计文档 | 自动化用例 | 结果 |
+|---|---|---|---|
+| FR-TRN-04 FTP / FTPS / SFTP | `10` §8 / `11` §2–§3 | `transport/ftp/integration_test.go::TestRealFTPClientRoundTrip`（EPSV + PASV 投毒）、`transport/sftp/integration_test.go::TestRealSSHAndSFTPRoundTrip` / `TestRealSFTPRejectsWrongHostKey` | ✅（主动模式、连接池、公网互操作矩阵未覆盖） |
+| FR-RSV-02 输入归一（文件 scheme） | `05` §2 | `resolve/direct_file_test.go::TestParseInputClassifiesFileSchemesAsURL`、`TestDirectFileResolvesAllThreeSchemes` | ✅ |
+| NFR-SEC-01 SSRF（数据通道） | `11` §2 | `security/ftp_guard_test.go::TestCheckDataAddr`、`TestDialDataContextFailsClosedBeforeDialing` | ✅ |
+| NFR-SEC-02 凭据不落库 / host key pin | `11` §3 | `transport/tputil/tputil_test.go::TestLoadCredentialAnonymousAndStrict`、`transport/sftp/sftp_test.go::TestHostKeyCallbackFailsClosed` | ✅ |
+| NFR-PORT-01 纯 Go 六平台 | `13` §1/§2 | `make build`（12 个二进制，新增 4 个 ISC/BSD 链接模块）；`check_arch.py` 守卫 2/5 | ✅ |
 
 > **§9 验收准则的 P0 边界**：准则 1 的「无空格」在 P0 仅对上表 P0 行成立；准则 2/4 的 `12` 发布门禁、互操作全矩阵、SBOM 与 `go version -m` 一致性尚未执行（P1+）。准则 3 法务签字未进行。详见 `14` §9 与 `ADR-0020`。
 

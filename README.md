@@ -2,13 +2,19 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（首个 PR 覆盖率债清零已完成）。** 全仓覆盖率 59.0% → 80.1%，10 个门禁包全部达标，`make gates-strict` 已接入 CI；详见 [`docs/17`](docs/17-P0里程碑评审材料.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
-> 仓库已包含可运行的 Go 代码：一条 HTTP(S) 直链能走完 `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8、WBS 9 已交付）。** 13 个门禁包全部达标，`make gates-strict` 已接入 CI；详见 [`docs/17`](docs/17-P0里程碑评审材料.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链能走完
+> `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P1 WBS 8 已交付（2026-11-10）**：`thunder://` / `flashget://` / `qqdl://` 解码与 Metalink
 > v3/v4 + RFC 6249 清单解析已作为**内置、纯 Go、零网络 I/O** 的 Resolver 落地，含逐 URL
 > SSRF 校验与按清单算法的整文件/逐片哈希校验。明确边界：多 `<file>` 清单、远端 `.meta4`
 > 抓取、迅雷 P2SP / 高速通道 / 离线下载均**不支持**。
-> **P0 不是功能完整版**——BT/ed2k/FTP/站点解析/插件/sidecar/L1 RPC facade 均未实现，详见
+> **P1 WBS 9 已交付（2026-11-10）**：FTP / FTPS（隐式与 `AUTH TLS` 显式）/ SFTP
+> 三个 Transport 落地，纯 Go、零 cgo、零新增 sidecar；FTP 被动数据连接逐条过 SSRF 数据通道
+> 规则，SFTP 主机密钥必须 pin。凭据经 `POST /api/v1/credentials` 写入后以 `credentialRef`
+> 引用，明文不进 URL / 数据库 / 日志 / 事件。**P1 首版每个分片独立建会话（并发上限 8）**，
+> 连接池与 FTPS 数据通道 TLS session 复用属后续优化；不承诺完整 FTP/SFTP 生态。
+> **P0 不是功能完整版**——BT/ed2k/站点解析/插件/sidecar/L1 RPC facade 均未实现，详见
 > [ADR-0020](docs/adr/ADR-0020-P0实现基线与范围声明.md) 与 [更新日志](CHANGELOG.md)。
 
 ## 三条不可动摇的架构原则
@@ -53,10 +59,12 @@ go run ./cmd/udctl show <id>
 |---|---|
 | `internal/core` | 冻结的 `Resource` 全字段模型、Task 状态机、错误码、ULID、事件总线、全部契约接口（零实现依赖） |
 | `internal/config` | YAML/环境变量配置、校验、运行时 `PATCH /config` 管理器 |
-| `internal/security` | SSRF Guard、PathGuard、脱敏、`CredentialStore` 的进程内参考实现 |
+| `internal/security` | SSRF Guard（含 FTP 被动数据通道规则）、PathGuard、脱敏、`CredentialStore` 的进程内参考实现 |
 | `internal/store` | SQLite DDL v1（11 表）、Resource 规范化存取、分片真值表、按清单算法的整文件/逐片校验、崩溃恢复、备份 |
-| `internal/resolve` | 内置 Resolver 注册链：Metalink v3/v4 + RFC 6249、thunder/flashget/qqdl 解码、HTTP(S) 直链、`Unsupported` 兜底（安全敏感内置优先） |
+| `internal/resolve` | 内置 Resolver 注册链：Metalink v3/v4 + RFC 6249、thunder/flashget/qqdl 解码、HTTP(S) 与 FTP(S)/SFTP 直链、`Unsupported` 兜底（安全敏感内置优先） |
 | `internal/transport/http` | Range 分段 / 无 Range 退化 / 重定向逐跳 / 重试 / 分片 sha256 |
+| `internal/transport/ftp` · `sftp` | FTP/FTPS（隐式 + 显式 TLS、REST 续传、被动数据通道 SSRF pin）与 SFTP（host key pin、ReadAt 随机读） |
+| `internal/transport/tputil` | 三个传输共享的凭据 / 目标校验 / 分片循环 / Budget 计费 |
 | `internal/postproc` | ADR-0012 本地文件契约的 P0 `none` 直通实现 |
 | `internal/scheduler` | 唯一调度器、唯一 Limiter、ChunkWriter、清单 piece 长度锁定分片边界、原子提交 |
 | `internal/api` · `internal/app` | L0 REST + WebSocket、daemon 装配、嵌入式最小 UI |

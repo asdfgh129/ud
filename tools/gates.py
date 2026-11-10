@@ -40,8 +40,10 @@ ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 MODULE = "github.com/asdfgh129/ud"
 
-# docs/12 §1/§8 (v0.3 统一口径): core / security >= 90%, 其余 P0 关键路径包
-# >= 80%. Packages with no production logic (cmd/*, internal/version) are
+# docs/12 §1/§8 (v0.3 统一口径): core / security >= 90%, 其余关键路径包
+# >= 80%. P1 WBS 9 added the FTP / SFTP movers and their shared tputil helper
+# to the gated set; a new transport must not ship below the same bar. Packages
+# with no production logic (cmd/*, internal/version, internal/transport) are
 # reported but not gated. WARN is a real gap, never a silent pass.
 THRESHOLDS = {
     "internal/core": 90.0,
@@ -49,6 +51,9 @@ THRESHOLDS = {
     "internal/store": 80.0,
     "internal/scheduler": 80.0,
     "internal/transport/http": 80.0,
+    "internal/transport/ftp": 80.0,
+    "internal/transport/sftp": 80.0,
+    "internal/transport/tputil": 80.0,
     "internal/api": 80.0,
     "internal/config": 80.0,
     "internal/postproc": 80.0,
@@ -159,17 +164,25 @@ def gate_cover() -> dict:
 
 # --------------------------------------------------------------------------- sbom
 
-def module_stream() -> list[dict]:
-    cp = run(["go", "list", "-m", "-json", "all"], check=True)
-    text, dec, out = cp.stdout, json.JSONDecoder(), []
-    i = 0
-    while i < len(text):
-        while i < len(text) and text[i].isspace():
-            i += 1
-        if i >= len(text):
-            break
-        obj, i = dec.raw_decode(text, i)
-        out.append(obj)
+def module_stream(paths: list[str]) -> list[dict]:
+    """Metadata for the modules LINKED into the binary, not the whole graph.
+
+    `go list -m -json all` walks every transitive dependency including the
+    test-only dependencies of third-party libraries (testify, x/net, ...).
+    Those never appear in the binary but still have to be downloadable, which
+    makes the SBOM gate fail in an offline/limited-proxy build even when the
+    actual artifact is complete. Asking for the linked modules one by one uses
+    only what `go build` already put in the module cache.
+    """
+    out = []
+    for path in paths:
+        cp = run(["go", "list", "-m", "-json", path])
+        if cp.returncode != 0:
+            continue
+        try:
+            out.append(json.loads(cp.stdout))
+        except json.JSONDecodeError:
+            continue
     return out
 
 
@@ -250,11 +263,25 @@ def detect_license(module_dir: str | None) -> tuple[str, str, str]:
 
 def build_sbom() -> dict:
     DIST.mkdir(parents=True, exist_ok=True)
-    modules = module_stream()
+    linked, binary = linked_modules()
+    modules = module_stream([dep["path"] for dep in linked])
     (DIST / "module-graph.json").write_text(
         json.dumps(modules, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     by_path = {m.get("Path"): m for m in modules}
-    linked, binary = linked_modules()
+    # The SBOM describes whatever `go version -m` finds in dist/, while the
+    # license text is read from the *current* module cache. After a dependency
+    # bump, a stale binary would therefore emit an artifact mixing the old
+    # version with the new license. Refuse instead of silently claiming
+    # success (docs/12 §8 "never silently pass").
+    stale = []
+    for dep in linked:
+        want = by_path.get(dep["path"], {}).get("Version")
+        if want and want != dep["version"]:
+            stale.append(f"{dep['path']}: binary {dep['version']} vs go.mod {want}")
+    if stale:
+        raise RuntimeError(
+            "stale dist/ binary, run `make build` before `make gates` ("
+            + "; ".join(stale) + ")")
     sums = go_sum_hashes()
 
     components = []
@@ -445,8 +472,17 @@ def main() -> int:
 
     if args.command == "all":
         results = []
+        sbom_failed = False
         for name, fn in GATES.items():
-            r = fn()
+            if name == "licenses" and sbom_failed:
+                # Never let a downstream gate claim success from an artifact
+                # left over by an earlier run (docs/12 §8 "never silently pass").
+                r = {"gate": "licenses", "status": "FAIL",
+                     "reason": "SBOM could not be regenerated; refusing to scan a stale artifact"}
+            else:
+                r = fn()
+            if r["gate"] == "sbom" and r["status"] == "FAIL":
+                sbom_failed = True
             results.append(r)
             print(f"[{r['status']:4}] {name:9} {r['reason']}")
             if r.get("detail"):

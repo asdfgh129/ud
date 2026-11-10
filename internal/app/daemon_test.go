@@ -240,7 +240,7 @@ func TestNewLoggerLevels(t *testing.T) {
 // actually reach its own Resolver through the daemon's chain.
 func TestBuiltinResolverChainOrderAndDispatch(t *testing.T) {
 	r := newBuiltinResolvers(allowGuard{})
-	want := []string{"metalink", "link-wrapper", "direct-http", "unsupported"}
+	want := []string{"metalink", "link-wrapper", "direct-http", "direct-file", "unsupported"}
 	if got := r.Names(); !reflect.DeepEqual(got, want) {
 		t.Fatalf("resolver order = %v, want %v", got, want)
 	}
@@ -270,6 +270,44 @@ func TestBuiltinResolverChainOrderAndDispatch(t *testing.T) {
 		t.Fatalf("unsupported must stay last and classify P1 inputs, got %v", err)
 	}
 }
+
+// WBS 9 regression: the byte movers are registered in a stable order and the
+// FTP/SFTP transports receive the same credential store as the scheduler.
+func TestBuiltinTransportChainOrder(t *testing.T) {
+	creds := &noopCreds{}
+	r := newBuiltinTransports(allowGuard{}, creds)
+	want := []string{"http", "ftp", "sftp"}
+	if got := r.Names(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("transport order = %v, want %v", got, want)
+	}
+	for _, tc := range []struct {
+		raw  string
+		name string
+	}{
+		{"https://example.com/a.iso", "http"},
+		{"ftp://example.com/a.iso", "ftp"},
+		{"ftps://example.com/a.iso", "ftp"},
+		{"sftp://example.com/a.iso", "sftp"},
+	} {
+		tr, err := r.Select(&core.Resource{Mirrors: []core.Mirror{{URL: tc.raw}}})
+		if err != nil || tr.Name() != tc.name {
+			t.Errorf("Select(%q) = %v, %v; want %q", tc.raw, tr, err, tc.name)
+		}
+	}
+	if _, err := r.Select(&core.Resource{Mirrors: []core.Mirror{{URL: "file:///etc/passwd"}}}); core.AsError(err).Code != core.E_CAPABILITY_UNAVAILABLE {
+		t.Fatalf("unsupported scheme must fail cleanly, got %v", err)
+	}
+}
+
+type noopCreds struct{}
+
+func (noopCreds) Get(context.Context, core.CredentialRef) (string, error) {
+	return "", errors.New("no credentials in this test")
+}
+func (noopCreds) Put(context.Context, string) (core.CredentialRef, error) {
+	return "mem://x", nil
+}
+func (noopCreds) Delete(context.Context, core.CredentialRef) error { return nil }
 
 func TestIsLoopbackListen(t *testing.T) {
 	cases := map[string]bool{

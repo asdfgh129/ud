@@ -1,6 +1,7 @@
 package resolve
 
 import (
+	"context"
 	"net/url"
 	"strings"
 
@@ -32,10 +33,26 @@ func (d *DirectHTTP) Resolve(ctx core.ResolveContext, in core.Input) (*core.Reso
 	}
 	// SSRF Guard validates scheme/port/IP and pins DNS before any connection.
 	if d.guard != nil {
-		if err := d.guard.Check(ctx.Ctx, in.Raw); err != nil {
+		if err := d.guard.Check(guardContext(ctx), in.Raw); err != nil {
 			return nil, err
 		}
 	}
+	return newDirectResource(ctx, in, u), nil
+}
+
+// guardContext keeps nil ResolveContext.Ctx (a legitimate caller shortcut)
+// from reaching the DNS resolver, which requires a non-nil context.
+func guardContext(ctx core.ResolveContext) context.Context {
+	if ctx.Ctx != nil {
+		return ctx.Ctx
+	}
+	return context.Background()
+}
+
+// newDirectResource builds the common single-file Resource for a direct URL.
+// Shared by DirectHTTP (P0) and DirectFile (P1 WBS 9); the Resource shape is
+// frozen by ADR-0013, so new protocols must NOT add fields here.
+func newDirectResource(ctx core.ResolveContext, in core.Input, u *url.URL) *core.Resource {
 	name := filenameFromURL(u)
 	return &core.Resource{
 		ID:     "res-" + string(core.NewID()),
@@ -49,11 +66,13 @@ func (d *DirectHTTP) Resolve(ctx core.ResolveContext, in core.Input) (*core.Reso
 		Credential: ctx.Credential,
 		Identity:   core.ProtocolIdentity{},
 		Limits:     core.TaskLimits{},
-	}, nil
+	}
 }
 
 // Unsupported is registered LAST. It gives a readable, phase-aware reason for
-// every input class P0 does not implement (FR-RSV-02), instead of a silent nil.
+// every input class not yet implemented (FR-RSV-02), instead of a silent nil.
+// The implemented set grew in P1: HTTP(S) (WBS 2), Metalink + link wrappers
+// (WBS 8) and FTP / FTPS / SFTP direct URLs (WBS 9).
 type Unsupported struct{}
 
 func (Unsupported) Name() string          { return "unsupported" }
@@ -76,5 +95,6 @@ func (Unsupported) Resolve(_ core.ResolveContext, in core.Input) (*core.Resource
 		p = "后续里程碑"
 	}
 	return nil, core.Err(core.E_CAPABILITY_UNAVAILABLE,
-		"P0 只实现 HTTP(S) 直链；输入类别 %q 计划在 %s 接入", in.Kind, p)
+		"当前已实现 HTTP(S) / FTP(S) / SFTP 直链、Metalink 与链接封装；输入类别 %q 计划在 %s 接入",
+		in.Kind, p)
 }
