@@ -1,7 +1,13 @@
 # 文档总览与文档控制
 
-> 文档编号：UD-DOC-00 ｜ 版本：v0.9 ｜ 状态：**草案（P0 已通过有条件评审；ADR 集已批准，其余文档待逐篇评审）** ｜ 日期：2026-11-10 ｜ 维护责任：架构组
+> 文档编号：UD-DOC-00 ｜ 版本：v1.0 ｜ 状态：**草案（P0 已通过有条件评审；ADR 集已批准，其余文档待逐篇评审）** ｜ 日期：2026-11-10 ｜ 维护责任：架构组
 
+> **v1.0 变更**：P1 WBS 7（BT / 磁力 Transport）落地，§三「当前态口径」更新为
+> **14 个门禁包 / 86 个链接模块 / `make gates-strict` 6 PASS / 0 WARN / 0 FAIL / 已交付 WBS 8/9/7**；
+> 同步 `03` v0.4 §8 追踪矩阵补记、`10` §4/§8.1 MPL 修改清单、`11` §7.1 BT 安全控制、
+> `12` v0.8 测试用例与阈值、`14` §11 序 4、`16` §4、`README`、`CHANGELOG`。
+> `17` 与 ADR-0020 仍保留 P0 评审证据原值不改。门户 `docs/_site/index.html` 已重建。
+>
 > **v0.9 变更**：仅文档口径校准，不改代码与已签署结论。§三 新增「当前态口径（唯一速查）」
 > （13 个门禁包 / 16 个链接模块 / `make gates-strict` 6 PASS / 0 WARN）；
 > `10` v0.5 把 §7 的「12 个链接模块」标注为 P0 时点值并补 WBS 9 后的 16 个；
@@ -121,10 +127,11 @@ graph TD
 
 | 项 | 当前值 | 权威来源 |
 |---|---|---|
-| 已交付 | P0 有条件通过（附加条件已关闭）、P1 WBS 8 / WBS 9 | `CHANGELOG.md`、`14` §11 |
-| 受门禁包 | **13 个**（WBS 9 新增 `transport/ftp` / `sftp` / `tputil`） | `tools/gates.py:THRESHOLDS`、`12` §9 |
-| 链接模块 | **16 个**，0 copyleft / 0 未识别 | `dist/sbom.cdx.json`、`10` §8 |
+| 已交付 | P0 有条件通过（附加条件已关闭）、P1 WBS 8 / WBS 9 / **WBS 7（BT / 磁力）** | `CHANGELOG.md`、`14` §11 |
+| 受门禁包 | **14 个**（WBS 9 新增 `transport/ftp` / `sftp` / `tputil`；WBS 7 新增 `transport/bt` 80.8%） | `tools/gates.py:THRESHOLDS`、`12` §9 |
+| 链接模块 | **86 个**，0 copyleft / 0 未识别（含 `anacrolix/torrent` v1.62.0 全量传递依赖） | `dist/sbom.cdx.json`、`10` §8.1 |
 | 严格门禁 | `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**（本机与 CI 一致） | `dist/gates.json`、`.github/workflows/ci.yml` |
+| 下一个工作包 | 序 5 / WBS 10 插件引擎（goja / manifest / SSRF Guard / 规则热更新） | `14` §11 |
 
 > **时点区分**：`17`、ADR-0020 以及 `12` v0.4/v0.5 说明中的「10 个门禁包 /
 > 12 个链接模块 / 5 PASS / 1 WARN / 4 PASS / 2 WARN」均为 **2026-11-09/10 P0 评审时点快照**，
@@ -176,6 +183,7 @@ python3 tools/build_docs.py --check   # 只校验，不写文件（用于 CI 门
 | v0.7 | 2026-11-10 | P1 WBS 8（链接封装解码 + Metalink 纯 Go 解析）落地，同步 6 篇规范文档与 ADR 实现落地段 | 架构组 |
 | v0.8 | 2026-11-10 | P1 WBS 9（FTP / FTPS / SFTP Transport）落地，同步 6 篇规范文档、ADR-0020 与根文档；补齐漏记的 v0.6/v0.7 变更行 | 架构组 |
 | v0.9 | 2026-11-10 | 文档口径校准：§三 新增「当前态口径（唯一速查）」，统一当前态为 13 个门禁包 / 16 个链接模块 / `make gates-strict` 6 PASS；`10` v0.5、`12` v0.7、`13` v0.4、`14` v0.8、`17` v0.3 与 ADR-0020 补时点标注，已签署评审证据不改写 | 架构组 |
+| v1.0 | 2026-11-10 | P1 WBS 7（BT / 磁力 Transport + MPL-2.0 合规）落地：§三 当前态更新为 14 个门禁包 / 86 个链接模块 / 6 PASS / 0 WARN / 0 FAIL / 已交付 WBS 8/9/7；同步 `03` §8 追踪矩阵、`10` MPL 修改清单、`11` §7.1、`12` 阈值与用例、`14` §11、`16` §4；门户重建 | 架构组 |
 
 ## 七、P0 实现基线索引（代码 ↔ 文档）
 

@@ -1,6 +1,9 @@
 # 03 软件需求规格说明书（SRS）
 
-> 文档编号：UD-DOC-03 ｜ 版本：v0.3 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 8/9 已补记，待评审） ｜ 日期：2026-11-10 ｜ 上游：`01`、`adr/`
+> 文档编号：UD-DOC-03 ｜ 版本：v0.4 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9 已补记，待评审） ｜ 日期：2026-11-10 ｜ 上游：`01`、`adr/`
+>
+> **v0.4 变更**：P1 WBS 7（BT / 磁力）落地，§8 新增「P1 WBS 7 追踪矩阵补记」表。
+> §7 里程碑表与 P0 追踪矩阵保持历史排期原值不改；真实公网 BT 互操作矩阵（L4）仍为 WBS 11 待办。
 
 ## 1. 引言
 
@@ -191,6 +194,20 @@
 | NFR-SEC-01 SSRF（数据通道） | `11` §2 | `security/ftp_guard_test.go::TestCheckDataAddr`、`TestDialDataContextFailsClosedBeforeDialing` | ✅ |
 | NFR-SEC-02 凭据不落库 / host key pin | `11` §3 | `transport/tputil/tputil_test.go::TestLoadCredentialAnonymousAndStrict`、`transport/sftp/sftp_test.go::TestHostKeyCallbackFailsClosed` | ✅ |
 | NFR-PORT-01 纯 Go 六平台 | `13` §1/§2 | `make build`（12 个二进制，新增 4 个 ISC/BSD 链接模块）；`check_arch.py` 守卫 2/5 | ✅ |
+
+**P1 WBS 7 追踪矩阵补记（2026-11-10）**：本节只记录已落地部分，不代表 P1 全部完成；真实公网
+BT 客户端互操作矩阵（`12` §3.1 BT-01…BT-14）仍为 WBS 11 待办，当前证据为回环 fixture。
+
+| 需求 | 设计文档 | 自动化用例 | 结果 |
+|---|---|---|---|
+| FR-RSV-01 接受 magnet / `.torrent` raw·base64·本地文件 | ADR-0004 / `05` §2 | `magnet_test.go::TestMagnetResolverResolve` / `TestMagnetResolverMatch`；`torrent_test.go::TestTorrentResolverRawBencode` / `TestTorrentResolverBase64` / `TestTorrentResolverLocalFile` / `TestTorrentResolverRejectsRemoteURL` | ✅（远端 `*.torrent` 显式能力错误） |
+| FR-RSV-02 输入归一（注册链） | `05` §2 / `14` §11 序 4 | `app/daemon_test.go::TestBuiltinResolverChainOrderAndDispatch`、`scheduler/extra_test.go::TestResolveOnlyUsesRegistry`、`resolve/resolve_test.go::TestUnsupportedIsPhaseAware` | ✅ |
+| FR-TRN-05 BT / 磁力、private flag、tracker、选择下载、做种策略 | ADR-0004 / ADR-0017 / `16` §2/§4 | `torrent_test.go::TestTorrentResolverPrivateFlag`；`bt_test.go::TestBuildSpec` / `TestPickInfoFileMulti`；`bt_cover_test.go::TestProbePureMagnetMetadata` / `TestProbePureMagnetNoInfohash` | ✅（DHT/PEX 对私有种子关闭；默认 `Seed=false`；不承诺 PT） |
+| FR-TRN-06 BT 流式读取 `File.NewReader` | ADR-0004 / `16` §2 | `bt_test.go::TestTransportLoopbackDownload`（bootstrap peer 回环真实协议下载）、`bt_cover_test.go::TestRunOutOfBoundsChunk` | ✅（anacrolix ↔ anacrolix 回环） |
+| FR-TRN-09 单调度器 / 统一 Budget | `04` §5 / ADR-0002 | `bt_cover_test.go::TestRunBuildSpecError`、`bt_test.go::TestBuildSpec`；`app/daemon_test.go::TestBuiltinTransportChainOrder` | ✅（字节经 `readWithBudget` 计费） |
+| FR-INT-03 private flag | `16` §3/§4 / `11` §7.1 | `bt_test.go::TestHonestPeerID`；`torrent_test.go::TestTorrentResolverPrivateFlag` | ✅（诚实 PeerID、禁 DHT/PEX/LSD） |
+| NFR-SEC-01 SSRF（tracker / bootstrap peer） | `11` §2/§7.1 | `magnet_test.go::TestMagnetResolverMissingInfohash`、`bt_cover_test.go::TestProbeInvalidEmbeddedMetainfo` / `TestProbeInvalidInfoDict` / `TestBuildSpecErrors` | ✅（畸形输入 fail closed） |
+| NFR-PORT-01 纯 Go 六平台 | `13` §1/§2 / `10` §8.1 | `make build`（12 个二进制）；`make gates-strict` 许可证 86 模块 0 copyleft / 0 未识别；`check_arch.py` 守卫 2/5 | ✅（MPL-2.0 修改清单为空） |
 
 > **§9 验收准则的 P0 边界**：准则 1 的「无空格」在 P0 仅对上表 P0 行成立；准则 2/4 的 `12` 发布门禁、互操作全矩阵、SBOM 与 `go version -m` 一致性尚未执行（P1+）。准则 3 法务签字未进行。详见 `14` §9 与 `ADR-0020`。
 

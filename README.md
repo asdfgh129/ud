@@ -2,8 +2,8 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8、WBS 9 已交付）。** 当前态：**13 个门禁包**全部达标、**16 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
-> 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链能走完
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / WBS 9 / WBS 7 已交付）。** 当前态：**14 个门禁包**全部达标、**86 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链与 BT / 磁力均能走完
 > `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P1 WBS 8 已交付（2026-11-10）**：`thunder://` / `flashget://` / `qqdl://` 解码与 Metalink
 > v3/v4 + RFC 6249 清单解析已作为**内置、纯 Go、零网络 I/O** 的 Resolver 落地，含逐 URL
@@ -14,9 +14,14 @@
 > 规则，SFTP 主机密钥必须 pin。凭据经 `POST /api/v1/credentials` 写入后以 `credentialRef`
 > 引用，明文不进 URL / 数据库 / 日志 / 事件。**P1 首版每个分片独立建会话（并发上限 8）**，
 > 连接池与 FTPS 数据通道 TLS session 复用属后续优化；不承诺完整 FTP/SFTP 生态。
-> **P0 不是功能完整版**——BT 已于 P1 WBS 7 实现（标准 BitTorrent 网络、公开 HTTP/UDP/HTTPS
-> tracker、magnet 经 BEP 9 取元数据，做种默认关闭、私有种子禁 DHT/PEX）；ed2k/站点解析/插件/sidecar/L1
-> RPC facade 仍为 P1/P3 目标，详见
+> **P1 WBS 7 已交付（2026-11-10）**：基于 `anacrolix/torrent v1.62.0` 的 BT / 磁力
+> Transport 落地（MPL-2.0，未修改任何 MPL 文件）；magnet 与 `.torrent`（raw / base64 /
+> 本地文件）作为内置 Resolver 接入，magnet 经 BEP 9 从直连对等点取元数据。做种默认关闭
+> （`Seed=false`）、私有种子强制禁 DHT/PEX、诚实 PeerID（`-UD0000-` 前缀）；`File.NewReader`
+> 流式拷回 `ChunkWriter` 并受统一 Budget 约束。明确边界：**不承诺 PT / 私有站准入**，
+> 真实公网 BT 客户端互操作矩阵属 WBS 11 待办，当前证据为回环 fixture。
+> **P0 不是功能完整版**——ed2k / 站点解析 / 插件 / sidecar / L1 RPC facade 仍为
+> P1/P3 目标，详见
 > [ADR-0020](docs/adr/ADR-0020-P0实现基线与范围声明.md) 与 [更新日志](CHANGELOG.md)。
 
 ## 三条不可动摇的架构原则
