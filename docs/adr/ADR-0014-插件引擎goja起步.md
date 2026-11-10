@@ -33,6 +33,37 @@
 
 **负面**：goja 的 ES5.1 限制需要宿主转译与文档约束；纯 JS 沙箱不如 WASM 硬隔离，因此第三方规则必须先过签名与静态扫描。
 
+## 实现落地（2026-11-10，P1 WBS 10）
+
+本 ADR 的**决策不变**；以下仅记录 `internal/plugin/` 的落地位置与落地时确认的能力边界（详见 `08` §10）。
+
+- `manifest.go`：`ud.plugin/v1` 清单严格校验（未知字段、入口路径、`match` 与内置哨兵冲突、
+  能力白名单、`allowedHosts` 必填、三类限额硬上限）。`fs` / `env` / `subprocess` 恒为禁用，
+  宿主不注入对应能力。
+- `scan.go`：ES5.1 静态扫描 + `export` 糖转严格 ES5 IIFE；注释/字符串/正则字面量先空白化
+  避免误报，`__proto__` / `constructor` 等危险成员另对原始源码复查。
+- `signature.go`：官方规则包 Ed25519 fail-closed 验签，
+  `payload = SHA256(canonicalManifestJSON || 0x00 || entryScriptBytes)`；
+  `--insecure-plugins` 仅本地开发可用且非回环监听时拒绝启动。
+- `runtime.go` / `http.go` / `resource.go`：每次解析新建 goja VM，`vm.Interrupt` 看门狗实现
+  `timeoutMs`；出网只经 `ctx.http.get`，每跳重定向重过白名单与共享 `security.SSRFGuard`；
+  产出 URL / 路径经 `URLGuard` / `PathGuard` 复核后收敛为冻结的 `core.Resource`。
+- `manager.go` / `fixture.go`：目录指纹热更新、原子快照、坏包保留上一可用版本、
+  `RULE_OUTDATED` 兜底；录制回放 fixture 全程离线。`Resolver` 注册链把插件置于通配
+  `direct-http` 之前，安全敏感内置（metalink / link-wrapper / magnet / torrent）仍优先，
+  满足「`Match()` 优先级恒低于安全敏感内置」的约束。
+- `cmd/udctl/plugin.go`：`scaffold|keygen|sign|verify|test|list` 六个离线子命令；
+  `config.PluginsConfig` 与 `udd --insecure-plugins` 提供规则通道配置。
+
+**落地时确认的能力边界（记录于此，避免被误读为完整实现）**：
+
+1. goja 是**软隔离**，没有 per-VM 堆上限；`memoryMB` 落实为宿主可见的响应 / 输出预算，
+   配合 `timeoutMs` 中断与调用栈上限，**不等价于 `wazero` / `Extism` 硬隔离**。
+   决策 5 的升级路径保留，本工作包未实现。
+2. 规则包只支持 ES5.1 + 宿主 `export` 糖；Node/Deno / 浏览器扩展脚本与现代 JS 语法不兼容。
+3. 未实现官方规则仓库与发布流水线、密钥轮换、规则失效遥测、插件 REST 管理端点、
+   `lux` / `yt-dlp` 兜底与真实站点规则；真实站点 L4 互操作矩阵属 WBS 11。
+
 ## 合规与验证
 
 - `08` §9 评审清单作为 PR 必查项；`11` §5 隔离规则纳入安全评审。

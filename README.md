@@ -2,7 +2,7 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / WBS 9 / WBS 7 已交付）。** 当前态：**14 个门禁包**全部达标、**86 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / WBS 9 / WBS 7 / WBS 10 已交付，P1 编码工作包序 1–5 全部完成）。** 当前态：**15 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
 > 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链与 BT / 磁力均能走完
 > `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P1 WBS 8 已交付（2026-11-10）**：`thunder://` / `flashget://` / `qqdl://` 解码与 Metalink
@@ -20,8 +20,15 @@
 > （`Seed=false`）、私有种子强制禁 DHT/PEX、诚实 PeerID（`-UD0000-` 前缀）；`File.NewReader`
 > 流式拷回 `ChunkWriter` 并受统一 Budget 约束。明确边界：**不承诺 PT / 私有站准入**，
 > 真实公网 BT 客户端互操作矩阵属 WBS 11 待办，当前证据为回环 fixture。
-> **P0 不是功能完整版**——ed2k / 站点解析 / 插件 / sidecar / L1 RPC facade 仍为
-> P1/P3 目标，详见
+> **P1 WBS 10 已交付（2026-11-10）**：基于 `goja` 的 ES5.1 插件规则引擎落地于
+> `internal/plugin/`——manifest 严格校验、静态扫描、Ed25519 规则包签名、能力裁剪
+> （`fs`/`env`/`subprocess` 默认禁用）、`ctx.http` 逐跳 SSRF Guard 与白名单、目录指纹热更新、
+> `RULE_OUTDATED` 兜底；`udctl plugin scaffold|keygen|sign|verify|test|list` 为离线工具链。
+> 规则包在 `direct-http` 之前接入 Resolver 链，安全敏感内置仍优先。明确边界：
+> goja 是**软隔离**（无 per-VM 堆上限），不承诺 WASM / Extism 硬隔离、Node/Deno 脚本兼容、
+> 官方规则仓库与真实站点规则包；插件 REST 管理端点未实现。
+> **P0 不是功能完整版**——ed2k / 真实站点规则包 / WASM 硬隔离 / sidecar / L1 RPC facade
+> 仍为 P1/P3 目标，详见
 > [ADR-0020](docs/adr/ADR-0020-P0实现基线与范围声明.md) 与 [更新日志](CHANGELOG.md)。
 
 ## 三条不可动摇的架构原则
@@ -60,7 +67,7 @@ go run ./cmd/udctl show <id>
 
 > 若默认 Go 模块代理不可达，可覆盖：`GOPROXY=https://goproxy.cn,direct make build`。
 
-## 代码地图（P0）
+## 代码地图（当前仓库）
 
 | 目录 | 职责 |
 |---|---|
@@ -75,6 +82,7 @@ go run ./cmd/udctl show <id>
 | `internal/postproc` | ADR-0012 本地文件契约的 P0 `none` 直通实现 |
 | `internal/scheduler` | 唯一调度器、唯一 Limiter、ChunkWriter、清单 piece 长度锁定分片边界、原子提交 |
 | `internal/api` · `internal/app` | L0 REST + WebSocket、daemon 装配、嵌入式最小 UI |
+| `internal/plugin` | WBS 10 规则通道：manifest 严格校验、ES5.1 静态扫描、Ed25519 签名、goja 运行时、能力裁剪 / 逐跳 SSRF、目录指纹热更新与离线回放；在通配 `direct-http` 之前接入注册链 |
 | `cmd/udd` · `cmd/udctl` | daemon 与 CLI 入口 |
 | `tools/` | `build_docs.py`（文档门户）、`check_arch.py`（架构守卫）、`gates.py`（评审门禁证据） |
 
@@ -100,6 +108,7 @@ go run ./cmd/udctl show <id>
 
 ## 明确的能力边界（写进产品文案）
 
+- ✅ **P1 WBS 10 已实现**：goja ES5.1 插件规则引擎（manifest 严格校验、Ed25519 签名、能力裁剪、逐跳 SSRF Guard、目录指纹热更新、`udctl plugin` 离线工具链、`RULE_OUTDATED` 兜底）；**软隔离**，不承诺 WASM / Extism 硬隔离、Node/Deno / 浏览器扩展脚本兼容、现代 JS 语法、官方规则仓库与真实站点规则包（L4 互操作矩阵属 WBS 11）。
 - ✅ **P1 WBS 7 已实现**：BT / 磁力链接下载（标准 BitTorrent 网络、公开 HTTP/UDP/HTTPS tracker、magnet 经 BEP 9 取元数据；做种默认关闭、私有种子禁 DHT/PEX、诚实 PeerID）；标准 eD2k 网络（线协议层）为 P3 目标，尚未实现。
 - ✅ **P0 已实现**：HTTP(S) 直链、Range 分段、断点续传、暂停/恢复/取消、崩溃恢复、全局限速、L0 REST/WS/CLI、最小 UI、六平台纯 Go 构建。
 - ❌ **不承诺**私有 tracker 准入、迅雷 P2SP/高速通道/离线下载、ed2k 下载速度、DRM 内容解析、100% aria2 RPC 兼容。

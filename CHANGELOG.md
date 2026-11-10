@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Security
+- **插件规则通道 fail-closed 安全边界（WBS 10）**：`capabilities.fs` / `env` / `subprocess`
+  默认禁用且宿主不注入任何对应能力；出网只允许 `ctx.http.get`，每次重定向逐跳重过
+  `allowedHosts` 白名单与共享 `security.SSRFGuard`，并强制 `timeoutMs` / `memoryMB` /
+  `maxResponseBytes` 硬上限与调用栈 / 输出体积限制。清单 `match` 正则命中 `thunder://` /
+  `flashget://` / `qqdl://` / `magnet:` / `ed2k://` / `file:` / raw bencode 等内置哨兵即拒绝，
+  防止插件抢在安全敏感内置之前；插件产出的一切 URL 与路径再经 `URLGuard` / `PathGuard` 复核。
+  官方规则包必须 Ed25519 验签，`verifySignature=false` 需显式 `insecure=true`（仅本地开发），
+  且 `insecure` 与非回环监听组合在配置校验阶段直接拒绝启动。
 - **FTP 被动数据通道 SSRF 防护（WBS 9）**：EPSV/PASV 响应由服务器给出第二个 socket 地址，
   控制连接的 DNS pin 覆盖不到。新增 `security.SSRFGuard.DialDataContext` / `CheckDataAddr`，
   强制：数据地址为字面 IP（无二次 DNS）、必须等于已校验的控制连接 IP、仍过当前私网/保留
@@ -44,6 +52,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **P1 WBS 10：插件引擎 / 规则通道 v1（2026-11-10）**：P1 序 5 交付，按 ADR-0014 与 `08`
+  落地 `internal/plugin/`（纯 Go、零 cgo、单二进制不变）；新增 `github.com/dop251/goja`
+  （MIT）及 3 个传递依赖，链接模块 86 → **90**，0 copyleft / 0 未识别，
+  `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**。
+  - `manifest.go`：`ud.plugin/v1` 清单严格校验——未知 JSON 字段拒绝、name/version/
+    apiVersion/type/runtime/entry 校验、`match` 正则与内置哨兵冲突检测、路径穿越与
+    非普通文件 / 超大文件拒绝、能力白名单、`allowedHosts` 必填、限额越界拒绝。
+  - `scan.go`：ES5.1 静态扫描（拒绝 `import` / `require` / `fetch` / `async` / `class` /
+    箭头函数 / 模板字符串 / `__proto__` 等），并把 `08` 的 `export` 糖改写为严格 ES5 IIFE；
+    注释、字符串与正则字面量先空白化以消除误报，危险成员名另对原始源码复查。
+  - `signature.go`：规则包 Ed25519 fail-closed 签名，
+    `payload = SHA256(canonicalManifestJSON || 0x00 || entryScriptBytes)`；写回清单时
+    保留作者原有 JSON 键、只设置 `signature`，避免规范化载荷漂移。
+  - `runtime.go`：每次解析新建 goja VM，仅注入获准的 `ctx.http` / `ctx.log` /
+    `ctx.base64` / `ctx.sha256`；`vm.Interrupt` 看门狗实现 `timeoutMs`、调用栈上限、
+    Go panic 回收与输出 JSON 限额；`RULE_OUTDATED` 转 `E_CAPABILITY_UNAVAILABLE`
+    并交由兜底 Resolver，**不静默丢弃任务**。
+  - `http.go`：唯一出网通道 `ctx.http.get(url, {headers})`；重定向手工跟进以逐跳校验
+    `allowedHosts` + `URLGuard.Check`，`Content-Length` / `io.LimitReader` /
+    `maxResponseBytes` 三重限额，敏感请求头、CRLF / NUL 与超量响应头拒绝。
+  - `resource.go`：把插件输出收敛为冻结的 `core.Resource`，校验文件/镜像数量、
+    路径（`PathGuard`）、负值与偏移、镜像 scheme / 白名单 / SSRF、摘要算法与 piece 数、
+    身份字段；插件无法设置 engine、凭据或任务状态。
+  - `manager.go`：独立规则通道热更新（根目录单包或每子目录一包）、目录指纹轮询、
+    原子快照切换、坏包拒绝并保留上一可用版本、`Watch(ctx)` 与失败回退；
+    `fixture.go` 提供录制回放 fixture，`udctl plugin test` 全程离线、不连真实站点。
+  - 配置与装配：`config.PluginsConfig`（`verifySignature` / `runtime` / `dir` /
+    `trustedKeys` / `insecure` / `reloadInterval`，含 `UD_PLUGINS_DIR`、
+    `UD_PLUGINS_RUNTIME`、`UD_PLUGINS_RELOAD_INTERVAL`、`UD_PLUGIN_KEYS`、
+    `UD_PLUGIN_INSECURE`）；`udd --insecure-plugins` 与 `udctl daemon --insecure-plugins`
+    仅供本地开发。Resolver 链固定为
+    `metalink → link-wrapper → magnet → torrent → [plugin] → direct-http → direct-file → unsupported`
+    （安全敏感内置优先；插件置于通配 `direct-http` 之前，否则站点规则不可达）。
+  - `cmd/udctl/plugin.go`：`udctl plugin scaffold|keygen|sign|verify|test|list` 六个
+    **离线**子命令，覆盖脚手架、密钥生成、签名 / 验签、录制回放与规则列表。
+  - 测试：新增 8 个 `internal/plugin/*_test.go`、`cmd/udctl/plugin_test.go`、
+    `internal/config/plugins_test.go` 与 `app/daemon_test.go` 规则通道用例，覆盖
+    ADR-0014 §7 全部安全用例（死循环超时强杀、fs/env 越权、白名单外请求、私网 URL、
+    超大响应、重定向跳板、签名篡改、match 冲突、输出 SSRF / 路径穿越）；
+    `internal/plugin` **88.4%**、`internal/app` **89.3%**，15 个门禁包全部达标，
+    `go test -race ./...` 与六平台 `make build` 全绿。
+  - **明确边界**：goja 是**软隔离**（无 per-VM 堆上限，靠宿主可见预算与中断），
+    不等价于 WASM / Extism 硬隔离；不承诺 Node/Deno / 浏览器扩展脚本兼容、现代 JS 语法、
+    官方规则仓库与密钥轮换、规则失效遥测、真实站点 L4 互操作矩阵（WBS 11）、
+    `lux` / `yt-dlp` 兜底与插件 REST 管理端点。
 - **P1 WBS 9：FTP / FTPS / SFTP Transport（2026-11-10）**：序 3 交付，前置 `10` 许可证检查
   与 `11` 安全检查均已通过，4 个新链接模块全部为 ISC / BSD，0 copyleft、0 未识别。
   - `internal/transport/ftp`：基于 `jlaffaye/ftp` v0.2.4 的 `core.Transport`。
@@ -143,6 +196,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **WBS 10 文档同步（2026-11-10）**：按「文档为唯一真值源」校准当前态——
+  `docs/README` v1.1 §三 当前态速查表更新为「已交付 WBS 8/9/7/10、15 个门禁包、
+  90 个链接模块、6 PASS / 0 WARN / 0 FAIL、下一个工作包 = 序 6 / WBS 11」，
+  §六 补 v1.1 行；`03` v0.5 §8 追踪矩阵补记、`05` v0.3 包结构与 Resolver 链、
+  `07` v0.3 CLI 子集（按实际 `udctl plugin` 六个离线子命令校正，
+  原设计稿的 `install/verify/list <path-or-url>` 未实现）、`08` v0.3 §10 实现落地、
+  `10` v0.7 §8.2 goja 依赖表、`11` v0.7 §5 插件隔离矩阵与 §10 残余风险、
+  `12` v0.9 用例与阈值、`13` v0.5 插件配置与环境变量、`14` v1.0 §11 序 5、
+  `16` v0.5 实现边界、ADR-0014 新增「实现落地」段（决策原文不改）。
+  `17` 与 ADR-0020 **只补时点口径声明**，「10 个门禁包 / 12 个链接模块 / 5 PASS / 1 WARN」
+  等已签署 P0 评审证据、以及 ADR-0020 的 P0「不包含」清单**原值不改**。
+  根 `README.md` 顶部当前态、WBS 10 交付段、代码地图与能力边界同步；
+  `docs/_site/index.html` 由 `tools/build_docs.py` 重建。
 - **WBS 7 文档收尾校准（2026-11-10，仅文档，不改代码）**：首个 WBS 7 提交遗漏了若干
   「当前态」口径点，本次补齐：`docs/README` §三 当前态速查表由「WBS 8/9、13 个门禁包、
   16 个链接模块」更新为「WBS 8/9/7、14 个门禁包、86 个链接模块」，并新增「下一个工作包

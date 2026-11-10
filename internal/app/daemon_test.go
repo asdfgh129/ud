@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -344,5 +345,127 @@ func TestIsLoopbackListen(t *testing.T) {
 		if got := isLoopbackListen(listen); got != want {
 			t.Errorf("isLoopbackListen(%q)=%v want %v", listen, got, want)
 		}
+	}
+}
+
+// WBS 10: plugin rules must sit after the security-sensitive built-ins but
+// before the generic direct-http fallback, otherwise DirectHTTP (which matches
+// every http(s) URL) would make site rules unreachable.
+type fakePluginResolver struct{}
+
+func (fakePluginResolver) Name() string          { return "plugin" }
+func (fakePluginResolver) Match(core.Input) bool { return false }
+func (fakePluginResolver) Resolve(core.ResolveContext, core.Input) (*core.Resource, error) {
+	return nil, core.Err(core.E_RESOLVE_FAILED, "not used")
+}
+
+func TestPluginResolverPlacementInChain(t *testing.T) {
+	r := newBuiltinResolvers(allowGuard{}, fakePluginResolver{}, nil)
+	want := []string{"metalink", "link-wrapper", "magnet", "torrent", "plugin",
+		"direct-http", "direct-file", "unsupported"}
+	if got := r.Names(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("resolver order = %v, want %v", got, want)
+	}
+	// A thunder:// input must still reach the built-in wrapper, never a plugin.
+	res, err := r.Resolve(core.ResolveContext{Ctx: context.Background(), Guard: allowGuard{}},
+		core.Input{Raw: "thunder://" + base64.StdEncoding.EncodeToString(
+			[]byte("AAhttps://mirror.example.com/a.isoZZ")), Kind: core.InputThunder})
+	if err != nil || len(res.Mirrors) != 1 {
+		t.Fatalf("built-in must win over plugin: %v %+v", err, res)
+	}
+}
+
+// WBS 10: exercise the optional rule-channel wiring inside Run so the daemon
+// startup path (signature keys, reload interval, Watch loop) stays covered.
+const testPluginManifest = `{
+  "name": "site.example",
+  "version": "1.0.0",
+  "apiVersion": "ud.plugin/v1",
+  "type": "resolver",
+  "runtime": "goja",
+  "entry": "index.js",
+  "match": ["^https?://example\\.com/video/"],
+  "capabilities": {
+    "http": { "allowedHosts": ["example.com"], "maxRedirects": 3 },
+    "fs": false, "env": false, "subprocess": false, "crypto": []
+  },
+  "limits": { "timeoutMs": 1000, "memoryMB": 8, "maxResponseBytes": 1048576 },
+  "author": "test", "license": "MIT"
+}
+`
+
+const testPluginScript = `export function resolve(url, ctx) {
+  return { files: [{ path: "a.bin" }], mirrors: [{ url: "https://example.com/a.bin" }] };
+}
+`
+
+func writeTestPluginChannel(t *testing.T, root string) string {
+	t.Helper()
+	dir := filepath.Join(root, "site.example")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "manifest.json"), []byte(testPluginManifest), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "index.js"), []byte(testPluginScript), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return root
+}
+
+func TestRunWithPluginRuleChannel(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	work := t.TempDir()
+	t.Chdir(work)
+	rules := writeTestPluginChannel(t, filepath.Join(work, "rules"))
+	cfgPath := filepath.Join(work, "config.yaml")
+	cfg := fmt.Sprintf("listen: \"127.0.0.1:0\"\ndownloadDir: %q\nplugins:\n  dir: %q\n  verifySignature: true\n  insecure: false\n  runtime: \"goja\"\n  reloadInterval: \"1s\"\n",
+		filepath.Join(work, "downloads"), rules)
+	if err := os.WriteFile(cfgPath, []byte(cfg), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	discovery := filepath.Join(work, "daemon.json")
+	h := startDaemon(t, Options{
+		ConfigPath: cfgPath, DiscoveryOverride: discovery,
+		DBPath: filepath.Join(work, "state.db"), InsecurePlugins: true,
+	})
+	if d := waitForDiscovery(t, discovery); d.Addr == "" {
+		t.Fatal("no discovery addr")
+	}
+	if err := h.stop(t); err != nil {
+		t.Fatalf("daemon with rule channel failed: %v", err)
+	}
+}
+
+func TestRunRejectsBadPluginConfiguration(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	work := t.TempDir()
+	t.Chdir(work)
+	rules := writeTestPluginChannel(t, filepath.Join(work, "rules"))
+	cases := []struct {
+		name string
+		yaml string
+		want string
+	}{
+		{"bad trusted key", fmt.Sprintf("downloadDir: %q\nplugins:\n  dir: %q\n  trustedKeys: [\"not-base64!!\"]\n", filepath.Join(work, "d"), rules), "trustedKeys"},
+		{"missing rule dir", fmt.Sprintf("downloadDir: %q\nplugins:\n  dir: %q\n", filepath.Join(work, "d"), filepath.Join(work, "missing")), "rule channel"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := filepath.Join(work, "cfg.yaml")
+			if err := os.WriteFile(cfg, []byte(tc.yaml), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			err := Run(context.Background(), Options{
+				ConfigPath: cfg, DBPath: filepath.Join(work, "state.db"),
+				DiscoveryOverride: filepath.Join(work, "discovery.json"),
+			})
+			if err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("want error containing %q, got %v", tc.want, err)
+			}
+		})
 	}
 }

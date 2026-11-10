@@ -18,6 +18,7 @@ import (
 	"github.com/asdfgh129/ud/internal/api"
 	"github.com/asdfgh129/ud/internal/config"
 	"github.com/asdfgh129/ud/internal/core"
+	"github.com/asdfgh129/ud/internal/plugin"
 	"github.com/asdfgh129/ud/internal/postproc"
 	"github.com/asdfgh129/ud/internal/resolve"
 	"github.com/asdfgh129/ud/internal/scheduler"
@@ -32,20 +33,28 @@ import (
 )
 
 // newBuiltinResolvers wires the P1 resolver chain. Order is a security
-// invariant (docs/05 §10, docs/08 §5): security-sensitive built-ins must be
-// registered before any plugin, and Unsupported must stay last so a broken
-// registration chain produces an explicit error instead of a silent nil.
-// Metalink and the link wrappers are pure parsers: they only describe a
-// Resource and never open a network connection. The BT magnet / .torrent
-// resolvers (WBS 7) are likewise pure parsers: they extract the infohash,
-// trackers and embedded metainfo into the frozen Resource identity and leave
-// all network I/O to the BT Transport.
-func newBuiltinResolvers(guard core.URLGuard) *resolve.Registry {
+// invariant (docs/05 §10, docs/08 §5): security-sensitive / protocol-specific
+// built-ins (Metalink, link wrappers, magnet, .torrent) are registered BEFORE
+// any plugin, and Unsupported stays LAST so a broken registration chain
+// produces an explicit error instead of a silent nil.
+//
+// WBS 10 nuance: a plugin rule must be consulted before `direct-http`, because
+// DirectHTTP matches every http(s) URL and is the generic fallback, not a
+// security-sensitive built-in. ADR-0014 §4 names thunder decoding, Metalink
+// and the SSRF Guard as the non-overridable set — all of those stay ahead of
+// plugins. Manifest.Validate additionally refuses match rules that could hit
+// those schemes, so a plugin can never shadow them even if the order changes.
+func newBuiltinResolvers(guard core.URLGuard, beforeDirect ...core.Resolver) *resolve.Registry {
 	r := resolve.NewRegistry()
 	r.Register(resolve.NewMetalinkResolver(guard))
 	r.Register(resolve.NewWrapperResolver(guard))
 	r.Register(resolve.NewMagnetResolver(guard))
 	r.Register(resolve.NewTorrentResolver(guard))
+	for _, x := range beforeDirect {
+		if x != nil {
+			r.Register(x)
+		}
+	}
 	r.Register(resolve.NewDirectHTTP(guard))
 	r.Register(resolve.NewDirectFile(guard))
 	r.Register(resolve.Unsupported{})
@@ -76,6 +85,9 @@ type Options struct {
 	// DiscoveryOverride redirects the local discovery file (used by tests so
 	// they never touch the user's real config directory).
 	DiscoveryOverride string
+	// InsecurePlugins is the CLI --insecure-plugins escape hatch for local
+	// rule development: it skips Ed25519 verification for this run only.
+	InsecurePlugins bool
 }
 
 // Discovery is the local discovery file written when listen uses port 0
@@ -128,10 +140,16 @@ func Run(ctx context.Context, opts Options) error {
 	if opts.LogLevel != "" {
 		cfg.LogLevel = opts.LogLevel
 	}
+	if opts.InsecurePlugins {
+		cfg.Plugins.Insecure = true
+	}
 	if err := cfg.Validate(); err != nil {
 		return fmt.Errorf("invalid config: %w", err)
 	}
 	log := newLogger(cfg.LogLevel)
+	if opts.InsecurePlugins {
+		log.Warn("plugin signature verification disabled (--insecure-plugins); local development only")
+	}
 
 	dbPath := opts.DBPath
 	if dbPath == "" {
@@ -158,7 +176,43 @@ func Run(ctx context.Context, opts Options) error {
 	mgr := config.NewManager(cfg, nil)
 	creds := security.NewMemoryCredentialStore()
 
-	resolvers := newBuiltinResolvers(guard)
+	// WBS 10: the rule channel is optional. With plugins.dir unset there is no
+	// plugin Resolver in the chain at all, so the P0/P1 behaviour is unchanged.
+	var pluginResolvers []core.Resolver
+	if cfg.Plugins.Dir != "" {
+		keys, err := plugin.ParsePublicKeys(cfg.Plugins.TrustedKeys)
+		if err != nil {
+			return fmt.Errorf("invalid plugins.trustedKeys: %w", err)
+		}
+		interval := 30 * time.Second
+		if cfg.Plugins.ReloadInterval != "" {
+			interval, err = time.ParseDuration(cfg.Plugins.ReloadInterval)
+			if err != nil {
+				return fmt.Errorf("invalid plugins.reloadInterval: %w", err)
+			}
+		}
+		pm, err := plugin.New(plugin.Options{
+			Dir:             cfg.Plugins.Dir,
+			TrustedKeys:     keys,
+			VerifySignature: cfg.Plugins.VerifySignature,
+			Insecure:        cfg.Plugins.Insecure,
+			Guard:           guard,
+			Logger:          log,
+			// RULE_OUTDATED must never silently drop a task (ADR-0014 §6).
+			Fallback:       resolve.NewDirectHTTP(guard),
+			ReloadInterval: interval,
+		})
+		if err != nil {
+			return fmt.Errorf("load plugin rule channel: %w", err)
+		}
+		go pm.Watch(ctx)
+		pluginResolvers = append(pluginResolvers, pm)
+		log.Info("plugin rule channel enabled", "dir", cfg.Plugins.Dir,
+			"active", pm.Active(), "reloadInterval", interval.String(),
+			"verifySignature", cfg.Plugins.VerifySignature && !cfg.Plugins.Insecure)
+	}
+
+	resolvers := newBuiltinResolvers(guard, pluginResolvers...)
 	transports := newBuiltinTransports(guard, creds)
 	postprocs := postproc.NewRegistry()
 

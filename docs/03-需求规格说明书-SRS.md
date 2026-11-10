@@ -1,6 +1,8 @@
 # 03 软件需求规格说明书（SRS）
 
-> 文档编号：UD-DOC-03 ｜ 版本：v0.4 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9 已补记，待评审） ｜ 日期：2026-11-10 ｜ 上游：`01`、`adr/`
+> 文档编号：UD-DOC-03 ｜ 版本：v0.5 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9/10 已补记，待评审） ｜ 日期：2026-11-10 ｜ 上游：`01`、`adr/`
+>
+> **v0.5 变更**：P1 WBS 10（插件引擎）落地，§8 新增「P1 WBS 10 追踪矩阵补记」表。
 >
 > **v0.4 变更**：P1 WBS 7（BT / 磁力）落地，§8 新增「P1 WBS 7 追踪矩阵补记」表。
 > §7 里程碑表与 P0 追踪矩阵保持历史排期原值不改；真实公网 BT 互操作矩阵（L4）仍为 WBS 11 待办。
@@ -208,6 +210,21 @@ BT 客户端互操作矩阵（`12` §3.1 BT-01…BT-14）仍为 WBS 11 待办，
 | FR-INT-03 private flag | `16` §3/§4 / `11` §7.1 | `bt_test.go::TestHonestPeerID`；`torrent_test.go::TestTorrentResolverPrivateFlag` | ✅（诚实 PeerID、禁 DHT/PEX/LSD） |
 | NFR-SEC-01 SSRF（tracker / bootstrap peer） | `11` §2/§7.1 | `magnet_test.go::TestMagnetResolverMissingInfohash`、`bt_cover_test.go::TestProbeInvalidEmbeddedMetainfo` / `TestProbeInvalidInfoDict` / `TestBuildSpecErrors` | ✅（畸形输入 fail closed） |
 | NFR-PORT-01 纯 Go 六平台 | `13` §1/§2 / `10` §8.1 | `make build`（12 个二进制）；`make gates-strict` 许可证 86 模块 0 copyleft / 0 未识别；`check_arch.py` 守卫 2/5 | ✅（MPL-2.0 修改清单为空） |
+
+**P1 WBS 10 追踪矩阵补记（2026-11-10）**：本节只记录已落地部分，不代表 P1 全部完成；
+WASM 硬隔离、第三方规则仓库 / 发布流水线、规则失效遥测、`lux` 站点解析与 `yt-dlp` 兜底仍为 P2+ 待办。
+
+| 需求 | 设计文档 | 自动化用例 | 结果 |
+|---|---|---|---|
+| FR-PLT-03 插件引擎 goja（ES5.1）+ manifest + 签名 + 能力裁剪 | ADR-0014 / `08` §2/§3/§10 | `plugin/manifest_test.go::TestParseManifestValidAndDefaults` / `TestParseManifestRejectsInvalid`；`plugin/scan_test.go::TestScanRejectsForbiddenSyntax` / `TestTransformRewritesESMSugar`；`plugin/signature_test.go::TestSignVerifyRoundTrip` / `TestSignPackRoundTrip` | ✅（manifest 严格校验、静态禁用 API 扫描、Ed25519 规则包签名 fail-closed） |
+| FR-RSV-01/02 插件 Resolver 注册链优先级 | `05` §10 / `08` §5 | `app/daemon_test.go::TestPluginResolverPlacementInChain` / `TestRunWithPluginRuleChannel`；`plugin/manifest_test.go::TestParseManifestRejectsInvalid`（match 与内置冲突） | ✅（安全敏感内置恒在前，通用 direct-http 兜底在后） |
+| NFR-SEC-01 SSRF（插件 egress 与产出 URL） | `11` §2/§5 / ADR-0014 §4 | `plugin/runtime_test.go::TestRuntimeWhitelistBlocksRequests` / `TestRuntimePrivateURLBlockedByGuard` / `TestRuntimeRedirectHopIsWhitelisted` / `TestRuntimeOutputValidation`；`http_test.go::TestGuardBlocksProducedMirrorEvenWhenWhitelisted` | ✅（逐跳白名单 + SSRF Guard + 输出路径 PathGuard + 敏感头剔除） |
+| NFR-SEC-02 凭据不落库 / 最小授权 | `11` §3 / `08` §9 | `plugin/runtime_test.go::TestRuntimeHasNoFsEnvOrSubprocess` / `TestRuntimeRequestHeaderValidation`；`plugin/scan_test.go::TestScanRejectsForbiddenSyntax` | ✅（fs/env/subprocess 加载期拒绝；`Authorization`/`Cookie`/`Host` 禁止设置） |
+| NFR-SEC-03 插件经签名校验与能力裁剪 | `11` §5 / ADR-0014 §7 | `plugin/manager_test.go::TestManagerRejectsUnsignedAndBadPacks` / `TestManagerKeepsLastGoodVersionOnBadUpdate`；`cmd/udctl/plugin_test.go::TestPluginCommandSignVerifyTestList` | ✅（篡改脚本签名失效；失败保留上一版） |
+| FR-PLT-06 规则失效不静默丢弃任务 | ADR-0014 §6 / `08` §10 | `plugin/runtime_test.go::TestRuntimeRuleOutdatedIsClassified`；`plugin/manager_test.go::TestManagerFallbackOnRuleOutdated`；`plugin/fixture_test.go::TestRunFixtureOfflineReplay` | ✅（`RULE_OUTDATED` → `E_CAPABILITY_UNAVAILABLE` + 兜底 Resolver；yt-dlp 兜底未实现） |
+| NFR-SEC-01 DoS（死循环 / 超大响应 / 内存预算） | `11` §1 / ADR-0014 §7 | `plugin/runtime_test.go::TestRuntimeInfiniteLoopKilledByTimeout` / `TestRuntimeOversizedResponseRejected` / `TestRuntimeOutputBudgetAndNonObject` | ✅（`vm.Interrupt` 超时强杀、响应体与输出 JSON 上限） |
+| 规则热更新（独立于主程序发版） | ADR-0014 §6 / `08` §8/§10 | `plugin/manager_test.go::TestManagerHotReloadSwapsSnapshot` / `TestManagerWatchReloads` / `TestFingerprintAndPluginDirsLimits` | ✅（目录指纹 + 原子快照 + 轮询；无规则仓库/发布流水线） |
+| NFR-PORT-01 纯 Go 六平台 | `13` §1/§2 / `10` §8 | `make build`（12 个二进制）；`make gates-strict` 许可证 90 模块 0 copyleft / 0 未识别；`check_arch.py` 6 守卫 | ✅（goja / regexp2 / go-sourcemap 均为 MIT/BSD，零 cgo） |
 
 > **§9 验收准则的 P0 边界**：准则 1 的「无空格」在 P0 仅对上表 P0 行成立；准则 2/4 的 `12` 发布门禁、互操作全矩阵、SBOM 与 `go version -m` 一致性尚未执行（P1+）。准则 3 法务签字未进行。详见 `14` §9 与 `ADR-0020`。
 

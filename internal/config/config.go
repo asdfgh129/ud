@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -50,9 +51,35 @@ type ED2KConfig struct {
 	UDPPort     int  `yaml:"udpPort" json:"udpPort"`
 }
 
+// PluginsConfig is the WBS 10 rule-channel configuration (ADR-0014, docs/13 §7).
+// Dir is empty by default: no plugin Resolver is registered at all until the
+// operator explicitly points ud at a rule directory.
 type PluginsConfig struct {
-	VerifySignature bool   `yaml:"verifySignature" json:"verifySignature"`
-	Runtime         string `yaml:"runtime" json:"runtime"`
+	VerifySignature bool     `yaml:"verifySignature" json:"verifySignature"`
+	Runtime         string   `yaml:"runtime" json:"runtime"`
+	Dir             string   `yaml:"dir" json:"dir"`
+	TrustedKeys     []string `yaml:"trustedKeys" json:"trustedKeys"`
+	Insecure        bool     `yaml:"insecure" json:"insecure"`
+	ReloadInterval  string   `yaml:"reloadInterval" json:"reloadInterval"`
+}
+
+// Validate fails closed: disabling signature checks requires an explicit,
+// local-dev-only opt-in, and an unimplemented runtime must never be accepted
+// as "no plugins".
+func (p PluginsConfig) Validate() error {
+	if p.Runtime != "" && p.Runtime != "goja" {
+		return fmt.Errorf("unsupported runtime %q (only goja is implemented; wasm is a future upgrade path)", p.Runtime)
+	}
+	if p.ReloadInterval != "" {
+		d, err := time.ParseDuration(p.ReloadInterval)
+		if err != nil || d < time.Second || d > 24*time.Hour {
+			return fmt.Errorf("reloadInterval %q must be a duration within 1s..24h", p.ReloadInterval)
+		}
+	}
+	if !p.VerifySignature && !p.Insecure {
+		return errors.New("verifySignature=false requires insecure=true (explicit local-dev opt-in)")
+	}
+	return nil
 }
 
 type TelemetryConfig struct {
@@ -98,9 +125,11 @@ func Defaults() Config {
 			MaxXMLBytes:          4 << 20,
 			BlockPrivateNetworks: true,
 		},
-		BT:        BTConfig{PeerID: "-GT0001-", EnableDHT: true, EnablePEX: true, SeedRatio: 1.0, SeedTimeMinutes: 60, EnableUPnP: true},
-		ED2K:      ED2KConfig{Obfuscation: true, SecureIdent: true, TCPPort: 4662, UDPPort: 4672},
-		Plugins:   PluginsConfig{VerifySignature: true, Runtime: "goja"},
+		BT:   BTConfig{PeerID: "-GT0001-", EnableDHT: true, EnablePEX: true, SeedRatio: 1.0, SeedTimeMinutes: 60, EnableUPnP: true},
+		ED2K: ED2KConfig{Obfuscation: true, SecureIdent: true, TCPPort: 4662, UDPPort: 4672},
+		Plugins: PluginsConfig{
+			VerifySignature: true, Runtime: "goja", ReloadInterval: "30s",
+		},
 		Telemetry: TelemetryConfig{Enabled: false},
 	}
 }
@@ -135,6 +164,21 @@ func applyEnv(c *Config) {
 	set("UD_DIR", &c.DownloadDir)
 	set("UD_LOG_LEVEL", &c.LogLevel)
 	set("UD_REMOTE_TOKEN", &c.RemoteToken)
+	set("UD_PLUGINS_DIR", &c.Plugins.Dir)
+	set("UD_PLUGINS_RUNTIME", &c.Plugins.Runtime)
+	set("UD_PLUGINS_RELOAD_INTERVAL", &c.Plugins.ReloadInterval)
+	if v := os.Getenv("UD_PLUGIN_KEYS"); v != "" {
+		for _, k := range strings.Split(v, ",") {
+			if k = strings.TrimSpace(k); k != "" {
+				c.Plugins.TrustedKeys = append(c.Plugins.TrustedKeys, k)
+			}
+		}
+	}
+	if v := os.Getenv("UD_PLUGIN_INSECURE"); v != "" {
+		if b, err := strconv.ParseBool(v); err == nil {
+			c.Plugins.Insecure = b
+		}
+	}
 }
 
 // Validate rejects values that would silently break the single scheduler or SSRF guard.
@@ -157,10 +201,18 @@ func (c Config) Validate() error {
 	if c.Security.MaxRedirects < 0 || c.Security.MaxRedirects > 10 {
 		return errors.New("security.maxRedirects must be within 0..10")
 	}
+	if err := c.Plugins.Validate(); err != nil {
+		return fmt.Errorf("plugins: %w", err)
+	}
 	if c.TempSuffix == "" || strings.ContainsAny(c.TempSuffix, "/\\") {
 		return errors.New("tempSuffix must be a simple suffix like .part")
 	}
 	if !isLoopbackListen(c.Listen) {
+		// Unsigned rule packs are a local development escape hatch only; a
+		// remotely reachable daemon must never accept them (ADR-0014 §7).
+		if c.Plugins.Insecure {
+			return errors.New("plugins.insecure requires loopback-only listen")
+		}
 		// docs/07 §1 / ADR-0016: remote control plane must be explicitly
 		// enabled AND authenticated. Never fall back to an unauthenticated
 		// 0.0.0.0 listener just because a token was not supplied.

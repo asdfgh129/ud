@@ -21,6 +21,8 @@ func main() {
 	flag.StringVar(&opts.Dir, "dir", "", "override download directory")
 	flag.StringVar(&opts.DBPath, "db", "", "override SQLite database path")
 	flag.StringVar(&opts.LogLevel, "log-level", "", "debug|info|warn|error")
+	flag.BoolVar(&opts.InsecurePlugins, "insecure-plugins", false,
+		"skip plugin rule-pack signature verification (local development only)")
 	flag.Parse()
 	if *showVersion {
 		fmt.Println("udd", version.String())

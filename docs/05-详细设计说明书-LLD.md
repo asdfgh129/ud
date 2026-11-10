@@ -1,6 +1,8 @@
 # 05 详细设计说明书（LLD）
 
-> 文档编号：UD-DOC-05 ｜ 版本：v0.2 ｜ 状态：草案（P0 实现基线已落地） ｜ 日期：2026-11-08 ｜ 上游：`04`、`06`、`07`
+> 文档编号：UD-DOC-05 ｜ 版本：v0.3 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10 已补记） ｜ 日期：2026-11-10 ｜ 上游：`04`、`06`、`07`
+
+> **v0.3 说明**（2026-11-10，仅范围补记、不改契约）：`internal/plugin/` 已随 P1 WBS 10 创建，§1 的「P0 实际落地范围」与 §10 的注册顺序按当前态更新。`Resource` / `PostProcessor` / 状态机三大冻结契约未改动。
 
 本文定义 P0 必须钉死的代码级契约。**`Resource` 结构、`PostProcessor` 契约、状态机是三个不可延后的设计点**（ADR-0012 / ADR-0013）。
 
@@ -38,7 +40,9 @@
 
 **依赖方向**：`core` 只定义接口与类型，不 import 任何 `transport/*`；`transport`/`resolve`/`postproc` 依赖 `core`；`scheduler` 编排它们；`api` 只依赖 `scheduler` 与 `core`。禁止反向依赖与跨实现直连。由 `tools/check_arch.py` 守卫 1 静态校验（CI 门禁）。
 
-**P0 实际落地范围**：上表是目标结构，P0 只实现了 `cmd/{udd,udctl}` 与 `internal/{core,config,security,store,resolve,transport/http,postproc,scheduler,api,app,version}`。`transport/{ftp,sftp,torrent,ed2k,hlsdash}`、`resolve/{wrapper,source}`、`plugin/`、`sidecar/`、`pkg/` 尚未创建——它们是 P1+ 交付，P0 不引入空壳占位包以免伪装成已实现能力。
+**P0 实际落地范围**（2026-11-09 时点快照，作为历史证据保留）：P0 只实现了 `cmd/{udd,udctl}` 与 `internal/{core,config,security,store,resolve,transport/http,postproc,scheduler,api,app,version}`。
+
+**当前态（2026-11-10，WBS 7/8/9/10 后）**：`internal/transport/{ftp,sftp,bt}`、`internal/transport/tputil`、`internal/plugin/`、`internal/resolve/{wrapper,metalink,magnet,torrent}` 均已落地（目录形态与上表目标结构略有差异：链接封装与 Metalink 使用 `resolve/` 下的平铺文件而非 `resolve/wrapper/` 子包；BT 传输为 `transport/bt` 而非 `transport/torrent`）。**仍未创建**：`transport/{ed2k,hlsdash}`、`resolve/source`、`sidecar/`、`pkg/`，以及正式 UI。P0 不引入空壳占位包的原则继续有效。
 
 ## 2. 核心接口（Go）
 
@@ -241,7 +245,10 @@ const (
 
 ## 10. 插件与 Resolver 注册
 
-`resolve.Register(resolver)` / `transport.Register(transport)`，按 `Match()` 优先级排序，首个命中者执行；内置实现优先于插件，插件不得覆盖 `thunder` 解码等安全敏感实现。SSRF Guard 在 `Resolve()` 出口统一校验所有产出 URL（含重定向逐跳）。详见 `08`。
+`resolve.Registry.Register(resolver)` / `transport.Registry.Register(transport)`，按注册顺序首个 `Match()` 命中者执行。当前链（`internal/app/daemon.go:newBuiltinResolvers()`）：
+`metalink → link-wrapper → magnet → torrent → [plugin] → direct-http → direct-file → unsupported`。
+
+协议专属 / 安全敏感内置实现恒在插件之前；插件不得覆盖 `thunder` 解码、Metalink、magnet/.torrent 解析与 SSRF Guard，`internal/plugin/manifest.go:Validate()` 在加载期直接拒绝与之冲突的 `match` 规则。插件位于泛型 `direct-http` 兜底之前，否则站点规则永无命中机会（ADR-0014 §4 的非覆盖清单不含该兜底）。SSRF Guard 在 `Resolve()` 出口统一校验所有产出 URL（含插件 `ctx.http` 的逐跳重定向）。详见 `08` §5 / §10。
 
 ## 11. 关键时序（创建任务）
 

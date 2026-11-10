@@ -21,10 +21,11 @@ import (
 )
 
 var (
-	addrFlag   string
-	tokenFlag  string
-	configPath string
-	rawJSON    bool
+	addrFlag        string
+	tokenFlag       string
+	configPath      string
+	rawJSON         bool
+	insecurePlugins bool
 )
 
 type cli struct {
@@ -40,6 +41,8 @@ func main() {
 	fs.StringVar(&tokenFlag, "token", "", "bearer token (default: UD_TOKEN)")
 	fs.StringVar(&configPath, "config", "", "config.yaml (only for `udctl daemon`)")
 	fs.BoolVar(&rawJSON, "json", false, "print raw JSON without indentation")
+	fs.BoolVar(&insecurePlugins, "insecure-plugins", false,
+		"skip plugin rule-pack signature verification (local development only)")
 	if err := fs.Parse(os.Args[1:]); err != nil {
 		os.Exit(2)
 	}
@@ -55,7 +58,16 @@ func main() {
 	if args[0] == "daemon" {
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 		defer stop()
-		if err := app.Run(ctx, app.Options{ConfigPath: configPath, Listen: addrFlag}); err != nil {
+		if err := app.Run(ctx, app.Options{
+			ConfigPath: configPath, Listen: addrFlag, InsecurePlugins: insecurePlugins,
+		}); err != nil {
+			fatal(err)
+		}
+		return
+	}
+	// Plugin tooling is entirely offline: it must work without a running daemon.
+	if args[0] == "plugin" {
+		if err := pluginCommand(args[1:]); err != nil {
 			fatal(err)
 		}
 		return
@@ -80,7 +92,7 @@ func main() {
 		err = c.simple("GET", "/api/v1/"+map[string]string{"capabilities": "capabilities", "stats": "stats", "health": "healthz"}[args[0]], nil)
 	case "config":
 		err = c.config(args[1:])
-	case "backup", "restore", "migrate", "plugin":
+	case "backup", "restore", "migrate":
 		fmt.Fprintf(os.Stderr, "udctl %s: 尚未实现（P0 范围外，见 docs/14 WBS 19）\n", args[0])
 		os.Exit(2)
 	default:
@@ -326,6 +338,7 @@ func mustJSON(v any) []byte {
 func reorderFlags(args []string) []string {
 	boolFlags := map[string]bool{
 		"--with-files": true, "-with-files": true,
+		"--insecure-plugins": true, "-insecure-plugins": true,
 	}
 	var flags, positional []string
 	for i := 0; i < len(args); i++ {
@@ -355,10 +368,14 @@ func usage() {
   rm <id> [--with-files]    resolve <input>
   capabilities | stats | health
   config get [key] | config set <flat.key> <value>
-  daemon [--config <file>] [--listen 127.0.0.1:0]
+  daemon [--config <file>] [--listen 127.0.0.1:0] [--insecure-plugins]
+  plugin scaffold <dir> | keygen | sign <dir> --key <file>
+  plugin verify <dir> [--key <file>] [--insecure-plugins]
+  plugin test <dir> --fixture <file> [--key <file>] [--insecure-plugins]
+  plugin list <dir> [--key <file>] [--insecure-plugins]
   version
 
-P0 未实现: backup / restore / migrate / plugin (见 docs/14 WBS 19)。
+未实现: backup / restore / migrate (见 docs/14 WBS 19)。
 daemon 地址优先级: --addr > UD_ADDR > 本地发现文件（不占用固定 6800 端口）。`)
 }
 

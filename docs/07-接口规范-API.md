@@ -1,7 +1,14 @@
 # 07 接口规范（API）
 
-> 文档编号：UD-DOC-07 ｜ 版本：v0.2 ｜ 状态：草案（L0 已落地） ｜ 日期：2026-11-08 ｜ 相关：ADR-0003、ADR-0016、ADR-0019、ADR-0020
+> 文档编号：UD-DOC-07 ｜ 版本：v0.3 ｜ 状态：草案（L0 已落地；P1 WBS 10 离线插件 CLI 已落地） ｜ 日期：2026-11-10 ｜ 相关：ADR-0003、ADR-0014、ADR-0016、ADR-0019、ADR-0020
 
+> **v0.3 实现校准**（2026-11-10）：P1 WBS 10 落地 `udctl plugin` 六个**离线**子命令，
+> §3 的 CLI 清单按 `cmd/udctl/plugin.go` 实际签名校正——原设计稿的
+> `plugin install/verify/list <path-or-url>`（在线安装 / 远端 URL）**未实现**，
+> 规则包只经本地目录与 `plugins.dir` 配置加载；插件 REST 管理端点同样未实现。
+> `udd --insecure-plugins` / `udctl daemon --insecure-plugins` 为本地开发开关，
+> 非回环监听时配置校验拒绝启动。§8 矩阵补一行。L0 契约不变。
+>
 > **v0.2 实现校准**：§2 的 L0 REST 端点、§4 WS 事件、§6 错误码表已在 `internal/api/server.go` / `internal/core/errors.go` 全量落地；§5 的 L1 facade 按 ADR-0019 **未实现**（`/jsonrpc` 不存在）。补充 §1 远程鉴权的强制约束与 §8 的 P0 契约实现矩阵。
 
 ## 1. 通用约定
@@ -82,11 +89,21 @@ udctl resolve <input>            # 打印 Resource JSON，不下载
 udctl capabilities | stats | health
 udctl config get/set <key> <value>
 udctl backup <path> | restore <path> | migrate --from N
-udctl plugin install/verify/list <path-or-url>
-udctl daemon [--config <file>] [--listen 127.0.0.1:0]
+udctl plugin scaffold <dir> | keygen | sign <dir> --key <file>
+udctl plugin verify <dir> [--key <file>] [--insecure-plugins]
+udctl plugin test <dir> --fixture <file> [--key <file>] [--insecure-plugins]
+udctl plugin list <dir> [--key <file>] [--insecure-plugins]
+udctl daemon [--config <file>] [--listen 127.0.0.1:0] [--insecure-plugins]
 ```
 
-> **P0 已实现子集**：`add` / `list` / `show` / `pause` / `resume` / `cancel` / `rm` / `resolve` / `capabilities` / `stats` / `health` / `config get|set`。`backup|restore|migrate`、插件管理、`daemon` 子命令与 `[--select-file]` 选项属 P1+。CLI 通过本地发现文件（`$XDG_RUNTIME_DIR/ud/discovery.json` 或用户缓存目录）自动找到随机端口的 daemon，也支持 `--addr` 直连。
+> **P0 已实现子集**：`add` / `list` / `show` / `pause` / `resume` / `cancel` / `rm` / `resolve` / `capabilities` / `stats` / `health` / `config get|set`。`backup|restore|migrate` 与 `[--select-file]` 选项属 P1+；`daemon` 子命令已落地。CLI 通过本地发现文件（`$XDG_RUNTIME_DIR/ud/discovery.json` 或用户缓存目录）自动找到随机端口的 daemon，也支持 `--addr` 直连。
+>
+> **P1 WBS 10 插件 CLI（离线）**：`plugin` 走独立离线分支，不连 daemon、不访问网络；
+> `scaffold` 生成规则包骨架（manifest / ES5.1 脚本 / 回放 fixture），`keygen` 生成 Ed25519
+> 密钥对，`sign` / `verify` 做规则包签名与验签，`test` 用录制 fixture 离线回放规则，
+> `list` 列出目录内规则包及其状态。远端 URL 安装、`install` 子命令与插件 REST 管理端点
+> **未实现**；规则包经 `plugins.dir` 在 daemon 侧加载并热更新（见 `08` §10、`13` §7）。
+> `--insecure-plugins` 跳过验签，仅供本地开发且禁止与非回环监听组合。
 >
 > 已修复的用法陷阱：Go `flag` 包遇到首个位置参数即停止解析，导致 `udctl add <url> --conn 4` 的选项被忽略。`cmd/udctl/main.go:reorderFlags` 在 `add` / `list` / `rm` 前把标志重排到位置参数之前，使本文示例写法可用。
 
@@ -192,6 +209,7 @@ udctl daemon [--config <file>] [--listen 127.0.0.1:0]
 | §2 REST 端点（L0 全量） | `internal/api/server.go:routes` | `TestRESTContract` |
 | §2 内联凭据头拒绝 | `api.validateTaskOptions` | `TestInlineCredentialHeadersRejected` |
 | §3 CLI 子集 | `cmd/udctl/main.go` | 端到端冒烟（见 `CHANGELOG.md`） |
+| §3 `plugin` 离线子命令（P1 WBS 10） | `cmd/udctl/plugin.go` + `internal/plugin/fixture.go` | `cmd/udctl/plugin_test.go:TestPluginCommandScaffoldLifecycle` / `TestPluginCommandSignVerifyTestList` / `TestPluginCommandUsageErrors`；`internal/plugin/fixture_test.go:TestRunFixtureOfflineReplay` |
 | §4 WebSocket 事件 | `internal/api/ws.go` + `core.EventBus` | `TestWebSocketEventDelivery` |
 | §5 L1 facade | **未实现**（ADR-0019，符合预期） | `/jsonrpc` 返回 404 |
 | §6 错误码表 | `internal/core/errors.go:errorSpecs` 全量 | `internal/core/state_test.go:TestErrorCodeTable`（HTTP 状态 / retryable / kind） |
