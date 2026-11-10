@@ -2,7 +2,7 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0 里程碑评审已「有条件通过」并打 `v0.1.0` 附注标签（2026-11-09），P1 已解锁。** 覆盖率仍有 8 个包低于阈值，作为附加条件在 P1 首个 PR 前补齐；详见 [`docs/17`](docs/17-P0里程碑评审材料.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（首个 PR 覆盖率债清零已完成）。** 全仓覆盖率 59.0% → 80.1%，10 个门禁包全部达标，`make gates-strict` 已接入 CI；详见 [`docs/17`](docs/17-P0里程碑评审材料.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
 > 仓库已包含可运行的 Go 代码：一条 HTTP(S) 直链能走完 `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P0 不是功能完整版**——BT/ed2k/FTP/站点解析/插件/sidecar/L1 RPC facade 均未实现，详见 [ADR-0020](docs/adr/ADR-0020-P0实现基线与范围声明.md) 与 [更新日志](CHANGELOG.md)。
 
@@ -89,7 +89,7 @@ go run ./cmd/udctl show <id>
 1. `MemoryCredentialStore` 是进程内参考实现，`mem://` 引用在 daemon 重启后失效；OS 钥匙串适配器待 P1。
 2. 非回环监听必须配置 `remoteToken`（否则拒绝启动），且目前只有 Bearer 鉴权，无 TLS / Origin 校验。
 3. `postProcess` 只支持 `none`；最小 UI 是契约验证占位件（OPEN-02 已定档 Flutter，正式 UI 不进入 P1 编码范围）。
-4. CycloneDX SBOM / `govulncheck` / 许可证扫描 / 覆盖率报告 / 回滚演练已由 `make gates` 执行；但**覆盖率仍有 8 个包低于阈值**，互操作套件与千兆内网性能基准未执行，不等价于发布门禁全绿（见 `docs/17` §3/§5）。
+4. CycloneDX SBOM / `govulncheck` / 许可证扫描 / 覆盖率报告 / 回滚演练已由 `make gates-strict` 执行，覆盖率全部达标；但互操作套件与千兆内网性能基准未执行，仍不等价于发布门禁全绿（见 `docs/17` §3/§5）。
 
 完整清单见 [`docs/11` §10](docs/11-安全与合规设计.md) 与 [`docs/14` §9](docs/14-项目计划与风险管理.md)。
 

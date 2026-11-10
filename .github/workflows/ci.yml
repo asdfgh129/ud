@@ -32,8 +32,8 @@ jobs:
         run: make test
       - name: CGO_ENABLED=0 six-platform build
         run: make build
-      - name: P0 review gates (coverage / SBOM / licenses / vuln / bench / rollback)
-        run: make gates
+      - name: P0 review gates (strict: coverage / SBOM / licenses / vuln / bench / rollback)
+        run: make gates-strict
       - name: upload gate evidence
         if: always()
         uses: actions/upload-artifact@v4

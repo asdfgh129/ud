@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-> 本段内容已随 `v0.1.0` 附注标签（2026-11-09 评审闭环提交）发布；自该标签起暂无新变更，
-> P1 变更将记入新版本段。标签 message 附本文件摘要。
+> 标「2026-11-09 评审闭环」的条目已随 `v0.1.0` 附注标签发布；自该标签起的 P1 变更记入本段
+> （首条为 2026-11-10 的覆盖率债清零）。标签 message 附本文件摘要。
 
 
 ### Security
@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **P1 首个 PR：覆盖率债清零（2026-11-10）**：新增 8 个包级测试文件，补齐此前空白或低覆盖路径——
+  `resolve_test.go`（0% → 100%，注册表优先级/文件名回退/SSRF 透传/阶段化降级）、
+  `app/daemon_test.go`（0% → 86.5%，真实起停守护进程、discovery 生命周期、配置错误）、
+  `api/extra_test.go`（61.2% → 87.7%，全部 REST 处理器、Bearer 鉴权、panic 恢复、错误脱敏）、
+  `config/extra_test.go`（70.1% → 99.1%，环境覆盖与 `PATCH` 全键）、
+  `postproc/registry_test.go`（70.6% → 100%）、
+  `scheduler/extra_test.go`（71.4% → 85.5%，控制平面、`chunkWriter`、永久失败与恢复）、
+  `store/extra_test.go`（59.5% → 84.5%，`ListTasks`/`DeleteTask`/`VerifyAllChunks`/`events`/`Commit`）、
+  `transport/http/extra_test.go`（55.1% → 84.6%，HEAD→GET 回退、重定向限制、取消、`Content-Range`）。
+  全仓 **59.0% → 80.1%**，`12` §1/§8 的 10 个门禁包全部达标。
+- **`make gates-strict`**：封装 `gates.py all --strict`，CI 改用严格模式（任何 WARN 即失败）。
 - **代码许可证 `LICENSE`（MPL-2.0 全文）**：OPEN-01 于 2026-11-09 定档，来源为 GitHub 官方许可证文本；分发须随附 `LICENSE` 与 `THIRD_PARTY_NOTICES.md`，修改过的 MPL 文件按 MPL-2.0 提供并记录修改清单（`docs/10` §4）。文档仍为 CC-BY-4.0。
 - **P0 里程碑评审门禁链** `tools/gates.py` + `make gates`：六项可复跑门禁（覆盖率阈值、
   CycloneDX SBOM、许可证扫描、`govulncheck`、HTTP 回环吞吐基准、备份/回滚演练），
@@ -47,6 +58,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **覆盖率附加条件关闭（2026-11-10）**：`docs/17` §1/§3/§5/§6/§9、`docs/14` §5/§10/§11、
+  `docs/12` §9、`docs/13` §12、`docs/15` §11、`ADR-0020` 与根 `README.md` 同步标记关闭；
+  R-16 由「中」降为「低」。
 - **P0 里程碑评审闭环（2026-11-09，「有条件通过」）**：项目发起人全权批准并代行五个签署角色；
   ADR 0001–0020 全部由 `Proposed` 转 `Accepted`（索引 v0.3）、OPEN-01 定档 MPL-2.0、OPEN-02 定档 Flutter；
   `docs/17` 结论/签署/决策/评审后动作、`docs/14` §7/§9/§10 与新增 §11（P1 启动顺序）、`docs/README` v0.6、

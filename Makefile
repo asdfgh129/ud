@@ -86,6 +86,11 @@ gates:
 	$(PYTHON) tools/gates.py all
 	@echo "  see dist/GATES.md and dist/gates.json"
 
+# CI gate: any WARN (coverage below threshold, missing vuln scanner) is a failure.
+gates-strict:
+	$(PYTHON) tools/gates.py all --strict
+	@echo "  see dist/GATES.md and dist/gates.json"
+
 # Not in P0 scope (docs/14 WBS 7-18). Fail loudly instead of pretending to pass.
 interop:
 	@echo "  [P0] interop suite is a P1 deliverable (docs/12 §3)"; exit 0
