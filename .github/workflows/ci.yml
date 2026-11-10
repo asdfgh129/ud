@@ -32,7 +32,7 @@ jobs:
         run: make test
       - name: CGO_ENABLED=0 six-platform build
         run: make build
-      - name: P0 review gates (strict: coverage / SBOM / licenses / vuln / bench / rollback)
+      - name: P0 review gates in strict mode (any WARN fails)
         run: make gates-strict
       - name: upload gate evidence
         if: always()
