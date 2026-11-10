@@ -219,9 +219,9 @@ func TestUnsupportedIsPhaseAware(t *testing.T) {
 	if u.Name() != "unsupported" || !u.Match(core.Input{Kind: core.InputED2K}) {
 		t.Fatalf("unsupported resolver must match everything")
 	}
+	// Genuinely unplanned input classes still report a capability gap with a
+	// phase-aware reason.
 	cases := map[core.InputKind]string{
-		core.InputMagnet:   "P1",
-		core.InputTorrent:  "P1",
 		core.InputSite:     "P2",
 		core.InputTelegram: "P3",
 		core.InputED2K:     "P3",
@@ -238,9 +238,10 @@ func TestUnsupportedIsPhaseAware(t *testing.T) {
 			t.Errorf("%s: message %q must name phase %q", kind, e.Message, phase)
 		}
 	}
-	// WBS 8 is implemented in P1: reaching Unsupported for these kinds means
-	// the daemon forgot to register the built-in resolvers, not "unplanned".
-	for _, kind := range []core.InputKind{core.InputMetalink, core.InputThunder} {
+	// WBS 8 (Metalink, link wrappers) and WBS 7 (BT magnet / .torrent) are
+	// implemented in P1: reaching Unsupported for these kinds means the daemon
+	// forgot to register the built-in resolvers, not "unplanned".
+	for _, kind := range []core.InputKind{core.InputMetalink, core.InputThunder, core.InputMagnet, core.InputTorrent} {
 		_, err := u.Resolve(core.ResolveContext{Ctx: context.Background()}, core.Input{Kind: kind})
 		e := core.AsError(err)
 		if e.Code != core.E_RESOLVE_FAILED || !strings.Contains(e.Message, "注册链") {

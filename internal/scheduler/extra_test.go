@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -153,9 +154,13 @@ func TestResolveOnlyUsesRegistry(t *testing.T) {
 	if res.Files[0].Path != "a.bin" || len(res.Mirrors) != 1 {
 		t.Fatalf("unexpected resolution: %+v", res)
 	}
+	// A P1 BT input is now resolved by the magnet resolver when registered.
+	// With only DirectHTTP + Unsupported present, it still reaches Unsupported,
+	// which classifies it as an already-implemented class whose resolver was not
+	// wired into this particular registry — an explicit degradation, never a silent pass.
 	_, err = h.s.ResolveOnly(context.Background(),
 		core.Input{Raw: "magnet:?xt=urn:btih:abc", Kind: core.InputMagnet}, core.TaskOptions{})
-	if core.AsError(err).Code != core.E_CAPABILITY_UNAVAILABLE {
+	if e := core.AsError(err); e == nil || e.Code != core.E_RESOLVE_FAILED || !strings.Contains(e.Message, "Resolver") {
 		t.Fatalf("P1 input must degrade explicitly, got %v", err)
 	}
 }

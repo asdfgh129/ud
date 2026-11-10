@@ -44,7 +44,9 @@ MODULE = "github.com/asdfgh129/ud"
 # >= 80%. P1 WBS 9 added the FTP / SFTP movers and their shared tputil helper
 # to the gated set; a new transport must not ship below the same bar. Packages
 # with no production logic (cmd/*, internal/version, internal/transport) are
-# reported but not gated. WARN is a real gap, never a silent pass.
+# reported but not gated. WARN is a real gap, never a silent pass. P1 WBS 7
+# added the BT / magnet Transport to the gated set; the resolver pair
+# (internal/resolve) already covers the magnet / .torrent parsers.
 THRESHOLDS = {
     "internal/core": 90.0,
     "internal/security": 90.0,
@@ -53,6 +55,7 @@ THRESHOLDS = {
     "internal/transport/http": 80.0,
     "internal/transport/ftp": 80.0,
     "internal/transport/sftp": 80.0,
+    "internal/transport/bt": 80.0,
     "internal/transport/tputil": 80.0,
     "internal/api": 80.0,
     "internal/config": 80.0,
@@ -77,7 +80,7 @@ LICENSE_PATTERNS = [
     # without it the standard boilerplate is the two-clause variant.
     ("BSD-3-Clause", re.compile(r"BSD\s+3-?Clause|Redistribution and use in source and binary forms.*Neither the name", re.I | re.S)),
     ("BSD-2-Clause", re.compile(r"BSD\s+2-?Clause|Simplified BSD|Redistribution and use in source and binary forms", re.I)),
-    ("ISC", re.compile(r"\bISC License\b|Permission to use, copy, modify, and/or distribute", re.I)),
+    ("ISC", re.compile(r"\bISC License\b|Permission to use, copy, modify, and(?:/or)? distribute", re.I)),
     ("Unlicense", re.compile(r"\bThe Unlicense\b|This is free and unencumbered software", re.I)),
     ("CC0-1.0", re.compile(r"CC0\s+1\.0|Creative Commons Zero", re.I)),
     ("GPL-family", COPYLEFT),

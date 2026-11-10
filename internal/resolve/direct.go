@@ -80,13 +80,14 @@ func (Unsupported) Match(core.Input) bool { return true }
 
 func (Unsupported) Resolve(_ core.ResolveContext, in core.Input) (*core.Resource, error) {
 	phase := map[core.InputKind]string{
-		core.InputMagnet: "P1", core.InputTorrent: "P1",
 		core.InputSite: "P2", core.InputTelegram: "P3", core.InputED2K: "P3",
 	}
-	// Metalink and the thunder/flashget/qqdl wrappers are implemented as
-	// built-in resolvers since P1 (WBS 8). Reaching Unsupported for them means
-	// the registration chain is broken, not that the feature is unplanned.
-	if in.Kind == core.InputMetalink || in.Kind == core.InputThunder {
+	// BT magnet / .torrent (P1 WBS 7), Metalink and the thunder/flashget/qqdl
+	// wrappers (P1 WBS 8) are implemented as built-in resolvers. Reaching
+	// Unsupported for any of them means the registration chain is broken, not
+	// that the feature is unplanned.
+	if in.Kind == core.InputMetalink || in.Kind == core.InputThunder ||
+		in.Kind == core.InputMagnet || in.Kind == core.InputTorrent {
 		return nil, core.Err(core.E_RESOLVE_FAILED,
 			"输入类别 %q 已在 P1 实现，但未匹配到内置 Resolver（请检查注册链）", in.Kind)
 	}
@@ -95,6 +96,6 @@ func (Unsupported) Resolve(_ core.ResolveContext, in core.Input) (*core.Resource
 		p = "后续里程碑"
 	}
 	return nil, core.Err(core.E_CAPABILITY_UNAVAILABLE,
-		"当前已实现 HTTP(S) / FTP(S) / SFTP 直链、Metalink 与链接封装；输入类别 %q 计划在 %s 接入",
+		"当前已实现 HTTP(S) / FTP(S) / SFTP 直链、Metalink、链接封装与 BT/磁力下载；输入类别 %q 计划在 %s 接入",
 		in.Kind, p)
 }

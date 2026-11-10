@@ -69,6 +69,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **门禁新增 3 个受控包**：`tools/gates.py:THRESHOLDS` 纳入 `internal/transport/ftp`、
   `internal/transport/sftp`、`internal/transport/tputil`（各 ≥ 80%），新 Transport 不得
   低于既有门槛合入。
+- **P1 WBS 7：BT / 磁力 Transport（2026-11-10）**：序 4 交付，最大工作包；前置 `10` 许可证检查
+  （MPL-2.0）与 `11` 安全检查均已通过；86 个链接模块、0 copyleft、0 未识别，`make gates-strict`
+  6 PASS / 0 WARN / 0 FAIL。
+  - `internal/resolve/magnet.go`：`ParseMagnetUri` 解析 magnet，构建 `KindTorrent` Resource
+    （v1 infohash、单层 tracker 透传、空 Mirrors）。
+  - `internal/resolve/torrent.go`：`.torrent` 解析支持 raw bencode / base64 / 本地下载；
+    远端 `http(s)://*.torrent` 显式 `E_CAPABILITY_UNAVAILABLE`（由 `DirectFile` 负责），
+    私有种子标记 `Private=true`。
+  - `internal/transport/bt`：基于 `anacrolix/torrent v1.62.0` 的 `core.Transport`。
+    `clientConfig` 对私有 Resource 强制 `NoDHT` / `DisablePEX` / `NoUpload` / `Seed=false`
+    （BT-08）、诚实 PeerID（`-UD0000-` 前缀 + 6 随机字节，ADR-0017）；`file.NewReader()`
+    流式把选中文档字节拷回 `ChunkWriter`，受 `core.Budget` 约束；tracker 仅由 Resolver 透传；
+    metadata 仅经 BEP 9 从直连对等点获取。
+  - `internal/app/daemon.go`：Resolver 链加入 `magnet` / `torrent`，Transport 注册加入 `bt`
+    （`http → ftp → sftp → bt`）；`Unsupported` 不再把 magnet/torrent 标为「P1 未实现」，
+    未匹配到内置 Resolver 时返回明确「注册链」错误。
+  - 测试：`magnet_test.go` / `torrent_test.go` 单测；`bt_test.go::TestTransportLoopbackDownload`
+    起真实回环 BT 服务端经 bootstrap peer 完成协议下载（anacrolix ↔ anacrolix），
+    `bt_cover_test.go` 补纯磁力 Probe 取元数据、越界分片 Release 与各类错误分支。
+    `transport/bt` 覆盖率 80.8%，14 个门禁包全部达标。
+  - 依赖与合规：新增 `anacrolix/torrent` v1.62.0（MPL-2.0）及 `anacrolix/*` 传递依赖；
+    **未修改任何 MPL 文件，修改清单为空**，仅随包附 `LICENSE` + `THIRD_PARTY_NOTICES.md` 即合规；
+    `pion/stun/v3` 随 anacrolix 最低版本要求升至 v3.1.5（修复 BT 调用链可达漏洞），复扫
+    `No vulnerabilities found`。
 - **P1 WBS 8：链接封装解码与 Metalink 解析（2026-11-10）**：新增两个安全敏感的内置
   Resolver，纯 Go、零 cgo、零网络 I/O——只描述 `Resource`，不解包任何字节。
   - `internal/resolve/wrapper.go`：`WrapperResolver` 实现 `thunder://` / `flashget://` /
@@ -122,13 +146,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **文档口径校准（2026-11-10，仅文档，不改代码与已签署结论）**：WBS 9 后部分描述
   **当前态**的数字仍停留在 P0 / WBS 8 时点（10 个门禁包、12 个链接模块、
   `5 PASS / 1 WARN`、CI 步骤写成 `make gates`），`docs/12` v0.4 说明对 §9 表的交叉引用
-  也已失效。现统一为 **13 个门禁包 / 16 个链接模块 / `make gates-strict` 6 PASS / 0 WARN**：
+  也已失效。现统一为 **14 个门禁包 / 86 个链接模块 / `make gates-strict` 6 PASS / 0 WARN / 0 FAIL**：
   `docs/README` §三 新增「当前态口径（唯一速查）」作为唯一速查点，`13` 校正 CI 步骤名与
   SBOM 守卫描述，`14` 在 R-16 与 §10 补时点标注，`12` 修正过期交叉引用。对 `17` 与
   ADR-0020 这类**已签署的 P0 评审快照不改写历史证据**，只加时点口径声明。
-  `10` §7 把「12 个链接模块」标注为 P0 时点值并补 WBS 9 后的 16 个。
-  版本升 `10` v0.5、`12` v0.7、`13` v0.4、`14` v0.8、`17` v0.3、`docs/README` v0.9；
-  门户重建后 41 篇 0 断链。
+  `10` §7 把「12 个链接模块」标注为 P0 时点值并补 WBS 9 后的 16 个、WBS 7 后的 86 个。
+  WBS 7 文档同步（`10` §4/§8.1 MPL 修改清单与依赖表、`11` §7.1 BT 安全控制、`12` v0.8 测试、
+  `14` §11 序 4 状态、`16` §4 WBS 7 落地、`README` 能力边界）；门户重建后 41 篇 0 断链。
 - **WBS 8 明确的能力边界**（与 ADR-0006 / 0007 / 0013 一致，写进产品口径）：
   ① 冻结的 `Resource` 只有全局 `Mirrors` / `Checksum`，**多 `<file>` 清单显式拒绝**
   （`E_CAPABILITY_UNAVAILABLE`），不把 A 的镜像错挂到 B；② 远端

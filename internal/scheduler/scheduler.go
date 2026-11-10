@@ -612,7 +612,10 @@ func (s *Scheduler) run(ctx context.Context, id core.TaskID) error {
 			s.limiter.SetTaskRate(string(id), core.BytesPerSec(rate))
 		}
 	}
-	host := hostOf(res.Mirrors[0].URL)
+	host := ""
+	if len(res.Mirrors) > 0 {
+		host = hostOf(res.Mirrors[0].URL)
+	}
 	budget, err := s.limiter.Acquire(ctx, core.Scope{
 		TaskID: string(id), Host: host, Transport: tr.Name(), Direction: core.DirectionDownload,
 	}, res.Limits.ChunkSize)

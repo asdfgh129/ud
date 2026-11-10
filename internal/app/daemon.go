@@ -24,6 +24,7 @@ import (
 	"github.com/asdfgh129/ud/internal/security"
 	"github.com/asdfgh129/ud/internal/store"
 	"github.com/asdfgh129/ud/internal/transport"
+	bttransport "github.com/asdfgh129/ud/internal/transport/bt"
 	ftptransport "github.com/asdfgh129/ud/internal/transport/ftp"
 	httptransport "github.com/asdfgh129/ud/internal/transport/http"
 	sftptransport "github.com/asdfgh129/ud/internal/transport/sftp"
@@ -35,11 +36,16 @@ import (
 // registered before any plugin, and Unsupported must stay last so a broken
 // registration chain produces an explicit error instead of a silent nil.
 // Metalink and the link wrappers are pure parsers: they only describe a
-// Resource and never open a network connection.
+// Resource and never open a network connection. The BT magnet / .torrent
+// resolvers (WBS 7) are likewise pure parsers: they extract the infohash,
+// trackers and embedded metainfo into the frozen Resource identity and leave
+// all network I/O to the BT Transport.
 func newBuiltinResolvers(guard core.URLGuard) *resolve.Registry {
 	r := resolve.NewRegistry()
 	r.Register(resolve.NewMetalinkResolver(guard))
 	r.Register(resolve.NewWrapperResolver(guard))
+	r.Register(resolve.NewMagnetResolver(guard))
+	r.Register(resolve.NewTorrentResolver(guard))
 	r.Register(resolve.NewDirectHTTP(guard))
 	r.Register(resolve.NewDirectFile(guard))
 	r.Register(resolve.Unsupported{})
@@ -49,12 +55,15 @@ func newBuiltinResolvers(guard core.URLGuard) *resolve.Registry {
 // newBuiltinTransports wires the byte movers. HTTP stays first so the
 // capabilities list is stable for existing clients (scheduler/extra_test.go).
 // FTP/FTPS and SFTP were added in P1 WBS 9; both need the credential store
-// because plaintext secrets must never be carried by a Resource.
+// because plaintext secrets must never be carried by a Resource. The BT
+// Transport (WBS 7) also receives the credential store so private-trackers
+// passkeys can be resolved without ever living on a Resource.
 func newBuiltinTransports(guard core.URLGuard, creds core.CredentialStore) *transport.Registry {
 	r := transport.NewRegistry()
 	r.Register(httptransport.New(guard))
 	r.Register(ftptransport.New(guard, creds))
 	r.Register(sftptransport.New(guard, creds))
+	r.Register(bttransport.New(guard, creds))
 	return r
 }
 

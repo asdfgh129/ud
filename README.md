@@ -14,7 +14,9 @@
 > 规则，SFTP 主机密钥必须 pin。凭据经 `POST /api/v1/credentials` 写入后以 `credentialRef`
 > 引用，明文不进 URL / 数据库 / 日志 / 事件。**P1 首版每个分片独立建会话（并发上限 8）**，
 > 连接池与 FTPS 数据通道 TLS session 复用属后续优化；不承诺完整 FTP/SFTP 生态。
-> **P0 不是功能完整版**——BT/ed2k/站点解析/插件/sidecar/L1 RPC facade 均未实现，详见
+> **P0 不是功能完整版**——BT 已于 P1 WBS 7 实现（标准 BitTorrent 网络、公开 HTTP/UDP/HTTPS
+> tracker、magnet 经 BEP 9 取元数据，做种默认关闭、私有种子禁 DHT/PEX）；ed2k/站点解析/插件/sidecar/L1
+> RPC facade 仍为 P1/P3 目标，详见
 > [ADR-0020](docs/adr/ADR-0020-P0实现基线与范围声明.md) 与 [更新日志](CHANGELOG.md)。
 
 ## 三条不可动摇的架构原则
@@ -93,7 +95,7 @@ go run ./cmd/udctl show <id>
 
 ## 明确的能力边界（写进产品文案）
 
-- ✅ 兼容**标准** BT 网络（公网 peer、公开 HTTP/UDP/HTTPS tracker）与标准 eD2k 网络（线协议层）——**均为 P1/P3 目标，尚未实现**。
+- ✅ **P1 WBS 7 已实现**：BT / 磁力链接下载（标准 BitTorrent 网络、公开 HTTP/UDP/HTTPS tracker、magnet 经 BEP 9 取元数据；做种默认关闭、私有种子禁 DHT/PEX、诚实 PeerID）；标准 eD2k 网络（线协议层）为 P3 目标，尚未实现。
 - ✅ **P0 已实现**：HTTP(S) 直链、Range 分段、断点续传、暂停/恢复/取消、崩溃恢复、全局限速、L0 REST/WS/CLI、最小 UI、六平台纯 Go 构建。
 - ❌ **不承诺**私有 tracker 准入、迅雷 P2SP/高速通道/离线下载、ed2k 下载速度、DRM 内容解析、100% aria2 RPC 兼容。
 - ⚠️ 微信视频号嗅探为**单独分发、默认不安装**的可选插件，涉及逆向与平台条款风险。

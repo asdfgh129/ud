@@ -235,12 +235,13 @@ func TestNewLoggerLevels(t *testing.T) {
 	}
 }
 
-// WBS 8 regression: the two security-sensitive P1 built-ins must be
-// registered ahead of DirectHTTP/Unsupported, and each input class must
-// actually reach its own Resolver through the daemon's chain.
+// WBS 8/9/7 regression: the security-sensitive P1 built-ins must be registered
+// ahead of DirectHTTP/Unsupported, and each input class must actually reach its
+// own Resolver through the daemon's chain (including the new BT magnet /
+// .torrent parsers added in WBS 7).
 func TestBuiltinResolverChainOrderAndDispatch(t *testing.T) {
 	r := newBuiltinResolvers(allowGuard{})
-	want := []string{"metalink", "link-wrapper", "direct-http", "direct-file", "unsupported"}
+	want := []string{"metalink", "link-wrapper", "magnet", "torrent", "direct-http", "direct-file", "unsupported"}
 	if got := r.Names(); !reflect.DeepEqual(got, want) {
 		t.Fatalf("resolver order = %v, want %v", got, want)
 	}
@@ -265,18 +266,33 @@ func TestBuiltinResolverChainOrderAndDispatch(t *testing.T) {
 	if err != nil || res.Mirrors[0].URL != "https://mirror.example.com/a.iso" {
 		t.Fatalf("direct dispatch: %v %+v", err, res)
 	}
-	_, err = r.Resolve(ctx, core.Input{Raw: "magnet:?xt=urn:btih:abcd", Kind: core.InputMagnet})
-	if core.AsError(err).Code != core.E_CAPABILITY_UNAVAILABLE {
-		t.Fatalf("unsupported must stay last and classify P1 inputs, got %v", err)
+
+	// WBS 7: a well-formed magnet must resolve to a KindTorrent Resource without
+	// any network I/O. The resolver only records the infohash / display name /
+	// trackers; metadata is fetched later by the BT Transport.
+	const infoHash = "0123456789abcdef0123456789abcdef01234567" // 40 hex chars (SHA-1)
+	magnet := "magnet:?xt=urn:btih:" + infoHash + "&dn=example.iso&tr=udp://tracker.example.com:80"
+	res, err = r.Resolve(ctx, core.Input{Raw: magnet, Kind: core.InputMagnet})
+	if err != nil {
+		t.Fatalf("magnet dispatch: %v", err)
+	}
+	if res.Kind != core.KindTorrent || res.Identity.InfoHashV1 != infoHash {
+		t.Fatalf("magnet resolved to wrong resource: kind=%v infohash=%q", res.Kind, res.Identity.InfoHashV1)
+	}
+	if len(res.Identity.Trackers) != 1 || len(res.Identity.Trackers[0]) != 1 ||
+		res.Identity.Trackers[0][0] != "udp://tracker.example.com:80" {
+		t.Fatalf("magnet trackers not captured: %+v", res.Identity.Trackers)
 	}
 }
 
-// WBS 9 regression: the byte movers are registered in a stable order and the
-// FTP/SFTP transports receive the same credential store as the scheduler.
+// WBS 9/7 regression: the byte movers are registered in a stable order and the
+// FTP/SFTP transports receive the same credential store as the scheduler. The
+// WBS 7 BT Transport is registered last and selected by the torrent Kind, not a
+// mirror URL.
 func TestBuiltinTransportChainOrder(t *testing.T) {
 	creds := &noopCreds{}
 	r := newBuiltinTransports(allowGuard{}, creds)
-	want := []string{"http", "ftp", "sftp"}
+	want := []string{"http", "ftp", "sftp", "bt"}
 	if got := r.Names(); !reflect.DeepEqual(got, want) {
 		t.Fatalf("transport order = %v, want %v", got, want)
 	}
@@ -293,6 +309,11 @@ func TestBuiltinTransportChainOrder(t *testing.T) {
 		if err != nil || tr.Name() != tc.name {
 			t.Errorf("Select(%q) = %v, %v; want %q", tc.raw, tr, err, tc.name)
 		}
+	}
+	// WBS 7: a torrent-kind Resource is dispatched to the BT Transport.
+	tr, err := r.Select(&core.Resource{Kind: core.KindTorrent})
+	if err != nil || tr.Name() != "bt" {
+		t.Fatalf("Select(torrent) = %v, %v; want bt", tr, err)
 	}
 	if _, err := r.Select(&core.Resource{Mirrors: []core.Mirror{{URL: "file:///etc/passwd"}}}); core.AsError(err).Code != core.E_CAPABILITY_UNAVAILABLE {
 		t.Fatalf("unsupported scheme must fail cleanly, got %v", err)
