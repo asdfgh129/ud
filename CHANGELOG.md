@@ -119,6 +119,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **文档口径校准（2026-11-10，仅文档，不改代码与已签署结论）**：WBS 9 后部分描述
+  **当前态**的数字仍停留在 P0 / WBS 8 时点（10 个门禁包、12 个链接模块、
+  `5 PASS / 1 WARN`、CI 步骤写成 `make gates`），`docs/12` v0.4 说明对 §9 表的交叉引用
+  也已失效。现统一为 **13 个门禁包 / 16 个链接模块 / `make gates-strict` 6 PASS / 0 WARN**：
+  `docs/README` §三 新增「当前态口径（唯一速查）」作为唯一速查点，`13` 校正 CI 步骤名与
+  SBOM 守卫描述，`14` 在 R-16 与 §10 补时点标注，`12` 修正过期交叉引用。对 `17` 与
+  ADR-0020 这类**已签署的 P0 评审快照不改写历史证据**，只加时点口径声明。
+  `10` §7 把「12 个链接模块」标注为 P0 时点值并补 WBS 9 后的 16 个。
+  版本升 `10` v0.5、`12` v0.7、`13` v0.4、`14` v0.8、`17` v0.3、`docs/README` v0.9；
+  门户重建后 41 篇 0 断链。
 - **WBS 8 明确的能力边界**（与 ADR-0006 / 0007 / 0013 一致，写进产品口径）：
   ① 冻结的 `Resource` 只有全局 `Mirrors` / `Checksum`，**多 `<file>` 清单显式拒绝**
   （`E_CAPABILITY_UNAVAILABLE`），不把 A 的镜像错挂到 B；② 远端

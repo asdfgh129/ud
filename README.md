@@ -2,7 +2,7 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8、WBS 9 已交付）。** 13 个门禁包全部达标，`make gates-strict` 已接入 CI；详见 [`docs/17`](docs/17-P0里程碑评审材料.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8、WBS 9 已交付）。** 当前态：**13 个门禁包**全部达标、**16 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
 > 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链能走完
 > `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P1 WBS 8 已交付（2026-11-10）**：`thunder://` / `flashget://` / `qqdl://` 解码与 Metalink
@@ -33,7 +33,7 @@ make build         # 六平台交叉编译 → dist/（udd + udctl 各 6 个）
 make gates         # 评审门禁：覆盖率 / SBOM / 许可证 / govulncheck / 基准 / 回滚演练 → dist/
 ```
 
-> `make gates` 需要 `govulncheck`（`go install golang.org/x/vuln/cmd/govulncheck@latest`，
+> `make gates` / `make gates-strict` 需要 `govulncheck`（`go install golang.org/x/vuln/cmd/govulncheck@latest`，
 > 可用 `GOVULNCHECK=<path>` 指定）。工具缺失或漏洞库不可达时该门禁明确报 WARN，不会伪装通过。
 > 若本机全局 `GOSUMDB=off`，Makefile 会在项目级设为 `sum.golang.org` 以允许 `GOTOOLCHAIN=auto` 校验工具链模块，不修改用户全局配置。
 
