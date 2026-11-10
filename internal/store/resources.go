@@ -201,6 +201,14 @@ func (s *Store) GetResource(ctx context.Context, id string) (*core.Resource, err
 		if err := rows.Scan(&algo, &scope, &idx, &value); err != nil {
 			return nil, err
 		}
+		// scope='chunk' rows are the P0 self-check digests written by
+		// WriteChunkDone. They are NOT Metalink piece hashes: mixing them into
+		// Checksum.Pieces would make the manifest verification compare against
+		// the wrong digests (and the wrong algorithm). Only 'whole' and 'piece'
+		// describe the Resource the Resolver produced.
+		if scope != "whole" && scope != "piece" {
+			continue
+		}
 		if r.Checksum == nil {
 			r.Checksum = &core.Checksum{Algo: algo}
 		}

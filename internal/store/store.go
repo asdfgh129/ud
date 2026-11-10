@@ -36,12 +36,23 @@ func Open(path string, bus *core.EventBus) (*Store, error) {
 	if bus == nil {
 		bus = core.NewEventBus(256)
 	}
-	// _pragma applies to every pooled connection (foreign_keys/busy_timeout are per-connection).
+	// _pragma applies to EVERY pooled connection, so only per-connection
+	// settings belong here (foreign_keys / busy_timeout / synchronous).
+	// journal_mode(WAL) is a database-file-level persistent setting and needs
+	// exclusive access: re-issuing it on each lazily opened connection made
+	// concurrent Pause/Cancel calls fail with "database is locked (SQLITE_BUSY)".
 	dsn := "file:" + path + "?_pragma=foreign_keys(1)&_pragma=busy_timeout(5000)" +
-		"&_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)"
+		"&_pragma=synchronous(NORMAL)"
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open sqlite: %w", err)
+	}
+	// Set WAL exactly once, on the only connection in the pool, before any
+	// concurrent access can start.
+	db.SetMaxOpenConns(1)
+	if _, err := db.ExecContext(context.Background(), `PRAGMA journal_mode(WAL)`); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("enable WAL: %w", err)
 	}
 	db.SetMaxOpenConns(4)
 	db.SetMaxIdleConns(4)

@@ -222,8 +222,6 @@ func TestUnsupportedIsPhaseAware(t *testing.T) {
 	cases := map[core.InputKind]string{
 		core.InputMagnet:   "P1",
 		core.InputTorrent:  "P1",
-		core.InputMetalink: "P1",
-		core.InputThunder:  "P1",
 		core.InputSite:     "P2",
 		core.InputTelegram: "P3",
 		core.InputED2K:     "P3",
@@ -238,6 +236,15 @@ func TestUnsupportedIsPhaseAware(t *testing.T) {
 		}
 		if !strings.Contains(e.Message, phase) {
 			t.Errorf("%s: message %q must name phase %q", kind, e.Message, phase)
+		}
+	}
+	// WBS 8 is implemented in P1: reaching Unsupported for these kinds means
+	// the daemon forgot to register the built-in resolvers, not "unplanned".
+	for _, kind := range []core.InputKind{core.InputMetalink, core.InputThunder} {
+		_, err := u.Resolve(core.ResolveContext{Ctx: context.Background()}, core.Input{Kind: kind})
+		e := core.AsError(err)
+		if e.Code != core.E_RESOLVE_FAILED || !strings.Contains(e.Message, "注册链") {
+			t.Errorf("%s: want registration-chain error, got %v", kind, err)
 		}
 	}
 }

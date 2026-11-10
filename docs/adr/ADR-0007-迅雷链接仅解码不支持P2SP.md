@@ -31,6 +31,18 @@
 
 **负面**：用户可能误以为「支持迅雷」= 有加速能力，需靠文案与 UI 提示（解码后展示真实 URL 来源）管理预期。
 
+## 实现落地（2026-11-10，P1 WBS 8）
+
+`internal/resolve/wrapper.go` 实现 `WrapperResolver`：三种格式的 Base64 解码（容忍缺 padding、
+URL-safe 字母表、尾斜杠与 flashget 的 `&<port>` 后缀），marker 校验，解码后
+scheme ∈ {http, https, ftp, ed2k} 白名单、内嵌凭据与控制字符拒绝，并**再过一次 SSRF Guard**。
+文件名走 `internal/resolve/filename.go` 的路径穿越清理。它只产出 `Resource`，不解包字节、
+不连迅雷服务；`internal/app/daemon.go` 将其注册在 `DirectHTTP` 之前。
+
+**边界不变**：P2SP / 高速通道 / 离线下载 / 会员加速一律不实现；`ftp` / `ed2k` 解码结果在
+当前 Transport 只支持 HTTP(S) 的前提下会在 `transport.Select` 处报能力错误。产品文案仍按
+`16` §7 执行。测试见 `internal/resolve/wrapper_test.go`（含畸形输入与 SSRF 透传）。
+
 ## 合规与验证
 
 - `12` §3.3 覆盖 thunder/flashget/qqdl 正常与畸形输入。

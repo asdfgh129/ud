@@ -525,10 +525,18 @@ func (s *Scheduler) run(ctx context.Context, id core.TaskID) error {
 		if err != nil {
 			return err
 		}
-		res.Limits = core.TaskLimits{
+		// Merge task options OVER the Resource the Resolver described, but keep
+		// a manifest-declared piece length: ADR-0006 pins chunk boundaries to
+		// the Metalink <pieces length>, otherwise every declared piece digest
+		// would be unverifiable. A user-specified ChunkSize cannot override it.
+		limits := core.TaskLimits{
 			MaxConnections: t.Options.MaxConnections, ChunkSize: t.Options.ChunkSize,
 			MaxDownloadLimit: t.Options.MaxDownloadLimit,
 		}
+		if res.Checksum != nil && len(res.Checksum.Pieces) > 0 && res.Limits.ChunkSize > 0 {
+			limits.ChunkSize = res.Limits.ChunkSize
+		}
+		res.Limits = limits
 		res.PostProcess = []core.ProcessSpec{{Type: t.Options.PostProcess}}
 		// Never persist user headers: they may contain Authorization/Cookie.
 		res.Headers = nil
@@ -640,15 +648,36 @@ func (s *Scheduler) run(ctx context.Context, id core.TaskID) error {
 		return err
 	}
 
-	bad, err := s.st.VerifyAllChunks(context.WithoutCancel(ctx), id, res.ID, tempPath)
+	commitCtx := context.WithoutCancel(ctx)
+	bad, err := s.st.VerifyAllChunks(commitCtx, id, res.ID, tempPath)
 	if err != nil {
 		return err
 	}
-	if len(bad) > 0 {
-		for _, c := range bad {
-			_ = s.st.Release(context.WithoutCancel(ctx), c, true)
+	// ADR-0006: when a Metalink manifest declares piece digests, every chunk
+	// must be verified against its declared digest with the declared algorithm.
+	// Only failing pieces are released for re-download, never the whole file.
+	if res.Checksum != nil && len(res.Checksum.Pieces) > 0 {
+		pieceBad, err := s.st.VerifyPieceChecksums(commitCtx, id, tempPath,
+			res.Checksum.Algo, res.Checksum.Pieces)
+		if err != nil {
+			return err
 		}
-		if err := s.st.UpdateState(context.WithoutCancel(ctx), id,
+		bad = append(bad, pieceBad...)
+	}
+	if len(bad) > 0 {
+		seen := map[int64]bool{}
+		for _, c := range bad {
+			if seen[c.ID] {
+				continue
+			}
+			seen[c.ID] = true
+			if c.State == core.ChunkDone || c.State == core.ChunkVerified {
+				_ = s.st.ResetChunk(commitCtx, c)
+			} else {
+				_ = s.st.Release(commitCtx, c, true)
+			}
+		}
+		if err := s.st.UpdateState(commitCtx, id,
 			store.StateUpdate{To: core.StatePaused, Force: true}); err != nil {
 			return err
 		}
@@ -656,7 +685,7 @@ func (s *Scheduler) run(ctx context.Context, id core.TaskID) error {
 		return nil
 	}
 	if res.Checksum != nil && res.Checksum.Whole != "" {
-		sum, err := store.WholeFileChecksum(ctx, tempPath)
+		sum, err := store.WholeFileChecksumAlgo(commitCtx, tempPath, res.Checksum.Algo)
 		if err != nil || !strings.EqualFold(sum, res.Checksum.Whole) {
 			return core.Err(core.E_CHECKSUM_MISMATCH, "whole-file checksum mismatch")
 		}

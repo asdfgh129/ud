@@ -35,6 +35,28 @@
 
 **安全要求（必做）**：Metalink 是**不可信输入** —— XML 大小上限（默认 4MiB）、禁止 DTD/外部实体、镜像数量上限（默认 32）、每个 URL 逐跳过 SSRF Guard、整文件与分块哈希强制校验、失败分片只重下该片并降镜像权重。
 
+## 实现落地（2026-11-10，P1 WBS 8）
+
+- `internal/resolve/metalink_xml.go`：忽略命名空间前缀的 v3/v4 解析，4MiB XML、200k token、
+  64 层嵌套、100k piece hash 上限；禁 DTD / 实体 / 非 `xml` 处理指令；`<metaurl>` 不进镜像表。
+- `internal/resolve/metalink_http.go`：RFC 6249 `Link: rel=duplicate` 与 `Digest` /
+  `Content-Digest`（RFC 3230 base64、RFC 9530 `:base64:`、直出 hex 三种形式），摘要按强度择优。
+- `internal/resolve/metalink.go`：清单只从本地 `.meta4/.metalink`、内联 XML 或
+  `ResolveContext.Options` 读取；**不发起网络请求**。每个镜像先 `validateMirrorURL` 再过
+  `core.URLGuard.Check`。
+- `internal/store/checksum.go` + `internal/scheduler`：按声明算法做整文件与逐片校验，
+  `<pieces length>` 锁定 `Limits.ChunkSize`，失败片单独重下。
+
+**落地时确认的能力边界（记录于此，避免被误读为完整实现）**：
+
+1. 冻结的 `core.Resource` 只有全局 `Mirrors` 与一个 `Checksum`（ADR-0013），**多 `<file>`
+   清单无法忠实表达**，显式返回 `E_CAPABILITY_UNAVAILABLE` 而不是把 A 的镜像挂到 B。
+2. 远程 `https://…/*.meta4` 属于 Transport 职责，Resolver 不引入第二条下载路径；返回显式
+   能力错误，待后续 Transport 集成再把响应头/清单喂给 `Options`。
+3. 整文件与分块哈希必须使用**同一算法**；混合算法清单被拒绝。FTP / SFTP 镜像在解析层合法，
+   但当前 `transport.Select` 只支持 HTTP(S)，会在选择阶段报能力错误。
+4. 产品文案仍按 `16` §7 只写「支持 Metalink 多源清单解析」。
+
 ## 合规与验证
 
 - `12` §3.3 覆盖 v3 / v4 / RFC 6249 / 多镜像优先级 / piece hash / 恶意清单用例。

@@ -159,7 +159,7 @@
 
 > 完整追踪矩阵由 QA 在 P0 启动前补齐并随每次需求变更更新（`15` §5）。
 
-**P0 阶段追踪矩阵补全（2026-11-08）**：下表把 §7 中标为 P0 的 `M` 需求映射到已存在的自动化用例（用例 ID 沿用 `T-<需求号>-<序号>` 命名），完整用例清单见 `12` §9。P1+ 行仍为空格是**正确的排期状态**，不是遗漏。
+**P0 阶段追踪矩阵补全（2026-11-08）**：下表把 §7 中标为 P0 的 `M` 需求映射到已存在的自动化用例（用例 ID 沿用 `T-<需求号>-<序号>` 命名），完整用例清单见 `12` §9。P1+ 行仍为空格是**当时的**正确排期状态，不是遗漏；WBS 8 已实现的 P1 需求见下方补记。
 
 | 需求 | 设计文档 | 自动化用例 | 结果 |
 |---|---|---|---|
@@ -173,6 +173,14 @@
 | NFR-REL-01 崩溃恢复 | `06` §5 | `TestCrashRecoveryReusesChunks`、`TestCrashRecoveryResetsAndVerifies` | ✅ |
 | NFR-SEC-01/02 SSRF 与凭据 | `11` §2/§3 | `TestSSRFGuardBlocksUntrustedTargets`、`TestRedaction`、`TestSensitiveHeadersNeverPersisted`、`TestInlineCredentialHeadersRejected`、`TestRemoteListenRequiresToken` | ✅ |
 | NFR-PORT-01 纯 Go 六平台 | `13` §1/§2 | `make build`（12 个二进制）；守卫 2/5 | ✅ |
+
+**P1 WBS 8 追踪矩阵补记（2026-11-10）**：本节只记录已落地部分，不代表 P1 全部完成。
+
+| 需求 | 设计文档 | 自动化用例 | 结果 |
+|---|---|---|---|
+| FR-RSV-03 thunder/flashget/qqdl 仅解码 | `08` §6 / ADR-0007 | `wrapper_test.go`：`TestWrapperDecodesAllThreeFormats`、`TestWrapperRejectsMalformedInput`、`TestWrapperPropagatesSSRFBlock` | ✅ |
+| FR-RSV-04 Metalink v3/v4 + RFC 6249 | `08` §7 / ADR-0006 | `metalink_test.go`：`TestMetalinkV4ProducesCompleteResource`、`TestMetalinkV3Dialect`、`TestMetalinkRFC6249Headers`、`TestMetalinkXMLSecurityLimits` | ✅（多 `<file>` 与远端清单抓取为显式不支持） |
+| FR-TRN-02 分片与整文件校验 | `06` §4 / ADR-0006 | `store/checksum_test.go`：`TestWholeFileChecksumAlgo`、`TestVerifyPieceChecksums` | ✅（md5 / sha-1 / sha-256 / sha-512） |
 
 > **§9 验收准则的 P0 边界**：准则 1 的「无空格」在 P0 仅对上表 P0 行成立；准则 2/4 的 `12` 发布门禁、互操作全矩阵、SBOM 与 `go version -m` 一致性尚未执行（P1+）。准则 3 法务签字未进行。详见 `14` §9 与 `ADR-0020`。
 

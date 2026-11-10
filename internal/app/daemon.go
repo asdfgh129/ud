@@ -28,6 +28,21 @@ import (
 	"github.com/asdfgh129/ud/internal/version"
 )
 
+// newBuiltinResolvers wires the P1 resolver chain. Order is a security
+// invariant (docs/05 §10, docs/08 §5): security-sensitive built-ins must be
+// registered before any plugin, and Unsupported must stay last so a broken
+// registration chain produces an explicit error instead of a silent nil.
+// Metalink and the link wrappers are pure parsers: they only describe a
+// Resource and never open a network connection.
+func newBuiltinResolvers(guard core.URLGuard) *resolve.Registry {
+	r := resolve.NewRegistry()
+	r.Register(resolve.NewMetalinkResolver(guard))
+	r.Register(resolve.NewWrapperResolver(guard))
+	r.Register(resolve.NewDirectHTTP(guard))
+	r.Register(resolve.Unsupported{})
+	return r
+}
+
 type Options struct {
 	ConfigPath string
 	Listen     string
@@ -119,9 +134,7 @@ func Run(ctx context.Context, opts Options) error {
 	mgr := config.NewManager(cfg, nil)
 	creds := security.NewMemoryCredentialStore()
 
-	resolvers := resolve.NewRegistry()
-	resolvers.Register(resolve.NewDirectHTTP(guard))
-	resolvers.Register(resolve.Unsupported{})
+	resolvers := newBuiltinResolvers(guard)
 	transports := transport.NewRegistry()
 	transports.Register(httptransport.New(guard))
 	postprocs := postproc.NewRegistry()

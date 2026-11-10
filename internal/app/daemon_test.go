@@ -2,16 +2,31 @@ package app
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/asdfgh129/ud/internal/core"
 )
+
+// allowGuard lets the registration-chain test exercise pure parsing without
+// any DNS lookup; the real SSRFGuard is covered in internal/security.
+type allowGuard struct{}
+
+func (allowGuard) Check(context.Context, string) error { return nil }
+func (allowGuard) DialContext(context.Context, string, string) (net.Conn, error) {
+	return nil, errors.New("resolver registration test must not open a connection")
+}
+func (allowGuard) MaxRedirects() int { return 3 }
 
 // daemonHandle owns one background Run call. stop is idempotent and returns
 // whatever Run returned, so tests can assert a clean shutdown.
@@ -217,6 +232,42 @@ func TestNewLoggerLevels(t *testing.T) {
 		if l := newLogger(level); l == nil {
 			t.Fatalf("newLogger(%q) returned nil", level)
 		}
+	}
+}
+
+// WBS 8 regression: the two security-sensitive P1 built-ins must be
+// registered ahead of DirectHTTP/Unsupported, and each input class must
+// actually reach its own Resolver through the daemon's chain.
+func TestBuiltinResolverChainOrderAndDispatch(t *testing.T) {
+	r := newBuiltinResolvers(allowGuard{})
+	want := []string{"metalink", "link-wrapper", "direct-http", "unsupported"}
+	if got := r.Names(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("resolver order = %v, want %v", got, want)
+	}
+	ctx := core.ResolveContext{Ctx: context.Background(), Guard: allowGuard{}}
+
+	thunder := "thunder://" + base64.StdEncoding.EncodeToString(
+		[]byte("AAhttps://mirror.example.com/a.isoZZ"))
+	res, err := r.Resolve(ctx, core.Input{Raw: thunder, Kind: core.InputThunder})
+	if err != nil || len(res.Mirrors) != 1 || res.Mirrors[0].URL != "https://mirror.example.com/a.iso" {
+		t.Fatalf("thunder dispatch: %v %+v", err, res)
+	}
+
+	manifest := `<?xml version="1.0"?><metalink xmlns="urn:ietf:params:xml:ns:metalink">` +
+		`<file name="a.iso"><size>4</size><url priority="1">https://mirror.example.com/a.iso</url>` +
+		`</file></metalink>`
+	res, err = r.Resolve(ctx, core.Input{Raw: manifest, Kind: core.InputMetalink})
+	if err != nil || len(res.Mirrors) != 1 || res.Files[0].Path != "a.iso" {
+		t.Fatalf("metalink dispatch: %v %+v", err, res)
+	}
+
+	res, err = r.Resolve(ctx, core.Input{Raw: "https://mirror.example.com/a.iso", Kind: core.InputURL})
+	if err != nil || res.Mirrors[0].URL != "https://mirror.example.com/a.iso" {
+		t.Fatalf("direct dispatch: %v %+v", err, res)
+	}
+	_, err = r.Resolve(ctx, core.Input{Raw: "magnet:?xt=urn:btih:abcd", Kind: core.InputMagnet})
+	if core.AsError(err).Code != core.E_CAPABILITY_UNAVAILABLE {
+		t.Fatalf("unsupported must stay last and classify P1 inputs, got %v", err)
 	}
 }
 

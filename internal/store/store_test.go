@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -39,6 +40,40 @@ func TestSchemaAndIdempotentMigration(t *testing.T) {
 			t.Fatalf("schema_version=%d err=%v", v, err)
 		}
 		st.Close()
+	}
+}
+
+// Regression: PRAGMA journal_mode(WAL) requires exclusive access. Running it
+// through the per-connection _pragma list made every lazily opened pooled
+// connection re-issue it, so concurrent Pause/Cancel could fail with
+// "database is locked (SQLITE_BUSY)". WAL must be set once at Open and still
+// be active afterwards.
+func TestWALSetOnceAndPoolOpensCleanly(t *testing.T) {
+	st := newTestStore(t)
+	ctx := context.Background()
+	var mode string
+	if err := st.db.QueryRowContext(ctx, `PRAGMA journal_mode`).Scan(&mode); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.EqualFold(mode, "wal") {
+		t.Fatalf("journal_mode=%q, want wal", mode)
+	}
+	var wg sync.WaitGroup
+	errs := make(chan error, 16)
+	for i := 0; i < 16; i++ { // more goroutines than MaxOpenConns(4)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			var n int
+			if err := st.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM app_meta`).Scan(&n); err != nil {
+				errs <- err
+			}
+		}()
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		t.Fatalf("new pooled connection failed its pragma setup: %v", err)
 	}
 }
 

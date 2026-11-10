@@ -2,7 +2,6 @@ package resolve
 
 import (
 	"net/url"
-	"path"
 	"strings"
 
 	"github.com/asdfgh129/ud/internal/core"
@@ -37,19 +36,7 @@ func (d *DirectHTTP) Resolve(ctx core.ResolveContext, in core.Input) (*core.Reso
 			return nil, err
 		}
 	}
-	name, err := url.PathUnescape(path.Base(u.EscapedPath()))
-	if err != nil || name == "" || name == "/" || name == "." || name == ".." {
-		name = "download.bin"
-	}
-	name = strings.Map(func(r rune) rune {
-		if r == '/' || r == '\\' || r == '\x00' {
-			return -1
-		}
-		return r
-	}, name)
-	if len(name) > 200 {
-		name = name[len(name)-200:]
-	}
+	name := filenameFromURL(u)
 	return &core.Resource{
 		ID:     "res-" + string(core.NewID()),
 		Kind:   core.KindSingle,
@@ -74,9 +61,15 @@ func (Unsupported) Match(core.Input) bool { return true }
 
 func (Unsupported) Resolve(_ core.ResolveContext, in core.Input) (*core.Resource, error) {
 	phase := map[core.InputKind]string{
-		core.InputMagnet: "P1", core.InputTorrent: "P1", core.InputMetalink: "P1",
-		core.InputThunder: "P1", core.InputSite: "P2", core.InputTelegram: "P3",
-		core.InputED2K: "P3",
+		core.InputMagnet: "P1", core.InputTorrent: "P1",
+		core.InputSite: "P2", core.InputTelegram: "P3", core.InputED2K: "P3",
+	}
+	// Metalink and the thunder/flashget/qqdl wrappers are implemented as
+	// built-in resolvers since P1 (WBS 8). Reaching Unsupported for them means
+	// the registration chain is broken, not that the feature is unplanned.
+	if in.Kind == core.InputMetalink || in.Kind == core.InputThunder {
+		return nil, core.Err(core.E_RESOLVE_FAILED,
+			"输入类别 %q 已在 P1 实现，但未匹配到内置 Resolver（请检查注册链）", in.Kind)
 	}
 	p := phase[in.Kind]
 	if p == "" {

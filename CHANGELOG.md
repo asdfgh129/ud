@@ -26,6 +26,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **P1 WBS 8：链接封装解码与 Metalink 解析（2026-11-10）**：新增两个安全敏感的内置
+  Resolver，纯 Go、零 cgo、零网络 I/O——只描述 `Resource`，不解包任何字节。
+  - `internal/resolve/wrapper.go`：`WrapperResolver` 实现 `thunder://` / `flashget://` /
+    `qqdl://` **仅解码**（ADR-0007），绝不实现 P2SP / 高速通道 / 离线下载；宽松 Base64、
+    marker 校验、解码后 scheme 白名单、内嵌凭据拒绝、逐 URL 过 SSRF Guard。
+  - `internal/resolve/metalink_xml.go` / `metalink_http.go` / `metalink.go`：
+    RFC 5854 v4 + metalinker.org v3 XML、RFC 6249 `Link: rel=duplicate` 与
+    RFC 3230/9530 `Digest` / `Content-Digest`；4MiB XML、32 镜像、DTD/实体/PI、token/深度/piece
+    上限，`<metaurl>` 不作镜像，摘要按算法强度择优并统一转小写 hex。
+  - `internal/store/checksum.go` + `internal/scheduler`：按清单声明算法
+    （md5 / sha-1 / sha-256 / sha-512）做整文件与逐片校验；`Limits.ChunkSize` 锁定为
+    `<pieces length>`，失败只重下该片。`GetResource` 只重建 `scope='whole'/'piece'` 行，
+    不再把 P0 的 `scope='chunk'` 自检摘要误当 Metalink piece hash。
+  - `internal/app/daemon.go`：`newBuiltinResolvers()` 固定顺序
+    `metalink → link-wrapper → direct-http → unsupported`（安全敏感内置优先，`Unsupported` 兜底）；
+    原先落入 `Unsupported` 的 `InputMetalink` / `InputThunder` 改为注册链错误。
+  - 新增 `internal/store/checksum_test.go` 并补 `app` 注册链用例：`resolve` 90.5%、
+    `store` 84.8%、`app` 87.0%，`gates.py` 的 10 个门禁包全部达标。
 - **P1 首个 PR：覆盖率债清零（2026-11-10）**：新增 8 个包级测试文件，补齐此前空白或低覆盖路径——
   `resolve_test.go`（0% → 100%，注册表优先级/文件名回退/SSRF 透传/阶段化降级）、
   `app/daemon_test.go`（0% → 86.5%，真实起停守护进程、discovery 生命周期、配置错误）、
@@ -58,6 +76,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **WBS 8 明确的能力边界**（与 ADR-0006 / 0007 / 0013 一致，写进产品口径）：
+  ① 冻结的 `Resource` 只有全局 `Mirrors` / `Checksum`，**多 `<file>` 清单显式拒绝**
+  （`E_CAPABILITY_UNAVAILABLE`），不把 A 的镜像错挂到 B；② 远端
+  `https://…/*.meta4` **不由 Resolver 发起第二次网络请求**，返回显式能力错误，清单只能经
+  本地 `.meta4/.metalink` 路径或 `ResolveContext.Options` 传入；③ RFC 6249 头经
+  `Options[metalink_headers]` 注入，待 Transport 层集成。产品文案仍按 `16` §7 只写
+  「支持解析 thunder:// 链接」「支持 Metalink 多源清单解析」。
+- **SQLite 连接健壮性**：`journal_mode(WAL)` 从 DSN 的每连接 `_pragma` 列表移到 `Open()` 时
+  在单连接上执行一次。WAL 是数据库文件级持久设置，原先每条懒创建的池连接都会重发该
+  PRAGMA（需要独占访问），并发 `Pause` / `Cancel` 偶发 `database is locked (SQLITE_BUSY)`；
+  新增 `TestWALSetOnceAndPoolOpensCleanly` 回归用例。
 - **覆盖率附加条件关闭（2026-11-10）**：`docs/17` §1/§3/§5/§6/§9、`docs/14` §5/§10/§11、
   `docs/12` §9、`docs/13` §12、`docs/15` §11、`ADR-0020` 与根 `README.md` 同步标记关闭；
   R-16 由「中」降为「低」。
@@ -82,6 +111,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   「不包含」清单移出（它们属构建期门禁工具，不是产品能力）。
 
 ### Fixed
+- Metalink 清单声明的 `crc32` 等不支持算法曾被静默忽略（等于绕过完整性校验）；现在解析期
+  以 `E_INVALID_INPUT` 明确拒绝；`<hash>` 省略 `@type` 时按 SHA-256 处理。
+- `Digest: sha-256=<64 位 hex>` 会被当作合法 base64 先解成 48 字节而报错；改为先尝试长度
+  无歧义的 hex 形式，再回退 RFC 9530 `:base64:` 与 RFC 3230 base64。
 - `core.EventBus.Dropped()` 是文档化的诊断计数，但 `Publish` 从未累加；改为 `atomic.Int64`
   累加（`Publish` 只持读锁，用 mutex 计数会数据竞争），并补回归用例。
 - `TestULID` 依赖「同毫秒」时序，导致全量并行跑时覆盖率在 89.4%–92.4% 抖动；
@@ -91,11 +124,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 状态归类缺陷：`ADR-0001` 的 `Proposed（待立项评审批量转 Accepted）` 因备注中出现 `Accepted`
   被误标为「已决定」；现在只取括号前的主状态词。
 
-P0 全部构建批次（含收尾修复与文档同步）仍汇总于下方 `0.1.0`；P1 待办见 `ADR-0020` 与 `docs/14` §9/§10。
+P0 全部构建批次（含收尾修复与文档同步）仍汇总于下方 `0.1.0`；P1 排期见 `docs/14` §11（P0 范围快照见 `ADR-0020`）。
 **P0 里程碑评审决议（2026-11-09，随 `v0.1.0` 发布）**：结论「**有条件通过**」，由项目发起人一次性全权批准并代行五个签署角色；
 ADR 0001–0020 全部转 `Accepted`；OPEN-01 定档 **MPL-2.0**（`LICENSE` 已入库）、OPEN-02 定档 **Flutter**；
 `v0.1.0` 附注标签已打，`14` §3 的 P1 门禁解除（`14` §11 给出 WBS 7–11 启动顺序）。
-**附加条件**：覆盖率仍有 8 个包低于阈值，P1 首个 PR 前须补齐并把 `gates.py --strict` 接入 CI；当前 WARN 不记作通过。详见 `docs/17` §1/§5/§7/§8/§9。
+**附加条件（已关闭）**：评审时覆盖率有 8 个包低于阈值，要求 P1 首个 PR 前补齐并把 `gates.py --strict` 接入 CI；该条件已于 2026-11-10 全部满足（全仓 80.1%，CI 严格模式），当时的 WARN 不记作通过。详见 `docs/17` §1/§5/§7/§8/§9。
 
 ## [0.1.0] - 2026-11-08
 
