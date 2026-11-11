@@ -148,13 +148,13 @@ graph TD
 
 | 项 | 当前值 | 权威来源 |
 |---|---|---|
-| 已交付 | P0 有条件通过（附加条件已关闭）、P1 WBS 8 / WBS 9 / WBS 7（BT / 磁力） / WBS 10（插件引擎）；**WBS 11 互操作套件 v1 已交付**（框架 + 自建 tracker + 9 条本地用例 + 证据链），但 L4 全矩阵未执行，序 6 **不关闭** | `CHANGELOG.md`、`14` §11 |
+| 已交付 | P0 有条件通过（附加条件已关闭）、P1 WBS 8 / WBS 9 / WBS 7（BT / 磁力） / WBS 10（插件引擎）；**WBS 11 互操作套件 v1 已交付**（框架 + 自建 tracker + 9 条本地用例 + 证据链），但 L4 全矩阵未执行，序 6 **不关闭**；另以本机 MotrixNext 打包的 **aria2-next 3.0.9** 作为真实做种方产出 **BX-01 / BX-02 跨客户端证据**（sha256 校验通过），为**补充证据**不计入 L4 门禁 | `CHANGELOG.md`、`14` §11、`12` §3.1.1 |
 | 受门禁包 | **16 个**（WBS 10 新增 `internal/plugin` 88.4%；WBS 11 新增 `internal/interop` 87.1%） | `tools/gates.py:THRESHOLDS`、`12` §9 |
 | 链接模块 | **90 个**，0 copyleft / 0 未识别（含 `anacrolix/torrent` v1.62.0 与 `goja`；WBS 11 零新增依赖） | `dist/sbom.cdx.json`、`10` §8.1 / §8.2 |
 | 严格门禁 | `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**（本机与 CI 一致） | `dist/gates.json`、`.github/workflows/ci.yml` |
-| 互操作套件 | `make interop` **23 例：9 PASS / 0 FAIL / 12 SKIPPED / 2 UNSUPPORTED**，证据 `dist/interop.json` | `dist/INTEROP.md`、`12` §3.1 |
-| **L4 发布门禁** | ❌ **未通过**：`BT-01..BT-14` 需真实 qBittorrent / Transmission、自建 tracker 二进制、抓包与千兆内网；`SKIPPED` / `UNSUPPORTED` 不计为 PASS | `dist/INTEROP.md`、`14` §11 序 6 |
-| 下一个工作包 | 序 6 / WBS 11 **L4 外部矩阵执行**（套件已就绪，待隔离网络与真实客户端；另含 NFR-PERF-01 千兆内网 1GiB ≥ 80MB/s 基准） | `14` §11、`16` §6 |
+| 互操作套件 | `make interop` **23 例：9 PASS / 0 FAIL / 12 SKIPPED / 2 UNSUPPORTED**，证据 `dist/interop.json`；另有 `dist/interop_external.json` 的 **BX-01 / BX-02 真实跨客户端证据**（aria2-next，2/2 PASS，sha256 校验） | `dist/INTEROP.md`、`dist/interop_external.json`、`12` §3.1.1 |
+| **L4 发布门禁** | ❌ **未通过**：`BT-01..BT-14` 需真实 qBittorrent / Transmission、自建 tracker 二进制、抓包与千兆内网；`SKIPPED` / `UNSUPPORTED` 不计为 PASS；已用真实 **aria2-next** 取得 BX-01/BX-02 互通证据，但 aria2-next 不点名于 `BT-01..BT-14`，**仅作补充、不计入门禁** | `dist/INTEROP.md`、`dist/interop_external.json`、`14` §11 序 6 |
+| 下一个工作包 | 序 6 / WBS 11 **L4 外部矩阵执行**（套件已就绪，待隔离网络与命名客户端 qBittorrent / Transmission；跨客户端 harness 已可对本机 aria2-next 复跑 BX-01/BX-02）；另含 NFR-PERF-01 千兆内网 1GiB ≥ 80MB/s 基准 | `14` §11、`16` §6、`12` §3.1.1 |
 
 > **禁止误读**：套件 v1 已交付、CI 会跑 `make interop`，只说明**可复跑的本地自动化部分是绿的**；
 > `dist/INTEROP.md` 的 `release_gate_met: false` 才是发布结论。产品文案仍按 `16` §7

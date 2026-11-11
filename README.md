@@ -2,7 +2,7 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行，序 6 仍开放）。** 当前态：**16 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**，`make interop` 本地 9 例全绿；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行，序 6 仍开放）。** 当前态：**16 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**，`make interop` 本地 9 例全绿；另有本机 **aria2-next 真实跨客户端证据 BX-01/BX-02（2/2 PASS，sha256 校验，属补充、不计入 L4 门禁）**；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
 > 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链与 BT / 磁力均能走完
 > `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P1 WBS 8 已交付（2026-11-10）**：`thunder://` / `flashget://` / `qqdl://` 解码与 Metalink
@@ -32,11 +32,16 @@
 > 建立 `BT-01..BT-14` L4 门禁注册表与 9 条纯回环自动化用例——自建 BEP 3 HTTP/HTTPS 与
 > BEP 15 UDP tracker（compact IPv4/IPv6、passkey、故障注入）、独立 seeder ↔ `bttransport`
 > 真实线协议下载、BT 握手抓包诚实 PeerID、纯磁力 BEP 9 取元数据、多文件选择下载与流式首片；
-> `make interop` 产出 `dist/interop.json` / `dist/INTEROP.md`。**明确边界**：
+> `make interop` 产出 `dist/interop.json` / `dist/INTEROP.md`，并自动合并
+> `dist/interop_external.json` 的真实跨客户端证据段。**明确边界**：
 > `BT-01..BT-14` 需真实 qBittorrent / Transmission、抓包与千兆内网，本次全部记为
 > `SKIPPED`（`BT-02` / `BT-11` 为产品明确不做的 `UNSUPPORTED`），**发布门禁未通过**、
-> 序 6 不关闭；NFR-PERF-01 千兆内网基准同样未执行。不得据本地用例宣称「已与主流客户端
-> 实测互通」「全矩阵通过」。`make interop-gate` 在门禁未满足时明确失败。
+> 序 6 不关闭；NFR-PERF-01 千兆内网基准同样未执行。
+> 补充证据：本机 MotrixNext 打包的 **aria2-next 3.0.9** 是真实 BitTorrent 引擎，已用
+> `cmd/udinteropx` 驱动项目真实 `bttransport` 对其做种方完成下载并 sha256 校验，取得
+> **BX-01 / BX-02（2/2 PASS）真实互通证据**；但 aria2-next 不点名于 `BT-01..BT-14`，
+> 仅作补充、不计入 L4 门禁。不得据本地用例宣称「已与主流客户端实测互通」「全矩阵通过」。
+> `make interop-gate` 在门禁未满足时明确失败。
 > **P0 不是功能完整版**——ed2k / 真实站点规则包 / WASM 硬隔离 / sidecar / L1 RPC facade
 > 仍为 P1/P3 目标，详见
 > [ADR-0020](docs/adr/ADR-0020-P0实现基线与范围声明.md) 与 [更新日志](CHANGELOG.md)。
@@ -121,7 +126,7 @@ go run ./cmd/udctl show <id>
 
 ## 明确的能力边界（写进产品文案）
 
-- ✅ **P1 WBS 11 已实现（套件）**：`BT-01..BT-14` 门禁注册表、自建 HTTP(S)/UDP tracker fixture、9 条可复跑回环用例与 `dist/INTEROP.md` 证据链；❌ **L4 真实客户端矩阵与 NFR-PERF-01 千兆内网基准未执行**，`make interop` 绿灯**不等于**发布门禁通过，不得宣称「已与主流客户端实测互通」。
+- ✅ **P1 WBS 11 已实现（套件）**：`BT-01..BT-14` 门禁注册表、自建 HTTP(S)/UDP tracker fixture、9 条可复跑回环用例与 `dist/INTEROP.md` 证据链；❌ **L4 真实客户端矩阵（qBittorrent / Transmission）与 NFR-PERF-01 千兆内网基准未执行**，`make interop` 绿灯**不等于**发布门禁通过，不得宣称「已与主流客户端实测互通」。✅ **补充证据**：本机 MotrixNext 打包的 **aria2-next 3.0.9** 真实引擎已取得 **BX-01/BX-02（2/2 PASS，sha256 校验）**真实跨客户端互通证据（`dist/interop_external.json`），但 aria2-next 不点名于 `BT-01..BT-14`，仅作补充、不计入 L4 门禁。
 - ✅ **P1 WBS 10 已实现**：goja ES5.1 插件规则引擎（manifest 严格校验、Ed25519 签名、能力裁剪、逐跳 SSRF Guard、目录指纹热更新、`udctl plugin` 离线工具链、`RULE_OUTDATED` 兜底）；**软隔离**，不承诺 WASM / Extism 硬隔离、Node/Deno / 浏览器扩展脚本兼容、现代 JS 语法、官方规则仓库与真实站点规则包（L4 互操作矩阵属 WBS 11）。
 - ✅ **P1 WBS 7 已实现**：BT / 磁力链接下载（标准 BitTorrent 网络、公开 HTTP/UDP/HTTPS tracker、magnet 经 BEP 9 取元数据；做种默认关闭、私有种子禁 DHT/PEX、诚实 PeerID）；标准 eD2k 网络（线协议层）为 P3 目标，尚未实现。
 - ✅ **P0 已实现**：HTTP(S) 直链、Range 分段、断点续传、暂停/恢复/取消、崩溃恢复、全局限速、L0 REST/WS/CLI、最小 UI、六平台纯 Go 构建。

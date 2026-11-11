@@ -130,6 +130,24 @@ type Report struct {
 	Summary           Summary  `json:"summary"`
 	ReleaseGateMet    bool     `json:"release_gate_met"`
 	ReleaseGateReason string   `json:"release_gate_reason"`
+	// ExternalEvidence holds genuine cross-client verdicts produced by cmd/udinteropx
+	// against a real third-party BitTorrent engine (e.g. aria2-next bundled with
+	// MotrixNext). These are SUPPLEMENTARY: they never satisfy the named-client L4
+	// gate cases BT-01..BT-14 and do not flip ReleaseGateMet.
+	ExternalEvidence []ExternalVerdict `json:"external_evidence,omitempty"`
+}
+
+// ExternalVerdict is one honest result from the real cross-client harness.
+// SKIPPED / UNSUPPORTED are never coerced to PASS; only a hash-verified
+// download is PASS.
+type ExternalVerdict struct {
+	ID       string `json:"id"`
+	Client   string `json:"client"`
+	Status   string `json:"status"` // PASS | FAIL | SKIPPED
+	Name     string `json:"name"`
+	Evidence string `json:"evidence"`
+	InfoHash string `json:"infohash,omitempty"`
+	Error    string `json:"error,omitempty"`
 }
 
 const schemaVersion = "ud.interop/v1"
@@ -249,6 +267,14 @@ func RunAll(ctx context.Context, o Options) (Report, error) {
 		rep.ReleaseGateReason = "BT-01..BT-14 全部 PASS"
 	}
 
+	// Best-effort: fold in genuine cross-client evidence from cmd/udinteropx
+	// (dist/interop_external.json) when present. This never affects the L4 gate.
+	if o.OutDir != "" {
+		if ext, err := loadExternalEvidence(filepath.Join(o.OutDir, "interop_external.json")); err == nil {
+			rep.ExternalEvidence = ext
+		}
+	}
+
 	if o.OutDir != "" {
 		if err := rep.WriteEvidence(o.OutDir); err != nil {
 			return rep, err
@@ -319,6 +345,30 @@ func (r Report) Markdown() string {
 		fmt.Fprintf(&b, "| %s | %s | %s | %s | %d | %s |\n",
 			x.ID, gate, x.Scope, x.Status, x.DurationMs, escapeCell(x.Reason))
 	}
+
+	if len(r.ExternalEvidence) > 0 {
+		fmt.Fprintf(&b, "\n## 真实跨客户端证据（补充，非 L4 门禁）\n\n")
+		fmt.Fprintf(&b, "> 以下由 `cmd/udinteropx` 驱动**真实的第三方 BitTorrent 引擎**作为做种方、\n")
+		fmt.Fprintf(&b, "> 以本项目的真实 `bttransport` 作为下载方，在回环自托管 BEP 3 tracker 下完成下载并校验哈希。\n")
+		fmt.Fprintf(&b, "> 这是**真实的跨客户端互通证据**，但**不计入** `BT-01..BT-14` 命名的 L4 发布门禁\n")
+		fmt.Fprintf(&b, "> （那些用例点名 qBittorrent / Transmission / libtorrent 且要求抓包 + 千兆内网）。\n")
+		fmt.Fprintf(&b, "> L4 发布门禁仍以 SKIPPED/UNSUPPORTED 维持**未通过**；本段仅为补充证据。\n\n")
+		fmt.Fprintf(&b, "| 编号 | 客户端 | 状态 | 说明 | 哈希/infohash |\n|---|---|---|---|---|\n")
+		for _, v := range r.ExternalEvidence {
+			note := v.Name
+			if v.Status != "PASS" && v.Error != "" {
+				note = note + " — " + v.Error
+			}
+			ref := v.InfoHash
+			if ref == "" {
+				ref = v.Evidence
+			}
+			fmt.Fprintf(&b, "| %s | %s | %s | %s | `%s` |\n",
+				v.ID, v.Client, v.Status, escapeCell(note), ref)
+		}
+		fmt.Fprintf(&b, "\n")
+	}
+
 	fmt.Fprintf(&b, "\n## 证据明细\n\n")
 	for _, x := range r.Results {
 		if len(x.Evidence) == 0 {
@@ -346,6 +396,28 @@ func releaseVerdict(met bool) string {
 		return "✅ 通过"
 	}
 	return "❌ 未通过（预期：本地环境不具备外部 L4 条件）"
+}
+
+// loadExternalEvidence reads dist/interop_external.json (produced by cmd/udinteropx
+// against a real third-party client). Best-effort: errors return nil so a missing
+// or malformed file never breaks the main loopback run.
+func loadExternalEvidence(path string) ([]ExternalVerdict, error) {
+	blob, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var vs []ExternalVerdict
+	if err := json.Unmarshal(blob, &vs); err != nil {
+		return nil, err
+	}
+	for _, v := range vs {
+		switch v.Status {
+		case "PASS", "FAIL", "SKIPPED":
+		default:
+			return nil, fmt.Errorf("未知 status %q in %s", v.Status, path)
+		}
+	}
+	return vs, nil
 }
 
 func escapeCell(s string) string {

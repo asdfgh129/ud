@@ -95,6 +95,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     受门禁包 15 → **16**；链接模块仍 **90**（本包未引入任何新依赖）。
     `make lint` / `make test` / `make build` / `make interop` / `make gates-strict`
     全绿（6 PASS / 0 WARN / 0 FAIL），`go test -race ./...` 全绿。
+  - **真实第三方客户端互通证据（BX-01 / BX-02）**：本机已安装 MotrixNext.app
+    （Rayburst 4.1.1），其打包的 **aria2-next 3.0.9** 是真实 BitTorrent 引擎。新增
+    `cmd/udinteropx` 驱动**项目真实 `bttransport`**（与 `udd` 同一份代码）作为下载方，
+    对真实 aria2-next 做种方在回环自托管 BEP 3 tracker 下完成下载并校验 sha256，产出
+    **真实跨客户端互通证据**：
+      - **BX-01**（.torrent 下载）：PASS，payload 307200 字节，sha256
+        `4154066137427a17f67aba42a3e30397db1f652a419bb0b5bcee07fc9e40f68b`；
+      - **BX-02**（纯磁力 / BEP 9 取元数据）：PASS，infohash
+        `a14619d1f0bfdb632c6af2d3cbd0629b60806c68`，204800 字节 hash 校验一致。
+    证据：`dist/interop_external.json`（机器可读，由 `cmd/udinteropx` 产出）；`dist/INTEROP.md`
+    的「真实跨客户端证据」段由 `make interop` 自动合并 `interop_external.json`。
+    **重要边界**：aria2-next **不点名于** `BT-01..BT-14`（那些用例点名 qBittorrent /
+    Transmission / libtorrent，且要求抓包 + 千兆内网），故 BX 证据**不计入 L4 发布门禁**，
+    仅作补充；`release_gate_met` 维持 `false`，序 6 / WBS 11 维持开放。
 - **P1 WBS 10：插件引擎 / 规则通道 v1（2026-11-10）**：P1 序 5 交付，按 ADR-0014 与 `08`
   落地 `internal/plugin/`（纯 Go、零 cgo、单二进制不变）；新增 `github.com/dop251/goja`
   （MIT）及 3 个传递依赖，链接模块 86 → **90**，0 copyleft / 0 未识别，

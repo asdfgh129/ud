@@ -223,6 +223,9 @@ func clientConfig(r *core.Resource, dataDir string) *torrent.ClientConfig {
 	cfg.ListenHost = func(network string) string { return "" }
 	cfg.ListenPort = 0
 	cfg.DefaultStorage = storage.NewFile(dataDir)
+	if os.Getenv("UD_BT_DEBUG") != "" {
+		cfg.Debug = true
+	}
 	return cfg
 }
 
