@@ -170,7 +170,15 @@ func New(opts Options) (*Scheduler, error) {
 			g.Update(c)
 		}
 	})
-	go s.dispatch()
+	// The dispatch loop is the only place that calls wg.Add(1) for workers.
+	// Register it in the same WaitGroup before Close() can Wait(): a positive
+	// Add must never race with Wait while the counter is zero, and Close() must
+	// not return while dispatch/workers can still touch the store (docs/15 DoD).
+	s.wg.Add(1)
+	go func() {
+		defer s.wg.Done()
+		s.dispatch()
+	}()
 	return s, nil
 }
 
@@ -180,6 +188,11 @@ func (s *Scheduler) dispatch() {
 		case <-s.ctx.Done():
 			return
 		case id := <-s.queue:
+			// A cancelled context must win even when the queue stays hot, so
+			// Close() can always drain dispatch instead of spinning on queued IDs.
+			if s.ctx.Err() != nil {
+				return
+			}
 			if err := s.slots.acquire(s.ctx); err != nil {
 				return
 			}
@@ -457,6 +470,9 @@ func (s *Scheduler) Credentials() core.CredentialStore { return s.creds }
 
 func (s *Scheduler) Close() error {
 	s.cancel()
+	// dispatch is registered in s.wg from New(), so Wait() covers the loop
+	// itself plus every worker it spawned; no Add can follow this Wait.
+	// Calling Close twice is safe (cancel is idempotent, Wait on zero returns).
 	s.wg.Wait()
 	return nil
 }

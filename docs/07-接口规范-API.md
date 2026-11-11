@@ -1,7 +1,17 @@
 # 07 接口规范（API）
 
-> 文档编号：UD-DOC-07 ｜ 版本：v0.3 ｜ 状态：草案（L0 已落地；P1 WBS 10 离线插件 CLI 已落地） ｜ 日期：2026-11-10 ｜ 相关：ADR-0003、ADR-0014、ADR-0016、ADR-0019、ADR-0020
+> 文档编号：UD-DOC-07 ｜ 版本：v0.4 ｜ 状态：草案（L0 已落地；P1 WBS 10 离线插件 CLI、WBS 11 互操作 CLI 已落地） ｜ 日期：2026-11-11 ｜ 相关：ADR-0003、ADR-0014、ADR-0016、ADR-0019、ADR-0020
 
+> **v0.4 实现校准**（2026-11-11）：P1 WBS 11 新增独立二进制 `cmd/udinterop`
+> （`make interop` / `make interop-gate`），§8 矩阵补一行。**它是离线测试入口，
+> 不是 L0 REST / WS 契约的一部分**：不监听端口、不注册 API 端点、不改变任何
+> 现有 CLI 或错误码。标志为 `--out`、`--list`、`--require-external`、
+> `--external-config`、`--case-timeout`、`--release-gate-only`；
+> 环境变量 `UD_INTEROP_EXTERNAL` / `UD_INTEROP_CONFIG` 提供等价覆盖。
+> 产出 `dist/interop.json`（`ud.interop/v1`）与 `dist/INTEROP.md`；
+> `SKIPPED` / `UNSUPPORTED` 不计为 PASS，L4 门禁未满足时 `--release-gate-only` 非零退出。
+> **L4 真实客户端矩阵未执行，`release_gate_met: false`**，见 `12` §3.1、`14` §11 序 6。
+>
 > **v0.3 实现校准**（2026-11-10）：P1 WBS 10 落地 `udctl plugin` 六个**离线**子命令，
 > §3 的 CLI 清单按 `cmd/udctl/plugin.go` 实际签名校正——原设计稿的
 > `plugin install/verify/list <path-or-url>`（在线安装 / 远端 URL）**未实现**，
@@ -210,6 +220,7 @@ udctl daemon [--config <file>] [--listen 127.0.0.1:0] [--insecure-plugins]
 | §2 内联凭据头拒绝 | `api.validateTaskOptions` | `TestInlineCredentialHeadersRejected` |
 | §3 CLI 子集 | `cmd/udctl/main.go` | 端到端冒烟（见 `CHANGELOG.md`） |
 | §3 `plugin` 离线子命令（P1 WBS 10） | `cmd/udctl/plugin.go` + `internal/plugin/fixture.go` | `cmd/udctl/plugin_test.go:TestPluginCommandScaffoldLifecycle` / `TestPluginCommandSignVerifyTestList` / `TestPluginCommandUsageErrors`；`internal/plugin/fixture_test.go:TestRunFixtureOfflineReplay` |
+| 独立诊断 CLI（P1 WBS 11，非 L0 契约） | `cmd/udinterop/main.go` + `internal/interop/{suite,cases,httptracker,udptracker}.go` | `internal/interop/*_test.go`；`make interop` → `dist/interop.json` / `dist/INTEROP.md`（CI 运行并上传）。**L4 门禁 0/14 PASS，`release_gate_met: false`** |
 | §4 WebSocket 事件 | `internal/api/ws.go` + `core.EventBus` | `TestWebSocketEventDelivery` |
 | §5 L1 facade | **未实现**（ADR-0019，符合预期） | `/jsonrpc` 返回 404 |
 | §6 错误码表 | `internal/core/errors.go:errorSpecs` 全量 | `internal/core/state_test.go:TestErrorCodeTable`（HTTP 状态 / retryable / kind） |

@@ -50,3 +50,39 @@
 - `12` §3.1 BT-01..BT-14 全矩阵通过方可发布 P1。
 - 抓包验证 `private=1` 任务无 DHT/PEX 流量（BT-08）、PeerID 诚实（BT-14）。
 - 升级 `anacrolix/torrent` 必须重跑互操作套件（`15` §7）。
+
+## 实现落地（2026-11-11 补记，不改写上述决策）
+
+> 本节只记录实现事实与能力边界；上文「决策 / 备选方案 / 后果 / 合规与验证」保持原样，
+> 尤其「**BT-01..BT-14 全矩阵通过方可发布 P1**」这条**仍然有效且尚未满足**。
+
+**P1 WBS 7（2026-11-10）** 落实决策 1/2/4/5：`anacrolix/torrent v1.62.0`（MPL-2.0，
+纯 Go、零 cgo）作为进程内 `internal/transport/bt` Transport，由 Scheduler 的 `Budget` 统一计费；
+`File.NewReader()` 流式读取接入 `ChunkWriter`；`core.Resource` 承载 v1 infohash / private flag /
+tracker 分层 / passkey ref，冻结字段未改（ADR-0013）。`resolve/magnet.go` +
+`resolve/torrent.go` 处理磁力与 `.torrent`；私有种子强制 `NoDHT` / `DisablePEX` /
+`NoUpload` / `Seed=false`；诚实 PeerID 前缀 `-UD0000-` + 6 随机字节（ADR-0017）。
+**MPL-2.0 修改清单为空**（仅依赖，未改上游文件）。
+
+**P1 WBS 11（2026-11-11）** 落实「后续动作」中的**套件基建**部分：
+`internal/interop/` + `cmd/udinterop` 建立 `BT-01..BT-14` L4 门禁注册表、自建 BEP 3
+HTTP/HTTPS 与 BEP 15 UDP tracker fixture（BEP 23 compact 6B/18B、passkey、多 tracker 分层、
+故障注入）、9 条 `L3-xx` 纯回环自动化用例（独立 seeder ↔ `bttransport` 真实线协议、
+诚实 PeerID 握手抓包、纯磁力 BEP 9 元数据、选择下载、流式首片时延），产出
+`dist/interop.json` / `dist/INTEROP.md` 并由 CI 跑 `make interop`。
+本轮 `go test -race ./...` 还发现并修复了 `waitInfo` 的生产数据竞态
+（改为等待 `Torrent.GotInfo()`，补 `TestWaitInfoWaitsForGotInfo`）。
+
+**落地时确认的能力边界（避免被误读为「全矩阵通过」）**：
+
+1. `BT-01..BT-14` 是**发布门禁判据**，本次全部 `SKIPPED`；`BT-02`（我方做种）与
+   `BT-11`（分享率 / seed-time）按 WBS 7 产品边界标 `UNSUPPORTED`，属明确不做。
+   当前 **0/14 PASS，`release_gate_met: false`**，`make interop-gate` 明确失败。
+2. 自建 tracker 是**纯 Go 回环 fixture**，不是 `chihaya` / `opentracker` 二进制；
+   真实 qBittorrent / Transmission / libtorrent 客户端、抓包设备与千兆内网矩阵**未执行**。
+3. 「后果 / 负面」仍然成立：LSD（BEP 14）与 Super-seeding（BEP 16）库未实现；
+   默认 `Seed=false`；分享率 / 上传槽 / UPnP-NAT-PMP 与统一 announce 统计**仍为待办**。
+4. 决策 3 的 cgo/libtorrent 升级路径与决策 4 的 v1/hybrid 默认策略**未改变**；
+   升级 `anacrolix/torrent` 仍须重跑互操作套件（`15` §7）。
+5. 产品文案维持 `16` §7 口径，只写「兼容标准 BitTorrent 网络，可与主流客户端互通」，
+   不得写「已与主流客户端实测互通」「全矩阵通过」「千兆内网性能达标」。

@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Security
+- **Go 工具链升至 1.27.4：修复 `GO-2026-6859`（2026-11-11，WBS 11 收尾门禁发现）**：
+  `make gates-strict` 复跑时 `govulncheck` 漏洞库新增
+  `GO-2026-6859`「HTTP/1 server crash due to `MaxBytesReader` header race in `net/http`」，
+  Go **1.27.3** 标准库受影响、官方修复版本为 **1.27.4**。符号级扫描显示调用链遍布
+  `api.Server.ServeHTTP` / `wsHub.ServeHTTP`（`websocket.Upgrader.Upgrade`）、
+  `app.Run`（`http.Server.Serve` / `Shutdown`）、`bt.Transport.Run`、
+  `interop.ScrapeHTTP` 与 `store.WholeFileChecksum`，属**可达**漏洞，
+  不得按「不可达」放行。已将 `go.mod` 的 `go` 指令与
+  `.github/workflows/ci.yml` 的 `go-version` 由 `1.27.3` 升至 **`1.27.4`**，
+  同步 `Makefile` 注释、根 `README.md` 快速开始、`10` §7/§8.3、`11` §10、`13` §1/§12；
+  复扫 `No vulnerabilities found`，`make gates-strict` 恢复 **6 PASS / 0 WARN / 0 FAIL**。
+  **模块依赖图未变**（`require` 段未改，仍 90 个链接模块、0 copyleft / 0 未识别），
+  但代码变更后已重新 `make build` 再跑门禁，避免 SBOM 二进制陈旧守卫误判。
+  `17` 与 ADR-0020 中的 Go 1.27.3 属 **P0 评审时点证据**，保留不改。
 - **插件规则通道 fail-closed 安全边界（WBS 10）**：`capabilities.fs` / `env` / `subprocess`
   默认禁用且宿主不注入任何对应能力；出网只允许 `ctx.http.get`，每次重定向逐跳重过
   `allowedHosts` 白名单与共享 `security.SSRFGuard`，并强制 `timeoutMs` / `memoryMB` /
@@ -52,6 +66,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **P1 WBS 11：互操作套件 v1（2026-11-11）**：P1 序 6 的**套件与证据链**落地于
+  `internal/interop/` + `cmd/udinterop`（纯 Go、零新增依赖、零 cgo、仅回环）。
+  **重要口径：`BT-01..BT-14` 全矩阵仍未执行，序 6 / WBS 11 不关闭**——本地环境没有
+  真实 qBittorrent / Transmission、抓包设备与千兆内网，套件明确报 SKIPPED，
+  绝不把本地回环证据冒充 L4 发布门禁通过。
+  - 框架 `suite.go`：14 条 L4 门禁用例（docs/12 §3.1 原序）+ 9 条 `L3-xx` 本地自动化用例
+    的注册表；`Scope`（in-process / external / product-gap）与
+    `Status`（PASS / FAIL / SKIPPED / UNSUPPORTED）显式分类；每例独立超时与 panic 回收；
+    `ReleaseGateMet` 只在 14 条 L4 全 PASS 时为真，`SKIPPED` / `UNSUPPORTED` 不计入通过。
+  - 证据链：`dist/interop.json`（`ud.interop/v1`）+ `dist/INTEROP.md`，含逐条结论、
+    机器可读 evidence 与门禁判定；CI 新增 `make interop` 步骤并上传两份证据。
+  - 外部 harness：`UD_INTEROP_EXTERNAL=1` + `--external-config <json>` 可按用例 ID
+    接入真实客户端脚本，脚本最后一行输出
+    `{"status":"PASS|FAIL|SKIPPED|UNSUPPORTED","reason":"...","evidence":{...}}`；
+    未配置则 SKIP，`--release-gate-only` / `make interop-gate` 在门禁未满足时**明确失败**。
+  - 自建 tracker fixture：BEP 3 HTTP/HTTPS tracker（announce / scrape / compact IPv4 6B 与
+    IPv6 18B peer list / URL 路径 passkey / 503 与挂起故障注入）、BEP 15 UDP tracker
+    （connect / announce / scrape / IPv4 与 IPv6 compact / 过期 connection id 拒绝），
+    全部纯 Go、不依赖 chihaya / opentracker 二进制。
+  - 9 条本地用例（`make interop` 全绿，0 FAIL）：HTTP/UDP/HTTPS tracker 协议与故障降级、
+    独立 seeder ↔ `bttransport` 真实 BT 线协议端到端下载（sha256 一致 + tracker 观测到
+    announce）、BT 握手抓包诚实 PeerID、纯磁力经 BEP 9 取元数据、多文件选择下载、
+    `File.NewReader` 4KiB 分片首片时延。
+  - `BT-02` / `BT-11` 标为 `UNSUPPORTED`（我方做种 / 分享率策略按 WBS 7 边界明确不做），
+    不是遗漏也不是「通过」；其余 12 条 `SKIPPED`。
+  - 门禁：`tools/gates.py:THRESHOLDS` 纳入 `internal/interop`（≥80%，实测 **87.1%**），
+    受门禁包 15 → **16**；链接模块仍 **90**（本包未引入任何新依赖）。
+    `make lint` / `make test` / `make build` / `make interop` / `make gates-strict`
+    全绿（6 PASS / 0 WARN / 0 FAIL），`go test -race ./...` 全绿。
 - **P1 WBS 10：插件引擎 / 规则通道 v1（2026-11-10）**：P1 序 5 交付，按 ADR-0014 与 `08`
   落地 `internal/plugin/`（纯 Go、零 cgo、单二进制不变）；新增 `github.com/dop251/goja`
   （MIT）及 3 个传递依赖，链接模块 86 → **90**，0 copyleft / 0 未识别，
@@ -196,6 +239,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **WBS 11 文档同步（2026-11-11）**：`docs/README` v1.2 §三 当前态速查表更新为
+  「16 个门禁包 / 90 个链接模块 / 6 PASS / 0 WARN / 0 FAIL / 套件 v1 已交付、
+  **序 6 L4 仍开放**」；  `12` v1.0 补 §3.1 套件落地说明与 §9 证据行、`16` v0.6 §6/§8 补
+  WBS 11 实现边界、`14` v1.1 §11 序 6 改为「套件已交付 / L4 外部矩阵未执行」、
+  `13` v0.6 补 `make interop` 与证据链、`03` v0.6 §8 追踪矩阵补记、
+  `05` v0.4 §1 当前态、`07` v0.4 §8 CLI 矩阵、`11` v0.8 §10 残余风险、
+  `10` v0.8 §8.3 零新增依赖、ADR-0004 新增实现落地段；`17` 与 ADR-0020 仅补时点口径
+  （已签署 P0 证据原值不改）；根 `README.md` 当前态、能力边界、代码地图与快速开始同步；
+  `docs/_site/index.html` 由 `tools/build_docs.py` 重建。
+  **对外口径不变**：仍不得写「已与主流客户端实测互通」「全矩阵通过」或
+  「千兆内网性能达标」。
 - **WBS 10 文档同步（2026-11-10）**：按「文档为唯一真值源」校准当前态——
   `docs/README` v1.1 §三 当前态速查表更新为「已交付 WBS 8/9/7/10、15 个门禁包、
   90 个链接模块、6 PASS / 0 WARN / 0 FAIL、下一个工作包 = 序 6 / WBS 11」，
@@ -266,6 +320,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   「不包含」清单移出（它们属构建期门禁工具，不是产品能力）。
 
 ### Fixed
+- **调度器关闭时的 WaitGroup / 生命周期竞态（WBS 11 全量 `-race` 复跑发现）**：
+  `internal/scheduler/scheduler.go` 的 `dispatch()` 循环原以裸 `go s.dispatch()` 启动，
+  **未登记进 `s.wg`**，但循环内又会对每个任务调用 `s.wg.Add(1)`。于是 `Close()` 的
+  `s.cancel(); s.wg.Wait()` 可能与 `dispatch` 的 `Add` 并发（`WaitGroup` 明确禁止
+  counter 归零时的 `Add` 与 `Wait` 竞争），也可能在 dispatch / worker 仍在使用 store
+  时就返回；测试 harness 的 `t.Cleanup` 随后关闭 store 与 `httptest` server，
+  `go test -race ./internal/scheduler -count=5` 可稳定复现为 `TestFailedChunksDriveTaskToFailed`
+  的 data race。现把 dispatch 本身在 `New()` 里先 `wg.Add(1)` 再启动、
+  `defer wg.Done()`，并在收到队列 ID 后显式检查 `s.ctx.Err()`，保证取消后即便队列持续有值
+  也能退出；`Close()` 因此会等 dispatch 与所有 worker 真正结束才返回，且重复调用安全。
+  新增 `TestCloseDrainsDispatchAndWorkers` 回归用例，`go test -race ./...` 恢复全绿。
+- **BT 磁力下载的元数据就绪竞态（WBS 11 互操作套件在 `-race` 下发现）**：
+  `internal/transport/bt/bt.go:waitInfo` 原以 50ms 轮询 `Torrent.Info()` 判断元数据就绪，
+  但 anacrolix 在 `setInfo()` 里先在 `nameMu` 下发布 `t.info`、**之后**才调用
+  `initFiles()` 写 `t.files`；`Run()` 紧接着的 `pickFile() → Torrent.Files()` 会与
+  `initFiles()` 产生 data race（纯磁力经 BEP 9 取元数据时必现）。现改为等待
+  `Torrent.GotInfo()`（由 `onSetInfo()` 在 `setInfo()` 完成后关闭），同时覆盖元数据与
+  文件句柄就绪，并去掉轮询；新增 `TestWaitInfoWaitsForGotInfo` 回归用例，
+  `go test -race ./...` 恢复全绿。`Probe` 与 `Run` 共用该函数，两路同时受益。
 - `tools/gates.py:build_sbom()` 增加二进制与模块图一致性校验：SBOM 版本取自 `dist/`
   内二进制的 `go version -m`，而许可证原文读的是**当前**模块缓存；依赖升级后若未先
   `make build`，会产出「旧版本号 + 新许可证」的混合证据却仍报 PASS。现逐模块比对，

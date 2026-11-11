@@ -1,7 +1,13 @@
 # 05 详细设计说明书（LLD）
 
-> 文档编号：UD-DOC-05 ｜ 版本：v0.3 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10 已补记） ｜ 日期：2026-11-10 ｜ 上游：`04`、`06`、`07`
+> 文档编号：UD-DOC-05 ｜ 版本：v0.4 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10/11 已补记） ｜ 日期：2026-11-11 ｜ 上游：`04`、`06`、`07`
 
+> **v0.4 说明**（2026-11-11，仅范围补记、不改契约）：P1 WBS 11 新建 `internal/interop/`
+> 与 `cmd/udinterop`（互操作套件 v1），§1「当前态」按实际目录更新。该包是**测试 / 证据
+> 基础设施**，不参与 daemon 的 Resolver / Transport 注册链，也不引入 `core` 契约变更；
+> 零新增依赖、零 cgo。`Resource` / `PostProcessor` / 状态机三大冻结契约**未改动**。
+> 套件只覆盖本地回环，`12` §3.1 的 L4 真实客户端矩阵仍未执行（`14` §11 序 6 不关闭）。
+>
 > **v0.3 说明**（2026-11-10，仅范围补记、不改契约）：`internal/plugin/` 已随 P1 WBS 10 创建，§1 的「P0 实际落地范围」与 §10 的注册顺序按当前态更新。`Resource` / `PostProcessor` / 状态机三大冻结契约未改动。
 
 本文定义 P0 必须钉死的代码级契约。**`Resource` 结构、`PostProcessor` 契约、状态机是三个不可延后的设计点**（ADR-0012 / ADR-0013）。
@@ -42,7 +48,7 @@
 
 **P0 实际落地范围**（2026-11-09 时点快照，作为历史证据保留）：P0 只实现了 `cmd/{udd,udctl}` 与 `internal/{core,config,security,store,resolve,transport/http,postproc,scheduler,api,app,version}`。
 
-**当前态（2026-11-10，WBS 7/8/9/10 后）**：`internal/transport/{ftp,sftp,bt}`、`internal/transport/tputil`、`internal/plugin/`、`internal/resolve/{wrapper,metalink,magnet,torrent}` 均已落地（目录形态与上表目标结构略有差异：链接封装与 Metalink 使用 `resolve/` 下的平铺文件而非 `resolve/wrapper/` 子包；BT 传输为 `transport/bt` 而非 `transport/torrent`）。**仍未创建**：`transport/{ed2k,hlsdash}`、`resolve/source`、`sidecar/`、`pkg/`，以及正式 UI。P0 不引入空壳占位包的原则继续有效。
+**当前态（2026-11-11，WBS 7/8/9/10/11 后）**：`internal/transport/{ftp,sftp,bt}`、`internal/transport/tputil`、`internal/plugin/`、`internal/interop/`、`cmd/udinterop`、`internal/resolve/{wrapper,metalink,magnet,torrent}` 均已落地（目录形态与上表目标结构略有差异：链接封装与 Metalink 使用 `resolve/` 下的平铺文件而非 `resolve/wrapper/` 子包；BT 传输为 `transport/bt` 而非 `transport/torrent`；`interop` 为测试基础设施，不在上表目标结构内、不进 daemon 调用链）。**仍未创建**：`transport/{ed2k,hlsdash}`、`resolve/source`、`sidecar/`、`pkg/`，以及正式 UI。P0 不引入空壳占位包的原则继续有效。
 
 ## 2. 核心接口（Go）
 

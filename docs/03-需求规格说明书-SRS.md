@@ -1,6 +1,11 @@
 # 03 软件需求规格说明书（SRS）
 
-> 文档编号：UD-DOC-03 ｜ 版本：v0.5 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9/10 已补记，待评审） ｜ 日期：2026-11-10 ｜ 上游：`01`、`adr/`
+> 文档编号：UD-DOC-03 ｜ 版本：v0.6 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9/10/11 已补记，待评审） ｜ 日期：2026-11-11 ｜ 上游：`01`、`adr/`
+>
+> **v0.6 变更**：P1 WBS 11（互操作套件 v1）落地，§8 新增「P1 WBS 11 追踪矩阵补记」表。
+> **真实公网 / 真实客户端 L4 互操作矩阵（`12` §3.1 `BT-01..BT-14`）仍全部 `SKIPPED`**
+> （`BT-02`/`BT-11` 为产品明确不做的 `UNSUPPORTED`），`release_gate_met: false`，
+> §9 准则 2 的「互操作套件全矩阵通过」**仍未满足**，序 6 不关闭。
 >
 > **v0.5 变更**：P1 WBS 10（插件引擎）落地，§8 新增「P1 WBS 10 追踪矩阵补记」表。
 >
@@ -198,7 +203,9 @@
 | NFR-PORT-01 纯 Go 六平台 | `13` §1/§2 | `make build`（12 个二进制，新增 4 个 ISC/BSD 链接模块）；`check_arch.py` 守卫 2/5 | ✅ |
 
 **P1 WBS 7 追踪矩阵补记（2026-11-10）**：本节只记录已落地部分，不代表 P1 全部完成；真实公网
-BT 客户端互操作矩阵（`12` §3.1 BT-01…BT-14）仍为 WBS 11 待办，当前证据为回环 fixture。
+BT 客户端互操作矩阵（`12` §3.1 BT-01…BT-14）在 WBS 7 时点为 WBS 11 待办、证据为回环 fixture。
+**WBS 11 后（2026-11-11）更新**：套件 v1 已交付本地回环子集与门禁注册表，但该 L4 矩阵
+**仍未执行**（全部 `SKIPPED` / `UNSUPPORTED`），见下文 WBS 11 补记。
 
 | 需求 | 设计文档 | 自动化用例 | 结果 |
 |---|---|---|---|
@@ -226,7 +233,21 @@ WASM 硬隔离、第三方规则仓库 / 发布流水线、规则失效遥测、
 | 规则热更新（独立于主程序发版） | ADR-0014 §6 / `08` §8/§10 | `plugin/manager_test.go::TestManagerHotReloadSwapsSnapshot` / `TestManagerWatchReloads` / `TestFingerprintAndPluginDirsLimits` | ✅（目录指纹 + 原子快照 + 轮询；无规则仓库/发布流水线） |
 | NFR-PORT-01 纯 Go 六平台 | `13` §1/§2 / `10` §8 | `make build`（12 个二进制）；`make gates-strict` 许可证 90 模块 0 copyleft / 0 未识别；`check_arch.py` 6 守卫 | ✅（goja / regexp2 / go-sourcemap 均为 MIT/BSD，零 cgo） |
 
-> **§9 验收准则的 P0 边界**：准则 1 的「无空格」在 P0 仅对上表 P0 行成立；准则 2/4 的 `12` 发布门禁、互操作全矩阵、SBOM 与 `go version -m` 一致性尚未执行（P1+）。准则 3 法务签字未进行。详见 `14` §9 与 `ADR-0020`。
+**P1 WBS 11 追踪矩阵补记（2026-11-11）**：只记录**已落地且可复跑的本地自动化部分**；
+`12` §3.1 的 `BT-01..BT-14` 为 **L4 发布门禁判据**，本次全部未执行，**不代表 P1 验收完成**。
+
+| 需求 | 设计文档 | 自动化用例 / 证据 | 结果 |
+|---|---|---|---|
+| FR-INT-03 / FR-BT 互操作回归套件（框架） | `12` §3.1、`16` §6 | `internal/interop/suite_test.go::TestRegistryCompleteness` 等；`cmd/udinterop --list`、`make interop` → `dist/interop.json` / `dist/INTEROP.md` | ✅ 14 条 L4 用例按原序登记；状态模型 `PASS`/`FAIL`/`SKIPPED`/`UNSUPPORTED`，`SKIPPED`/`UNSUPPORTED` 不计 PASS |
+| FR-TRN-05 tracker（BEP 3 / BEP 15 / BEP 23） | `16` §2、`12` §3.1 BT-05/06/07 | `L3-01` HTTP(S) announce/scrape/compact v4+v6/503 与挂起故障注入、`L3-02` UDP connect/announce/scrape/compact IPv4、`L3-03` UDP IPv6 18B compact、`L3-04` HTTPS + passkey + 主备降级 | ✅ 均为**自建纯 Go fixture**（非 `chihaya`/`opentracker` 二进制） |
+| FR-TRN-05 / FR-TRN-06 BT 线协议与流式 | ADR-0004、`16` §2 | `L3-05` 独立 seeder + 自建 tracker + `bttransport` 真实线协议下载、`L3-07` 纯磁力经 bootstrap peer 取 BEP 9 元数据、`L3-09` 流式首片 4KiB 时延 | ✅ 回环，非真实客户端互操作 |
+| FR-INT-03 诚实 PeerID（ADR-0017） | `11` §7.1、`16` §4 | `L3-06` BT 握手抓包：PeerID 前缀 `-UD0000-`、非伪装 | ✅ 回环抓包；BT-14 的真实客户端抓包仍未执行 |
+| FR-BT 选择下载 | `12` §3.1 BT-09 | `L3-08` 多文件种子部分选中，未选文件字节不进入 `ChunkWriter` | ✅ 回环 |
+| NFR-PORT-01 纯 Go 六平台 / 零 cgo | `13` §1/§2、`10` §8 | `make build`（12 个二进制）；`make gates-strict` 许可证 **90 个链接模块 0 copyleft / 0 未识别**，`internal/interop` 覆盖率 87.1%（16 个门禁包） | ✅ WBS 11 **零新增依赖** |
+| `12` §8 发布门禁「互操作 L4」 | `12` §3.1、`14` §11 序 6 | `make interop-gate` / `udinterop --release-gate-only`；`dist/interop.json:release_gate_met` | ❌ **未通过**：0/14 PASS，12 `SKIPPED` + 2 `UNSUPPORTED`（`BT-02`/`BT-11` 产品边界），`release_gate_met: false`；`make interop-gate` 明确失败 |
+| NFR-PERF-01 千兆内网吞吐 | `12` §5 | 需隔离网络 + 1GiB 文件 + 抓包 | ❌ **未执行**（`make bench` 只是回环 32MiB 回归基线，非该门禁） |
+
+> **§9 验收准则的 P0 边界**：准则 1 的「无空格」在 P0 仅对上表 P0 行成立；准则 2/4 的 `12` 发布门禁、互操作全矩阵、SBOM 与 `go version -m` 一致性尚未执行（P1+；其中 SBOM / `go version -m` 一致性已于 `make gates-strict` 落地，但 **L4 互操作全矩阵仍未通过**）。准则 3 法务签字未进行。详见 `14` §9 与 `ADR-0020`。
 
 ## 9. 验收准则
 

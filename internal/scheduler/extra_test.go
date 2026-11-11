@@ -279,6 +279,29 @@ func TestFailedChunksDriveTaskToFailed(t *testing.T) {
 	}
 }
 
+// Regression (WBS 11 `go test -race ./...`): Close() must drain the dispatch
+// loop and every worker before returning. Previously dispatch was not registered
+// in s.wg, so Close() could return while dispatch still called wg.Add(1) — a
+// WaitGroup Add/Wait data race — and while a worker still used the store; the
+// harness cleanup then closed the store/server underneath it. The old code was
+// flaky under `go test -race ./internal/scheduler -count=5`.
+func TestCloseDrainsDispatchAndWorkers(t *testing.T) {
+	h := newHarness(t, 1<<20)
+	for i := 0; i < 8; i++ {
+		h.add(t, core.TaskOptions{MaxConnections: 2})
+	}
+	// Deliberately do not wait for terminal states: Close must race correctly
+	// with in-flight work rather than relying on the test to be idle.
+	if err := h.s.Close(); err != nil {
+		t.Fatalf("Close: %v", err)
+	}
+	// Idempotent: the harness cleanup invokes Close once more. If dispatch were
+	// still registered in the WaitGroup this would deadlock instead.
+	if err := h.s.Close(); err != nil {
+		t.Fatalf("second Close: %v", err)
+	}
+}
+
 func TestInjectHeadersMergesCredential(t *testing.T) {
 	h := newHarness(t, 16)
 	ctx := context.Background()

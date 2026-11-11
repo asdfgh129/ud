@@ -211,6 +211,42 @@ func TestProbePureMagnetMetadata(t *testing.T) {
 	}
 }
 
+// TestWaitInfoWaitsForGotInfo documents the WBS 11 race fix: readiness must be
+// signalled by Torrent.GotInfo() (closed after initFiles()) rather than by
+// polling Torrent.Info(). With no metadata, a cancelled context must return
+// promptly instead of spinning.
+func TestWaitInfoWaitsForGotInfo(t *testing.T) {
+	cfg := torrent.NewDefaultClientConfig()
+	cfg.NoDHT = true
+	cfg.DisablePEX = true
+	cfg.ListenHost = func(network string) string {
+		if strings.HasSuffix(network, "6") {
+			return "::1"
+		}
+		return "127.0.0.1"
+	}
+	cfg.ListenPort = 0
+	cfg.DefaultStorage = storage.NewFile(t.TempDir())
+	cl, err := torrent.NewClient(cfg)
+	mustNoErr(t, err)
+	defer cl.Close()
+
+	var ih [20]byte
+	for i := range ih {
+		ih[i] = byte(i + 1)
+	}
+	tor, _, err := cl.AddTorrentSpec(&torrent.TorrentSpec{InfoHash: ih})
+	mustNoErr(t, err)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := waitInfo(ctx, tor); err == nil {
+		t.Fatal("waitInfo must return the context error when metadata never arrives")
+	}
+	if tor.Info() != nil {
+		t.Fatal("test setup: torrent unexpectedly already has info")
+	}
+}
+
 // oobChunkWriter emits a single chunk whose range is deliberately outside the
 // file bounds so the Transport must Release it and bail out.
 type oobChunkWriter struct {

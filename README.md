@@ -2,7 +2,7 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / WBS 9 / WBS 7 / WBS 10 已交付，P1 编码工作包序 1–5 全部完成）。** 当前态：**15 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行，序 6 仍开放）。** 当前态：**16 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机与 CI 均为 **6 PASS / 0 WARN / 0 FAIL**，`make interop` 本地 9 例全绿；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
 > 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链与 BT / 磁力均能走完
 > `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P1 WBS 8 已交付（2026-11-10）**：`thunder://` / `flashget://` / `qqdl://` 解码与 Metalink
@@ -19,7 +19,8 @@
 > 本地文件）作为内置 Resolver 接入，magnet 经 BEP 9 从直连对等点取元数据。做种默认关闭
 > （`Seed=false`）、私有种子强制禁 DHT/PEX、诚实 PeerID（`-UD0000-` 前缀）；`File.NewReader`
 > 流式拷回 `ChunkWriter` 并受统一 Budget 约束。明确边界：**不承诺 PT / 私有站准入**，
-> 真实公网 BT 客户端互操作矩阵属 WBS 11 待办，当前证据为回环 fixture。
+> 真实公网 BT 客户端互操作矩阵在 WBS 7 时点列为 WBS 11 待办、证据为回环 fixture
+> （WBS 11 套件 v1 交付后该矩阵**仍未执行**，见下文）。
 > **P1 WBS 10 已交付（2026-11-10）**：基于 `goja` 的 ES5.1 插件规则引擎落地于
 > `internal/plugin/`——manifest 严格校验、静态扫描、Ed25519 规则包签名、能力裁剪
 > （`fs`/`env`/`subprocess` 默认禁用）、`ctx.http` 逐跳 SSRF Guard 与白名单、目录指纹热更新、
@@ -27,6 +28,15 @@
 > 规则包在 `direct-http` 之前接入 Resolver 链，安全敏感内置仍优先。明确边界：
 > goja 是**软隔离**（无 per-VM 堆上限），不承诺 WASM / Extism 硬隔离、Node/Deno 脚本兼容、
 > 官方规则仓库与真实站点规则包；插件 REST 管理端点未实现。
+> **P1 WBS 11 互操作套件 v1 已交付（2026-11-11）**：`internal/interop/` + `udinterop`
+> 建立 `BT-01..BT-14` L4 门禁注册表与 9 条纯回环自动化用例——自建 BEP 3 HTTP/HTTPS 与
+> BEP 15 UDP tracker（compact IPv4/IPv6、passkey、故障注入）、独立 seeder ↔ `bttransport`
+> 真实线协议下载、BT 握手抓包诚实 PeerID、纯磁力 BEP 9 取元数据、多文件选择下载与流式首片；
+> `make interop` 产出 `dist/interop.json` / `dist/INTEROP.md`。**明确边界**：
+> `BT-01..BT-14` 需真实 qBittorrent / Transmission、抓包与千兆内网，本次全部记为
+> `SKIPPED`（`BT-02` / `BT-11` 为产品明确不做的 `UNSUPPORTED`），**发布门禁未通过**、
+> 序 6 不关闭；NFR-PERF-01 千兆内网基准同样未执行。不得据本地用例宣称「已与主流客户端
+> 实测互通」「全矩阵通过」。`make interop-gate` 在门禁未满足时明确失败。
 > **P0 不是功能完整版**——ed2k / 真实站点规则包 / WASM 硬隔离 / sidecar / L1 RPC facade
 > 仍为 P1/P3 目标，详见
 > [ADR-0020](docs/adr/ADR-0020-P0实现基线与范围声明.md) 与 [更新日志](CHANGELOG.md)。
@@ -40,11 +50,13 @@
 ## 快速开始（P0）
 
 ```bash
-# 需要 Go 1.27.3（因 GO-2026-6809 升级）；所有构建强制 CGO_ENABLED=0
+# 需要 Go 1.27.4（因 GO-2026-6809 / GO-2026-6859 两次安全升级）；所有构建强制 CGO_ENABLED=0
 make lint          # gofmt + go vet + 架构静态检查（6 守卫）
 make test          # 全量单测 / 契约 / 集成
 make build         # 六平台交叉编译 → dist/（udd + udctl 各 6 个）
 make gates         # 评审门禁：覆盖率 / SBOM / 许可证 / govulncheck / 基准 / 回滚演练 → dist/
+make interop       # WBS 11 互操作套件 v1（本地回环用例）→ dist/interop.json + INTEROP.md
+make interop-gate  # L4 发布门禁（外部矩阵未执行时明确失败）
 ```
 
 > `make gates` / `make gates-strict` 需要 `govulncheck`（`go install golang.org/x/vuln/cmd/govulncheck@latest`，
@@ -83,7 +95,8 @@ go run ./cmd/udctl show <id>
 | `internal/scheduler` | 唯一调度器、唯一 Limiter、ChunkWriter、清单 piece 长度锁定分片边界、原子提交 |
 | `internal/api` · `internal/app` | L0 REST + WebSocket、daemon 装配、嵌入式最小 UI |
 | `internal/plugin` | WBS 10 规则通道：manifest 严格校验、ES5.1 静态扫描、Ed25519 签名、goja 运行时、能力裁剪 / 逐跳 SSRF、目录指纹热更新与离线回放；在通配 `direct-http` 之前接入注册链 |
-| `cmd/udd` · `cmd/udctl` | daemon 与 CLI 入口 |
+| `internal/interop` | WBS 11 互操作套件：L4 门禁注册表、外部 harness、BEP 3/15 自建 tracker fixture、9 条回环自动化用例与证据输出 |
+| `cmd/udd` · `cmd/udctl` · `cmd/udinterop` | daemon、CLI 与互操作套件入口 |
 | `tools/` | `build_docs.py`（文档门户）、`check_arch.py`（架构守卫）、`gates.py`（评审门禁证据） |
 
 ## 文档入口
@@ -108,6 +121,7 @@ go run ./cmd/udctl show <id>
 
 ## 明确的能力边界（写进产品文案）
 
+- ✅ **P1 WBS 11 已实现（套件）**：`BT-01..BT-14` 门禁注册表、自建 HTTP(S)/UDP tracker fixture、9 条可复跑回环用例与 `dist/INTEROP.md` 证据链；❌ **L4 真实客户端矩阵与 NFR-PERF-01 千兆内网基准未执行**，`make interop` 绿灯**不等于**发布门禁通过，不得宣称「已与主流客户端实测互通」。
 - ✅ **P1 WBS 10 已实现**：goja ES5.1 插件规则引擎（manifest 严格校验、Ed25519 签名、能力裁剪、逐跳 SSRF Guard、目录指纹热更新、`udctl plugin` 离线工具链、`RULE_OUTDATED` 兜底）；**软隔离**，不承诺 WASM / Extism 硬隔离、Node/Deno / 浏览器扩展脚本兼容、现代 JS 语法、官方规则仓库与真实站点规则包（L4 互操作矩阵属 WBS 11）。
 - ✅ **P1 WBS 7 已实现**：BT / 磁力链接下载（标准 BitTorrent 网络、公开 HTTP/UDP/HTTPS tracker、magnet 经 BEP 9 取元数据；做种默认关闭、私有种子禁 DHT/PEX、诚实 PeerID）；标准 eD2k 网络（线协议层）为 P3 目标，尚未实现。
 - ✅ **P0 已实现**：HTTP(S) 直链、Range 分段、断点续传、暂停/恢复/取消、崩溃恢复、全局限速、L0 REST/WS/CLI、最小 UI、六平台纯 Go 构建。
@@ -119,7 +133,7 @@ go run ./cmd/udctl show <id>
 1. `MemoryCredentialStore` 是进程内参考实现，`mem://` 引用在 daemon 重启后失效；OS 钥匙串适配器待 P1。
 2. 非回环监听必须配置 `remoteToken`（否则拒绝启动），且目前只有 Bearer 鉴权，无 TLS / Origin 校验。
 3. `postProcess` 只支持 `none`；最小 UI 是契约验证占位件（OPEN-02 已定档 Flutter，正式 UI 不进入 P1 编码范围）。
-4. CycloneDX SBOM / `govulncheck` / 许可证扫描 / 覆盖率报告 / 回滚演练已由 `make gates-strict` 执行，覆盖率全部达标；但互操作套件与千兆内网性能基准未执行，仍不等价于发布门禁全绿（见 `docs/17` §3/§5）。
+4. CycloneDX SBOM / `govulncheck` / 许可证扫描 / 覆盖率报告 / 回滚演练已由 `make gates-strict` 执行，覆盖率全部达标；WBS 11 起互操作套件 v1 的**本地自动化部分**已由 `make interop` 执行，但 `BT-01..BT-14` L4 真实客户端矩阵与 NFR-PERF-01 千兆内网性能基准**仍未执行**，发布门禁未通过（见 `dist/INTEROP.md`、`docs/17` §3/§5）。
 
 完整清单见 [`docs/11` §10](docs/11-安全与合规设计.md) 与 [`docs/14` §9](docs/14-项目计划与风险管理.md)。
 

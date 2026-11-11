@@ -63,6 +63,7 @@ THRESHOLDS = {
     "internal/resolve": 80.0,
     "internal/app": 80.0,
     "internal/plugin": 80.0,
+    "internal/interop": 80.0,
 }
 
 COPYLEFT = re.compile(

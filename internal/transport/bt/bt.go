@@ -16,7 +16,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
@@ -238,22 +237,21 @@ func (t *Transport) injectBootstrap(tor *torrent.Torrent) {
 	tor.AddPeers(peers)
 }
 
-// waitInfo blocks until the torrent metadata is available or ctx is done. It polls
-// tor.Info() to avoid a hard dependency on the events.Done channel type.
+// waitInfo blocks until the torrent metadata AND its file handles are ready.
+//
+// Polling Torrent.Info() is not sufficient: anacrolix publishes t.info under
+// nameMu inside setInfo() but calls initFiles() only afterwards, so a caller
+// that sees Info() != nil and immediately calls Files() races with the
+// t.files write (found by the WBS 11 pure-magnet interop case under -race).
+// GotInfo() is closed by onSetInfo(), which runs after setInfo() completed,
+// so it is the correct readiness signal for both metadata and file handles.
 func waitInfo(ctx context.Context, tor *torrent.Torrent) error {
-	if tor.Info() != nil {
+	select {
+	case <-tor.GotInfo():
 		return nil
+	case <-ctx.Done():
+		return ctx.Err()
 	}
-	tick := time.NewTicker(50 * time.Millisecond)
-	defer tick.Stop()
-	for tor.Info() == nil {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-tick.C:
-		}
-	}
-	return nil
 }
 
 // pickInfoFile returns the display name and size of the file selected for

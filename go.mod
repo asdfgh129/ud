@@ -1,6 +1,6 @@
 module github.com/asdfgh129/ud
 
-go 1.27.3
+go 1.27.4
 
 require (
 	github.com/anacrolix/torrent v1.62.0
