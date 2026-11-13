@@ -1,7 +1,18 @@
 # 文档总览与文档控制
 
-> 文档编号：UD-DOC-00 ｜ 版本：v1.3 ｜ 状态：**草案（P0 已通过有条件评审；ADR 集已批准，其余文档待逐篇评审）** ｜ 日期：2026-11-13 ｜ 维护责任：架构组
+> 文档编号：UD-DOC-00 ｜ 版本：v1.4 ｜ 状态：**草案（P0 已通过有条件评审；ADR 集已批准，其余文档待逐篇评审）** ｜ 日期：2026-11-13 ｜ 维护责任：架构组
 
+> **v1.4 变更**（2026-11-13，文档控制与 CI 证据补记、不改产品范围）：`9530c35` 的 CI
+> run `43393512271` 因 WAL 偶发 `SQLITE_BUSY` 在 `cover` 步骤失败（**5 PASS / 0 WARN /
+> 1 FAIL**）；修复提交 `ddda48d` 的 run `43399289527` 与文档复验提交 `8138c42` 的
+> run `43400218985` 均为 **`quality: success`**。§三「当前态口径」严格门禁行改为
+> 如实记录「曾失败 → 已修复 → 两次 CI 复验通过」，不再沿用「本机与 CI 一致」的
+> 笼统表述。同步 `05` v0.6 / `06` v0.3 / `12` v1.2 / `13` v0.8 / `14` v1.3 /
+> `15` v0.4、ADR-0015 实现落地注、根 `README.md` 与 `CHANGELOG.md`。
+> **本次为纯文档变更**：门禁包仍 **16**、链接模块仍 **90**，L4 仍 **0/14**、
+> 序 6 仍开放、`nfr_perf_01.met=false`。`17` / ADR-0020 已签署证据与
+> v1.1–v1.3 的时点数值不改写。门户 `docs/_site/index.html` 已重建。
+>
 > **v1.3 变更**：P1 WBS 11 续包（仍不关闭序 6）。§三「当前态口径」更新外部证据为
 > **BX-01..BX-04（aria2-next + 真实 libtorrent 2.1.1，4/4 PASS）**、新增「性能基准」行
 > （`make perf` 1GiB 回环参考，`nfr_perf_01.met=false`）、L4 行补记
@@ -162,7 +173,7 @@ graph TD
 | 已交付 | P0 有条件通过（附加条件已关闭）、P1 WBS 8 / WBS 9 / WBS 7（BT / 磁力） / WBS 10（插件引擎）；**WBS 11 互操作套件 v1 已交付**（框架 + 自建 tracker + 9 条本地用例 + 证据链），但 L4 全矩阵未执行，序 6 **不关闭**；另以本机 **aria2-next 3.0.9**（MotrixNext）与真实 **libtorrent 2.1.1**（Python 绑定，可选外部工具）作真实做种方产出 **BX-01..BX-04 跨客户端证据**（sha256 校验通过），为**补充证据**不计入 L4 门禁 | `CHANGELOG.md`、`14` §11、`12` §3.1.1 |
 | 受门禁包 | **16 个**（WBS 10 新增 `internal/plugin` 88.4%；WBS 11 新增 `internal/interop` 87.1%） | `tools/gates.py:THRESHOLDS`、`12` §9 |
 | 链接模块 | **90 个**，0 copyleft / 0 未识别（含 `anacrolix/torrent` v1.62.0 与 `goja`；WBS 11 零新增依赖） | `dist/sbom.cdx.json`、`10` §8.1 / §8.2 |
-| 严格门禁 | `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**（本机；CI 于 2026-11-13 的 run `43393512271` 曾因 WAL 偶发 `SQLITE_BUSY` 在 `cover` 步骤 **5 PASS / 0 WARN / 1 FAIL**，已修复并由 CI run `43399289527` 复跑确认 `quality: success`（6 PASS / 0 WARN / 0 FAIL）） | `dist/gates.json`、`.github/workflows/ci.yml`、`13` §4 |
+| 严格门禁 | `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**（本机；CI 于 2026-11-13 的 run `43393512271` 曾因 WAL 偶发 `SQLITE_BUSY` 在 `cover` 步骤 **5 PASS / 0 WARN / 1 FAIL**，已修复，CI run `43399289527`（代码修复）与 `43400218985`（文档复验）均 `quality: success`（严格门禁 6 PASS / 0 WARN / 0 FAIL）） | `dist/gates.json`、`.github/workflows/ci.yml`、`13` §4 |
 | 互操作套件 | `make interop` **23 例：9 PASS / 0 FAIL / 12 SKIPPED / 2 UNSUPPORTED**，证据 `dist/interop.json`；`dist/interop_external.json` 为 **BX-01..BX-04 真实跨客户端证据（2 引擎、4/4 PASS、sha256 校验）**，由 `make interop-external` 复跑并合并进 `dist/INTEROP.md` | `dist/INTEROP.md`、`dist/interop_external.json`、`12` §3.1.1 |
 | **L4 发布门禁** | ❌ **未通过**：`BT-01..BT-14` 需真实 qBittorrent / Transmission、自建 tracker 二进制、抓包与千兆内网；`SKIPPED` / `UNSUPPORTED` 不计为 PASS。已用 **aria2-next**（不点名）与真实 **libtorrent 2.1.1**（点名于 `BT-03`，但仅单向回环）取得补充证据，**均不计入门禁**；另已登记「14/14 PASS」与 ADR-0004 不做种边界的**形式冲突（待评审）** | `dist/INTEROP.md`、`14` §11 序 6、`12` §3.1、ADR-0004 实现落地段 |
 | 性能基准 | `make perf` 产出 `dist/perf.json`：1GiB / 4 连接 / 256KiB 分片走真实 HTTP Range Transport，本机回环参考 **885.83 MB/s（1.156s）**；**`nfr_perf_01.met=false`**，回环不等于双机千兆内网达标；既有 32MiB 微基准仍为回归基线 | `dist/perf.json`、`12` §5 |

@@ -288,6 +288,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **文档控制与 CI 缺陷处置口径补记（2026-11-13）**：`docs/README` 升 **v1.4**，
+  §三「当前态口径」严格门禁行如实闭合为「CI run `43393512271` 曾
+  **5 PASS / 0 WARN / 1 FAIL** → `ddda48d` run `43399289527` 与 `8138c42`
+  run `43400218985` 均 **`quality: success`**」，不再沿用「本机与 CI 一致」的笼统表述；
+  `15` 升 **v0.4** 并新增 §13「CI 偶发失败处置」：偶发失败必须记录原始结论、
+  定位根因、修产品代码并补回归用例，**不得**靠 `rerun`、放宽 `--strict`、
+  把 FAIL 改记 `SKIPPED` / `UNSUPPORTED` 蒙混，也不改 CI 步骤与严格模式；
+  `13` §4 补两次复验 run 与 `15` §13 交叉引用；根 `README.md` 当前态同步两次 CI 结论。
+  门户 `docs/_site/index.html` 由 `tools/build_docs.py` 重建。**纯文档变更、零代码改动**：
+  门禁包仍 **16**、链接模块仍 **90**，L4 仍 **0/14**、序 6 仍开放、
+  `nfr_perf_01.met=false`；`17` / ADR-0020 已签署证据与历史时点数值均不改写。
 - **WBS 11 文档同步（2026-11-11）**：`docs/README` v1.2 §三 当前态速查表更新为
   「16 个门禁包 / 90 个链接模块 / 6 PASS / 0 WARN / 0 FAIL / 套件 v1 已交付、
   **序 6 L4 仍开放**」；  `12` v1.0 补 §3.1 套件落地说明与 §9 证据行、`16` v0.6 §6/§8 补
