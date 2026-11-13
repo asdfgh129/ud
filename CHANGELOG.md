@@ -369,6 +369,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   「不包含」清单移出（它们属构建期门禁工具，不是产品能力）。
 
 ### Fixed
+- **CI 偶发 `SQLITE_BUSY` 导致 `cover` 门禁失败（2026-11-13，WBS 11 续包推送后复跑发现）**：
+  提交 `9530c35` 的 CI run `43393512271` 在 `quality / make gates-strict` 的 **cover** 步骤出现
+  `internal/scheduler::TestLifecycleErrors` 的 `extra_test.go:236: database is locked (5) (SQLITE_BUSY)`，
+  严格门禁当时汇总为 **5 PASS / 0 WARN / 1 FAIL**，本机同条件 5 轮复跑、`-race` 与
+  `-coverprofile` 均未复现；该失败**如实记为未通过**，未以重跑或放宽 `--strict` 掩盖。
+  根因：WAL 下写-写竞争可能返回 `SQLITE_BUSY_SNAPSHOT`，SQLite **不会**为此错误调用
+  busy handler，DSN 的 `busy_timeout = 5000` 因此兜不住；`modernc.org/sqlite` 纯 Go 驱动
+  在此处不暴露类型化错误码，只能按错误文本判定。现把 `internal/store/store.go` 的写事务
+  拆为 `withTx`（唯一写锁 + 有界重放）与 `runTx`（单次 Begin / Commit / Rollback）：
+  仅当 `isBusy()` 命中 `SQLITE_BUSY` / `SQLITE_LOCKED` 时以 5ms 递增退避最多重放 **6 次**；
+  每次重放前事务已回滚，所有 `withTx` 回调经检查只做数据库操作（无 DB 外副作用），
+  因此不会重复提交行；永久锁库仍返回错误，不静默吞掉，`ctx` 取消立即终止。
+  生产行为不变：仍是单写串行、状态写入与分片进度同事务（`05` §4 不变式②、`06` §5），
+  DDL / `schema_version` 与 ADR-0015 决策均未改动。新增 4 条回归用例：
+  `TestBusyErrorClassification`、`TestWithTxReplaysTransientBusy`、
+  `TestWithTxStopsAfterBusyRetries`、`TestConcurrentWritesRemainSerialized`。
+  按项目规矩**代码变更后先 `make build`（六平台）再跑门禁**：本机 `make lint` / `make test` /
+  `make interop` / `make gates-strict`（**6 PASS / 0 WARN / 0 FAIL**）/ `go test -race ./...`
+  全部通过；`make interop-gate` 仍明确失败（L4 **0/14**、`release_gate_met: false`）。
+  CI `quality` 由本提交触发复跑，结论以该 workflow run 为准，**不预先记为通过**。
+  同步 `05` / `06` / `12` / `13` / `14`、ADR-0015 实现落地注、`docs/README` §三、
+  根 `README.md` 与门户 `docs/_site/index.html`。
 - **调度器关闭时的 WaitGroup / 生命周期竞态（WBS 11 全量 `-race` 复跑发现）**：
   `internal/scheduler/scheduler.go` 的 `dispatch()` 循环原以裸 `go s.dispatch()` 启动，
   **未登记进 `s.wg`**，但循环内又会对每个任务调用 `s.wg.Add(1)`。于是 `Close()` 的

@@ -1,7 +1,13 @@
 # 05 详细设计说明书（LLD）
 
-> 文档编号：UD-DOC-05 ｜ 版本：v0.5 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10/11 已补记） ｜ 日期：2026-11-13 ｜ 上游：`04`、`06`、`07`
+> 文档编号：UD-DOC-05 ｜ 版本：v0.6 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10/11 已补记） ｜ 日期：2026-11-13 ｜ 上游：`04`、`06`、`07`
 
+> **v0.6 说明**（2026-11-13，仅实现校准、不改契约）：CI 复跑暴露 WAL 下
+> `SQLITE_BUSY_SNAPSHOT` 不受 `busy_timeout` 保护，`internal/store.withTx` 增加
+> **有界事务重放**（最多 6 次、5ms 递增退避、只对 `SQLITE_BUSY` / `SQLITE_LOCKED` 重放）。
+> §4 不变式②补充「重放不改变事务边界」口径；`Resource` / `PostProcessor` / 状态机
+> 三大冻结契约与 `core` 注册链均未改动。
+>
 > **v0.5 说明**（2026-11-13，仅范围补记、不改契约）：P1 WBS 11 续包新增
 > `cmd/udinteropx`（双引擎外部 harness）、`tools/interop_libtorrent.py`（可选外部 seeder，
 > 非项目依赖）、`cmd/udperf`（1GiB 性能基准），三者均为**测试 / 证据基础设施**，
@@ -214,6 +220,12 @@ stateDiagram-v2
 | 任意 → Canceled | 用户取消 | 取消 context 树、杀子进程组、清理 `.part` |
 
 **不变式**：① 状态迁移只能由 Scheduler 发起；② 任何状态写入必须与分片进度在同一事务；③ 崩溃恢复只信任 `chunks` 表 + 实际文件校验结果，不信任内存态。
+
+> **实现校准（v0.6，2026-11-13）**：`internal/store.withTx` 在命中 `SQLITE_BUSY` /
+> `SQLITE_LOCKED` 时会重放**整个**写事务回调（最多 6 次、5ms 递增退避）。每次重放前
+> 事务已回滚，回调只含数据库操作、无 DB 外副作用，因此②「状态写入 + 分片进度同事务」
+> 在重放后依然成立，也不会重复提交行；①的 Scheduler 单一写入权威不变。永久锁库、
+> `ctx` 取消与非 BUSY 错误立即返回，不改变错误模型。
 
 **取消规则（v0.2 明确）**：`Cancel` 允许从**任意非终态**（`Pending / Resolving / Ready / Running / Paused / PostProcessing / Failed`）进入 `Canceled`；终态 `Completed / Canceled / Seeding` 不可再迁移。上图只绘制了主路径，完整迁移表以 `internal/core/task.go` 的 `transitions` 与 `internal/core/state_test.go` 为准。取消时 Scheduler 取消该任务的 context 树，`chunkWriter.Release` 把在途分片一律回 `pending`，避免「暂停/退出 → 永久 failed → 无法恢复」。
 

@@ -5,8 +5,11 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
@@ -414,5 +417,97 @@ func TestCorruptOptionsAreReported(t *testing.T) {
 	}
 	if _, err := st.GetTask(ctx, id); err == nil {
 		t.Fatal("corrupt options JSON must surface as an error")
+	}
+}
+
+// Regression for the CI-only "database is locked (5) (SQLITE_BUSY)" failure
+// seen in scheduler.TestLifecycleErrors (2026-11-13). Under WAL, SQLite can
+// return SQLITE_BUSY_SNAPSHOT without invoking busy_timeout, so withTx must
+// replay the whole (rolled-back) transaction a bounded number of times.
+func TestBusyErrorClassification(t *testing.T) {
+	cases := []struct {
+		err  error
+		busy bool
+	}{
+		{nil, false},
+		{errors.New("database is locked (5) (SQLITE_BUSY)"), true},
+		{errors.New("database table is locked"), true},
+		{errors.New("SQLITE_BUSY_SNAPSHOT"), true},
+		{errors.New("no such table: tasks"), false},
+		{errors.New("context canceled"), false},
+	}
+	for _, c := range cases {
+		if got := isBusy(c.err); got != c.busy {
+			t.Errorf("isBusy(%v) = %t, want %t", c.err, got, c.busy)
+		}
+	}
+}
+
+func TestWithTxReplaysTransientBusy(t *testing.T) {
+	st := newTestStore(t)
+	ctx := context.Background()
+	attempts := 0
+	err := st.withTx(ctx, func(tx *sql.Tx) error {
+		attempts++
+		if attempts < 3 {
+			return errors.New("database is locked (5) (SQLITE_BUSY)")
+		}
+		_, err := tx.ExecContext(ctx, `INSERT INTO app_meta(key,value) VALUES('busy-retry','ok')`)
+		return err
+	})
+	if err != nil {
+		t.Fatalf("transient BUSY was not recovered: %v", err)
+	}
+	if attempts != 3 {
+		t.Fatalf("attempts = %d, want 3", attempts)
+	}
+	got, err := st.Meta(ctx, "busy-retry")
+	if err != nil || got != "ok" {
+		t.Fatalf("committed value = %q, err=%v", got, err)
+	}
+}
+
+func TestWithTxStopsAfterBusyRetries(t *testing.T) {
+	st := newTestStore(t)
+	attempts := 0
+	err := st.withTx(context.Background(), func(*sql.Tx) error {
+		attempts++
+		return errors.New("database is locked")
+	})
+	if err == nil {
+		t.Fatal("a permanently locked database must still fail")
+	}
+	if attempts != maxBusyRetries+1 {
+		t.Fatalf("attempts = %d, want %d (bounded retry)", attempts, maxBusyRetries+1)
+	}
+}
+
+// Many goroutines sharing one Store must never leak a transient SQLite lock:
+// the single write mutex plus BUSY replay keeps every write successful.
+func TestConcurrentWritesRemainSerialized(t *testing.T) {
+	st := newTestStore(t)
+	ctx := context.Background()
+	const writers = 24
+	var wg sync.WaitGroup
+	errs := make(chan error, writers)
+	for i := 0; i < writers; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			errs <- st.SetMeta(ctx, fmt.Sprintf("writer-%d", i), fmt.Sprint(i))
+		}(i)
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatalf("concurrent write failed: %v", err)
+		}
+	}
+	for i := 0; i < writers; i++ {
+		got, err := st.Meta(ctx, fmt.Sprintf("writer-%d", i))
+		if err != nil || got != fmt.Sprint(i) {
+			t.Fatalf("writer-%d: got %q, err=%v", i, got, err)
+		}
 	}
 }

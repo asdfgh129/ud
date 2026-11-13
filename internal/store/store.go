@@ -8,6 +8,7 @@ import (
 	"embed"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 
@@ -99,11 +100,56 @@ func (s *Store) migrate() error {
 	return nil
 }
 
+// maxBusyRetries caps how often a write transaction is replayed after a
+// transient SQLite lock. Six attempts with a short back-off is far below the
+// 5s busy_timeout already set in the DSN, so a healthy database converges
+// quickly while a genuinely stuck database still fails instead of hanging.
+const maxBusyRetries = 6
+
+// isBusy recognises SQLITE_BUSY / SQLITE_LOCKED. This matters even with
+// busy_timeout(5000): under WAL a write-write race can return
+// SQLITE_BUSY_SNAPSHOT, for which SQLite deliberately does NOT invoke the busy
+// handler. CI observed exactly this once in scheduler.TestLifecycleErrors
+// ("database is locked (5) (SQLITE_BUSY)"), while local -race and cover runs
+// stayed green. The error text is the only portable signal from the pure-Go
+// driver; modernc.org/sqlite does not expose a typed error code here.
+func isBusy(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "database is locked") ||
+		strings.Contains(msg, "database table is locked") ||
+		strings.Contains(msg, "sqlite_busy")
+}
+
 // withTx serializes every write and rolls back on error. State transitions and
 // chunk progress MUST share one transaction (docs/05 §4 invariant ②).
+//
+// A transient lock replays the whole callback: withTx owns the single write
+// mutex, and every callback is a self-contained unit of work whose previous
+// attempt was rolled back, so a replay cannot duplicate committed rows.
 func (s *Store) withTx(ctx context.Context, fn func(*sql.Tx) error) error {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
+	var err error
+	for attempt := 0; attempt <= maxBusyRetries; attempt++ {
+		if attempt > 0 {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(time.Duration(attempt*5) * time.Millisecond):
+			}
+		}
+		err = s.runTx(ctx, fn)
+		if !isBusy(err) {
+			return err
+		}
+	}
+	return err
+}
+
+func (s *Store) runTx(ctx context.Context, fn func(*sql.Tx) error) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err

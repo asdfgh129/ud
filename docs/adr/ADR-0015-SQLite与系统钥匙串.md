@@ -39,3 +39,13 @@
 - `12` 故障注入：`kill -9` 后已落盘分片 100% 复用、无重复下载、无损坏；`.part` 被外部篡改时只重下该片。
 - 全量扫描 DB、日志、事件、REST 响应，无 `cookie|authorization|passkey|session` 明文（`11` §9）。
 - `12` 发布门禁校验 `app_meta.schema_version` 迁移链与回滚脚本。
+
+## 实现落地注（2026-11-13，不修改上述已批准决策）
+
+`busy_timeout` 仍是 DSN 的一部分，但 WAL 下的写-写竞争可能返回 `SQLITE_BUSY_SNAPSHOT`，
+SQLite 明确**不为该错误调用 busy handler**（CI run `43393512271` 的 `cover` 步骤曾因此
+偶发失败，严格门禁当时为 5 PASS / 0 WARN / 1 FAIL）。`internal/store.withTx` 因此在
+**不改动**第 1–7 条决策、DDL 与事务不变式的前提下增加有界事务重放：唯一写锁串行化 +
+`SQLITE_BUSY` / `SQLITE_LOCKED` 最多重放 6 次（5ms 递增退避），每次重放前事务已回滚、
+回调无 DB 外副作用；永久锁库仍 fail loud。这是**实现层加固，不是决策修订**，
+详见 `06` §5 / §7 / §10、`12` §9 与 CHANGELOG Fixed。
