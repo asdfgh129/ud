@@ -48,4 +48,5 @@ SQLite 明确**不为该错误调用 busy handler**（CI run `43393512271` 的 `
 **不改动**第 1–7 条决策、DDL 与事务不变式的前提下增加有界事务重放：唯一写锁串行化 +
 `SQLITE_BUSY` / `SQLITE_LOCKED` 最多重放 6 次（5ms 递增退避），每次重放前事务已回滚、
 回调无 DB 外副作用；永久锁库仍 fail loud。这是**实现层加固，不是决策修订**，
+该失败已由 CI run `43399289527` 复跑 `quality: success` 闭环。
 详见 `06` §5 / §7 / §10、`12` §9 与 CHANGELOG Fixed。

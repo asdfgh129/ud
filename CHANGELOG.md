@@ -388,7 +388,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   按项目规矩**代码变更后先 `make build`（六平台）再跑门禁**：本机 `make lint` / `make test` /
   `make interop` / `make gates-strict`（**6 PASS / 0 WARN / 0 FAIL**）/ `go test -race ./...`
   全部通过；`make interop-gate` 仍明确失败（L4 **0/14**、`release_gate_met: false`）。
-  CI `quality` 由本提交触发复跑，结论以该 workflow run 为准，**不预先记为通过**。
+  CI `quality` 已由 run `43399289527`（`ddda48d`，2026-11-13 09:13 UTC）复跑确认
+  **success**：严格门禁 6 PASS / 0 WARN / 0 FAIL，此前 `43393512271` 的失败闭环。
+  本条为文档证据补记，不改代码。
   同步 `05` / `06` / `12` / `13` / `14`、ADR-0015 实现落地注、`docs/README` §三、
   根 `README.md` 与门户 `docs/_site/index.html`。
 - **调度器关闭时的 WaitGroup / 生命周期竞态（WBS 11 全量 `-race` 复跑发现）**：

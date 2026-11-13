@@ -2,7 +2,7 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行、判据与不做种边界冲突待评审，序 6 仍开放）。** 当前态：**16 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机 **6 PASS / 0 WARN / 0 FAIL**（CI 于 2026-11-13 的 `cover` 步骤曾因 WAL 偶发 `SQLITE_BUSY` 失败，已在 `internal/store` 以有界事务重放修复，本提交触发 `quality` 复跑验证、不预先记为通过），`make interop` 本地 9 例全绿；本机 **aria2-next 3.0.9 + 真实 libtorrent 2.1.1 的 BX-01..BX-04 跨客户端证据（4/4 PASS，sha256 校验，单向回环补充、不计入 L4 门禁）**；`make perf` 产出 1GiB 回环参考基准（固定 `nfr_perf_01.met=false`）；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行、判据与不做种边界冲突待评审，序 6 仍开放）。** 当前态：**16 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机 **6 PASS / 0 WARN / 0 FAIL**（CI 于 2026-11-13 的 `cover` 步骤曾因 WAL 偶发 `SQLITE_BUSY` 失败，已在 `internal/store` 以有界事务重放修复，CI run `43399289527` 复跑 `quality: success`），`make interop` 本地 9 例全绿；本机 **aria2-next 3.0.9 + 真实 libtorrent 2.1.1 的 BX-01..BX-04 跨客户端证据（4/4 PASS，sha256 校验，单向回环补充、不计入 L4 门禁）**；`make perf` 产出 1GiB 回环参考基准（固定 `nfr_perf_01.met=false`）；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
 > 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链与 BT / 磁力均能走完
 > `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P1 WBS 8 已交付（2026-11-10）**：`thunder://` / `flashget://` / `qqdl://` 解码与 Metalink

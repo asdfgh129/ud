@@ -577,7 +577,7 @@ ADR-0020 时点说明与根 <code>README.md</code> / <code>CHANGELOG.md</code>�
 </tr>
 <tr>
 <td>严格门禁</td>
-<td><code>make gates-strict</code> <strong>6 PASS / 0 WARN / 0 FAIL</strong>（本机；CI 于 2026-11-13 的 run <code>43393512271</code> 曾因 WAL 偶发 <code>SQLITE_BUSY</code> 在 <code>cover</code> 步骤 <strong>5 PASS / 0 WARN / 1 FAIL</strong>，已修复并由本提交触发 <code>quality</code> 复跑，<strong>不预先记为通过</strong>）</td>
+<td><code>make gates-strict</code> <strong>6 PASS / 0 WARN / 0 FAIL</strong>（本机；CI 于 2026-11-13 的 run <code>43393512271</code> 曾因 WAL 偶发 <code>SQLITE_BUSY</code> 在 <code>cover</code> 步骤 <strong>5 PASS / 0 WARN / 1 FAIL</strong>，已修复并由 CI run <code>43399289527</code> 复跑确认 <code>quality: success</code>（6 PASS / 0 WARN / 0 FAIL））</td>
 <td><code>dist/gates.json</code>、<code>.github/workflows/ci.yml</code>、<code>13</code> §4</td>
 </tr>
 <tr>
@@ -6347,8 +6347,8 @@ token·深度·piece 上限；按清单声明算法做整文件与逐片校验�
 <strong>不得</strong>记作通过。已在 <code>internal/store</code> 加有界 BUSY 重放并补 4 条回归用例（§9）；
 本机全套门禁恢复 <strong>6 PASS / 0 WARN / 0 FAIL</strong>，<code>go test -race ./...</code> 全绿。
 门禁包仍 <strong>16</strong> 个、链接模块仍 <strong>90</strong>；<code>make interop</code> 仍 9 PASS / 0 FAIL、
-<code>release_gate_met: false</code>，序 6 仍不关闭。CI 复跑结论由本提交触发的 workflow run
-给出，<strong>不预先记为通过</strong>；<code>17</code> 的 P0 时点快照不改写。</p>
+<code>release_gate_met: false</code>，序 6 仍不关闭。CI run <code>43399289527</code> 复跑结论
+<code>quality: success</code>（严格门禁 6 PASS / 0 WARN / 0 FAIL）；<code>17</code> 的 P0 时点快照不改写。</p>
 <p><strong>v1.1 说明</strong>（2026-11-13）：P1 WBS 11 续包，<strong>仍不关闭序 6</strong>。§3.1.1 扩展真实跨客户端
 补充证据到 <strong>BX-01..BX-04</strong>（新增真实 <code>libtorrent 2.1.1</code> 的 <code>BX-03</code> / <code>BX-04</code>，
 <code>make interop-external</code> 可复跑，4/4 PASS），并明确这些是<strong>单向回环</strong>证据、不计入 L4；
@@ -7170,7 +7170,7 @@ v4 <code>&lt;url priority&gt;</code> 排序、v3 <code>preference</code> 反转�
 <td>L1 单元（CI 缺陷修复）</td>
 <td><code>internal/store/extra_test.go:TestBusyErrorClassification</code> / <code>TestWithTxReplaysTransientBusy</code> / <code>TestWithTxStopsAfterBusyRetries</code> / <code>TestConcurrentWritesRemainSerialized</code></td>
 <td><code>06</code> §5/§7 写事务有界 BUSY 重放；<code>05</code> §4 不变式②</td>
-<td>✅ 本机复跑通过（CI 结论以本提交 workflow run 为准，未预先记为通过）</td>
+<td>✅ 本机复跑通过；CI run <code>43399289527</code> <code>quality: success</code></td>
 </tr>
 <tr>
 <td>L4 补充证据（WBS 11 续包）</td>
@@ -7316,7 +7316,8 @@ v4 <code>&lt;url priority&gt;</code> 排序、v3 <code>preference</code> 反转�
 不放宽 <code>--strict</code>、不靠重跑蒙混</strong>：CI 仍按 <code>lint → test → build → gates-strict →
 interop → docs --check</code> 执行，任何 FAIL 都使 <code>quality</code> 失败。代码变更后已先
 <code>make build</code> 再跑 <code>make gates-strict</code>（§12 SBOM 二进制一致性守卫），本机恢复
-<strong>6 PASS / 0 WARN / 0 FAIL</strong>、<code>go test -race ./...</code> 全绿。门禁包 <strong>16</strong>、链接模块 <strong>90</strong> 不变。</p>
+<strong>6 PASS / 0 WARN / 0 FAIL</strong>、<code>go test -race ./...</code> 全绿。门禁包 <strong>16</strong>、链接模块 <strong>90</strong> 不变；
+CI 复跑 run <code>43399289527</code> 结论为 <code>quality: success</code>。</p>
 <p><strong>v0.7 说明</strong>（2026-11-13）：§3 / §12 新增两个<strong>仅本机、不接入 CI</strong> 的目标：
 <code>make interop-external</code>（真实 aria2-next / libtorrent 外部引擎，产出
 <code>dist/interop_external.json</code> 补充证据）与 <code>make perf</code>（1GiB 回环参考基准，
@@ -7828,7 +7829,8 @@ telemetry:
 这是<strong>质量门禁修复</strong>，不构成 WBS 11 功能交付或 L4 证据：序 6 <strong>仍开放</strong>、
 「14/14 PASS」与不做种边界的形式冲突仍待评审，NFR-PERF-01 双机千兆基准仍未执行。
 门禁包 <strong>16</strong>、链接模块 <strong>90</strong>、本机严格门禁 <strong>6 PASS / 0 WARN / 0 FAIL</strong> 不变。
-§10 已签署结论表与 v1.1 / v1.2 的时点数值均不改写。</p>
+§10 已签署结论表与 v1.1 / v1.2 的时点数值均不改写。
+CI 复跑 run <code>43399289527</code> 为 <code>quality: success</code>（质量门禁已闭环，不改变序 6 结论）。</p>
 <p><strong>v1.2 说明</strong>（2026-11-13）：P1 序 6 / WBS 11 续包，<strong>序 6 仍不关闭</strong>。
 §11 序 6 行与交付边界补记：① 真实 <strong><code>libtorrent 2.1.1</code></strong> 单向回环补充证据
 <code>BX-03</code> / <code>BX-04</code>（连同 aria2-next 的 <code>BX-01</code> / <code>BX-02</code> 共 <strong>4/4 PASS</strong>，
@@ -9974,7 +9976,9 @@ Transmission / libtorrent，且要求抓包 + 千兆内网），故 BX 证据<st
   按项目规矩<strong>代码变更后先 <code>make build</code>（六平台）再跑门禁</strong>：本机 <code>make lint</code> / <code>make test</code> /
   <code>make interop</code> / <code>make gates-strict</code>（<strong>6 PASS / 0 WARN / 0 FAIL</strong>）/ <code>go test -race ./...</code>
   全部通过；<code>make interop-gate</code> 仍明确失败（L4 <strong>0/14</strong>、<code>release_gate_met: false</code>）。
-  CI <code>quality</code> 由本提交触发复跑，结论以该 workflow run 为准，<strong>不预先记为通过</strong>。
+  CI <code>quality</code> 已由 run <code>43399289527</code>（<code>ddda48d</code>，2026-11-13 09:13 UTC）复跑确认
+  <strong>success</strong>：严格门禁 6 PASS / 0 WARN / 0 FAIL，此前 <code>43393512271</code> 的失败闭环。
+  本条为文档证据补记，不改代码。
   同步 <code>05</code> / <code>06</code> / <code>12</code> / <code>13</code> / <code>14</code>、ADR-0015 实现落地注、<code>docs/README</code> §三、
   根 <code>README.md</code> 与门户 <code>docs/_site/index.html</code>。</li>
 <li><strong>调度器关闭时的 WaitGroup / 生命周期竞态（WBS 11 全量 <code>-race</code> 复跑发现）</strong>：
@@ -11295,6 +11299,7 @@ SQLite 明确<strong>不为该错误调用 busy handler</strong>（CI run <code>
 <strong>不改动</strong>第 1–7 条决策、DDL 与事务不变式的前提下增加有界事务重放：唯一写锁串行化 +
 <code>SQLITE_BUSY</code> / <code>SQLITE_LOCKED</code> 最多重放 6 次（5ms 递增退避），每次重放前事务已回滚、
 回调无 DB 外副作用；永久锁库仍 fail loud。这是<strong>实现层加固，不是决策修订</strong>，
+该失败已由 CI run <code>43399289527</code> 复跑 <code>quality: success</code> 闭环。
 详见 <code>06</code> §5 / §7 / §10、<code>12</code> §9 与 CHANGELOG Fixed。</p><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-13 · 源文件 <code>docs/adr/ADR-0015-SQLite与系统钥匙串.md</code></div></article><article class="doc" id="doc-adr-0016" data-slug="adr-0016"><div class="doc-head"><h1>ADR-0016 核心为 daemon，UI 用 Flutter/Tauri 且可替换</h1><div class="doc-meta"></div></div><ul>
 <li><strong>状态</strong>：Accepted（2026-11-09 P0 里程碑评审批量批准）</li>
 <li><strong>日期</strong>：2026-11-08</li>
@@ -11748,7 +11753,7 @@ WBS 10 后为 15 个门禁包、90 个链接模块；
 <li><strong><code>v0.1.0</code> 附注标签</strong>：已打并同步 GitHub。</li>
 </ul><div class="footnote">Universal Downloader 开发文档 · 由 tools/build_docs.py 生成于 2026-11-13 · 源文件 <code>docs/adr/ADR-0020-P0实现基线与范围声明.md</code></div></article><article class="doc" id="doc-root-readme" data-slug="root-readme"><div class="doc-head"><h1>Universal Downloader（通用下载器）</h1><div class="doc-meta"></div></div><p>跨平台的统一下载引擎：把 <strong>BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信</strong> 等来源，收敛到一条流水线、一个调度器、一份状态。</p>
 <blockquote>
-<p><strong>当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行、判据与不做种边界冲突待评审，序 6 仍开放）。</strong> 当前态：<strong>16 个门禁包</strong>全部达标、<strong>90 个链接模块</strong> 0 copyleft / 0 未识别，<code>make gates-strict</code> 本机 <strong>6 PASS / 0 WARN / 0 FAIL</strong>（CI 于 2026-11-13 的 <code>cover</code> 步骤曾因 WAL 偶发 <code>SQLITE_BUSY</code> 失败，已在 <code>internal/store</code> 以有界事务重放修复，本提交触发 <code>quality</code> 复跑验证、不预先记为通过），<code>make interop</code> 本地 9 例全绿；本机 <strong>aria2-next 3.0.9 + 真实 libtorrent 2.1.1 的 BX-01..BX-04 跨客户端证据（4/4 PASS，sha256 校验，单向回环补充、不计入 L4 门禁）</strong>；<code>make perf</code> 产出 1GiB 回环参考基准（固定 <code>nfr_perf_01.met=false</code>）；唯一速查见 <a href="#/readme"><code>docs/README</code> §三</a>，进度真值源为 <a href="#/changelog"><code>CHANGELOG</code></a> 与 <a href="#/doc-14"><code>docs/14</code> §11</a>。
+<p><strong>当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行、判据与不做种边界冲突待评审，序 6 仍开放）。</strong> 当前态：<strong>16 个门禁包</strong>全部达标、<strong>90 个链接模块</strong> 0 copyleft / 0 未识别，<code>make gates-strict</code> 本机 <strong>6 PASS / 0 WARN / 0 FAIL</strong>（CI 于 2026-11-13 的 <code>cover</code> 步骤曾因 WAL 偶发 <code>SQLITE_BUSY</code> 失败，已在 <code>internal/store</code> 以有界事务重放修复，CI run <code>43399289527</code> 复跑 <code>quality: success</code>），<code>make interop</code> 本地 9 例全绿；本机 <strong>aria2-next 3.0.9 + 真实 libtorrent 2.1.1 的 BX-01..BX-04 跨客户端证据（4/4 PASS，sha256 校验，单向回环补充、不计入 L4 门禁）</strong>；<code>make perf</code> 产出 1GiB 回环参考基准（固定 <code>nfr_perf_01.met=false</code>）；唯一速查见 <a href="#/readme"><code>docs/README</code> §三</a>，进度真值源为 <a href="#/changelog"><code>CHANGELOG</code></a> 与 <a href="#/doc-14"><code>docs/14</code> §11</a>。
 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链与 BT / 磁力均能走完
 <code>Resolver → Resource → Transport → PostProcessor → Store</code> 全流水线。
 <strong>P1 WBS 8 已交付（2026-11-10）</strong>：<code>thunder://</code> / <code>flashget://</code> / <code>qqdl://</code> 解码与 Metalink
