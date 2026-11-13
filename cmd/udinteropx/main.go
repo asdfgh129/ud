@@ -1,15 +1,21 @@
 // Command udinteropx is the real cross-client interoperability harness for
 // P1 WBS 11. It drives the project's actual BitTorrent engine
 // (internal/transport/bt, the same code the `udd` daemon uses) as a leecher
-// against a REAL third-party BitTorrent client — the aria2-next engine bundled
-// with the locally installed MotrixNext.app (Rayburst 4.1.1) — over a
-// self-hosted BEP 3 HTTP tracker on loopback.
+// against REAL third-party BitTorrent engines over a self-hosted BEP 3 HTTP
+// tracker on loopback:
 //
-// This produces genuine interop evidence: a real .torrent / magnet is seeded by
-// a real client, downloaded by our engine, and the file hash is verified. It is
-// NOT a substitute for the named-client L4 gate cases BT-01..BT-14 (which name
-// qBittorrent / Transmission / libtorrent and require packet capture + a gigabit
-// LAN). Those remain SKIPPED / UNSUPPORTED and the L4 release gate stays closed.
+//   - aria2-next 3.0.9 bundled with MotrixNext.app (BX-01 .torrent, BX-02 magnet);
+//   - libtorrent 2.x via the optional python-libtorrent binding
+//     (BX-03 .torrent, BX-04 magnet), see tools/interop_libtorrent.py.
+//
+// Each case seeds a real payload with the third-party engine, downloads it with
+// our engine and verifies sha256. libtorrent is named by BT-03, but these cases
+// are ONE-WAY (third-party seeds -> ud downloads) on loopback, with no packet
+// capture, no chihaya/opentracker binary and no gigabit LAN, while BT-03
+// requires bidirectional sessions (ud seeding is out of scope per ADR-0004).
+// So BX-* is supplementary evidence, NEVER an L4 pass: BT-01..BT-14 remain
+// SKIPPED / UNSUPPORTED and the L4 release gate stays closed. An unavailable
+// external engine emits SKIPPED / UNSUPPORTED, never a fabricated PASS.
 package main
 
 import (
@@ -41,11 +47,11 @@ import (
 const clientName = "aria2-next 3.0.9 (MotrixNext Rayburst 4.1.1)"
 
 // verdict is one honest interop result. SKIPPED / UNSUPPORTED are never coerced
-// to PASS; only a hash-verified download is PASS.
+// to PASS; only a hash-verified download against a real third-party engine is PASS.
 type verdict struct {
 	ID       string `json:"id"`
 	Client   string `json:"client"`
-	Status   string `json:"status"` // PASS | FAIL | SKIPPED
+	Status   string `json:"status"` // PASS | FAIL | SKIPPED | UNSUPPORTED
 	Name     string `json:"name"`
 	Evidence string `json:"evidence"`
 	InfoHash string `json:"infohash,omitempty"`
@@ -62,23 +68,22 @@ func main() {
 		outPath = "dist/interop_external.json"
 	}
 
+	var results []verdict
 	if _, err := os.Stat(aria2); err != nil {
-		fmt.Fprintf(os.Stderr, "udinteropx: aria2-next not found at %s (set UD_ARIA2_NEXT); nothing to run\n", aria2)
-		// Emit an explicit SKIPPED record so the evidence chain is honest.
-		emit([]verdict{{
+		fmt.Fprintf(os.Stderr, "udinteropx: aria2-next not found at %s (set UD_ARIA2_NEXT); BX-01/BX-02 skipped\n", aria2)
+		// Emit an explicit SKIPPED record so the evidence chain is honest; the
+		// libtorrent cases below are independent and still run.
+		results = append(results, verdict{
 			ID:       "BX-ALL",
 			Client:   clientName,
 			Status:   "SKIPPED",
 			Name:     "real cross-client interop (aria2-next)",
 			Evidence: "aria2-next binary not present in this environment",
-		}}, outPath)
-		os.Exit(0)
+		})
+	} else {
+		results = append(results, runTorrent(aria2), runMagnet(aria2))
 	}
-
-	results := []verdict{
-		runTorrent(aria2),
-		runMagnet(aria2),
-	}
+	results = append(results, runLibtorrentCases()...)
 	emit(results, outPath)
 	// Non-zero exit only if a case we attempted actually FAILED.
 	for _, r := range results {
@@ -95,6 +100,23 @@ func emit(vs []verdict, outPath string) {
 	if err := os.WriteFile(outPath, b, 0o644); err != nil {
 		fmt.Fprintln(os.Stderr, "udinteropx: write evidence:", err)
 	}
+}
+
+// waitSeederAnnounce is a readiness sync, not a retry of a failed download:
+// a real seeder has to finish its own hash check before it can serve BEP 9
+// metadata, so we wait for its BEP 3 announce with left=0 on our tracker.
+// A timeout never turns a case into PASS; it is only recorded in the evidence.
+func waitSeederAnnounce(tr *interop.HTTPTracker, port int, timeout time.Duration) bool {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		for _, a := range tr.Announces() {
+			if a.Port == port && a.Left == 0 {
+				return true
+			}
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+	return false
 }
 
 // tail returns the last n lines of s.
@@ -237,13 +259,23 @@ func downloadWithUD(torrentBytes []byte, magnet bool, announce, infoHash string,
 		res.Identity.TorrentMeta = torrentBytes
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	timeout := 60 * time.Second
+	if v := os.Getenv("UD_INTEROPX_TIMEOUT_S"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			timeout = time.Duration(n) * time.Second
+		}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	// Mirror the proven L3-05 wiring: hand the real seeder's address to the
 	// transport as a bootstrap peer so it dials it directly (tracker alone is not
 	// enough for anacrolix to reliably learn the peer on loopback).
-	tr := bt.New(noopGuard{}, noopCreds{}, bt.WithBootstrapPeers(peer))
+	// The lab prefers plaintext handshakes to remove the first-attempt MSE
+	// negotiation race with third-party seeders. This is the SAME bttransport
+	// code as udd; only the handshake preference differs, the daemon default
+	// (MSE preferred) is untouched.
+	tr := bt.New(noopGuard{}, noopCreds{}, bt.WithBootstrapPeers(peer), bt.WithPlainHandshake())
 	if err := tr.Run(ctx, res, w, noopBudget{}); err != nil {
 		return nil, err
 	}
@@ -350,9 +382,10 @@ func runTorrent(aria2 string) verdict {
 	// Inject the seeder's real address into the tracker AND as a bootstrap peer.
 	peer := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: port}
 	tr.SetPeers(interop.CompactPeer{IP: net.ParseIP("127.0.0.1"), Port: port})
+	seederReady := waitSeederAnnounce(tr, port, 8*time.Second)
 
 	if os.Getenv("UD_INTEROP_DEBUG") != "" {
-		fmt.Fprintf(os.Stderr, "[debug] BX-01 aria2 listen port=%d announce=%s infohash=%s\n", port, announce, ih)
+		fmt.Fprintf(os.Stderr, "[debug] BX-01 aria2 listen port=%d announce=%s infohash=%s seederAnnounce=%t\n", port, announce, ih, seederReady)
 	}
 
 	// Download with our real engine.
@@ -369,7 +402,7 @@ func runTorrent(aria2 string) verdict {
 	}
 	return verdict{ID: "BX-01", Client: clientName, Status: "PASS",
 		Name:     "ud downloads from aria2-next seeder (HTTP tracker, hash-verified)",
-		InfoHash: ih, Evidence: fmt.Sprintf("payload %d bytes, sha256=%s; downloaded via bttransport and hash-verified", len(payload), sha256Hex(payload))}
+		InfoHash: ih, Evidence: fmt.Sprintf("payload %d bytes, sha256=%s; downloaded via bttransport and hash-verified; seeder BEP 3 announce(left=0) observed=%t", len(payload), sha256Hex(payload), seederReady)}
 }
 
 func runMagnet(aria2 string) verdict {
@@ -396,6 +429,9 @@ func runMagnet(aria2 string) verdict {
 	// Inject the seeder's real address into the tracker AND as a bootstrap peer.
 	peer := &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: port}
 	tr.SetPeers(interop.CompactPeer{IP: net.ParseIP("127.0.0.1"), Port: port})
+	// BEP 9 metadata is only served once aria2 has finished checking the
+	// seeded file; sync on its completed announce before our download starts.
+	seederReady := waitSeederAnnounce(tr, port, 8*time.Second)
 
 	if os.Getenv("UD_INTEROP_DEBUG") != "" {
 		alive := s.cmd != nil && s.cmd.Process != nil
@@ -412,7 +448,7 @@ func runMagnet(aria2 string) verdict {
 			fmt.Fprintf(os.Stderr, "[debug] BX-02 aria2.log:\n%s\n", tail(string(b), 40))
 			_ = os.WriteFile("/tmp/aria2_debug.log", b, 0o644)
 		}
-		fmt.Fprintf(os.Stderr, "[debug] BX-02 seedDir=%s announce=%s port=%d infohash=%s\n", seedDir, announce, port, ih)
+		fmt.Fprintf(os.Stderr, "[debug] BX-02 seedDir=%s announce=%s port=%d infohash=%s seederAnnounce=%t\n", seedDir, announce, port, ih, seederReady)
 		if c, derr := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", port), 3*time.Second); derr != nil {
 			fmt.Fprintf(os.Stderr, "[debug] BX-02 dial aria2 port %d FAILED: %v\n", port, derr)
 		} else {
@@ -436,5 +472,5 @@ func runMagnet(aria2 string) verdict {
 	}
 	return verdict{ID: "BX-02", Client: clientName, Status: "PASS",
 		Name:     "ud fetches magnet metadata (BEP 9) from aria2-next and downloads",
-		InfoHash: ih, Evidence: fmt.Sprintf("magnet (infohash %s) resolved via BEP 9, %d bytes hash-verified", ih, len(payload))}
+		InfoHash: ih, Evidence: fmt.Sprintf("magnet (infohash %s) resolved via BEP 9, %d bytes hash-verified; seeder BEP 3 announce(left=0) observed=%t", ih, len(payload), seederReady)}
 }

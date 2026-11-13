@@ -143,7 +143,7 @@ type Report struct {
 type ExternalVerdict struct {
 	ID       string `json:"id"`
 	Client   string `json:"client"`
-	Status   string `json:"status"` // PASS | FAIL | SKIPPED
+	Status   string `json:"status"` // PASS | FAIL | SKIPPED | UNSUPPORTED
 	Name     string `json:"name"`
 	Evidence string `json:"evidence"`
 	InfoHash string `json:"infohash,omitempty"`
@@ -350,14 +350,25 @@ func (r Report) Markdown() string {
 		fmt.Fprintf(&b, "\n## 真实跨客户端证据（补充，非 L4 门禁）\n\n")
 		fmt.Fprintf(&b, "> 以下由 `cmd/udinteropx` 驱动**真实的第三方 BitTorrent 引擎**作为做种方、\n")
 		fmt.Fprintf(&b, "> 以本项目的真实 `bttransport` 作为下载方，在回环自托管 BEP 3 tracker 下完成下载并校验哈希。\n")
-		fmt.Fprintf(&b, "> 这是**真实的跨客户端互通证据**，但**不计入** `BT-01..BT-14` 命名的 L4 发布门禁\n")
-		fmt.Fprintf(&b, "> （那些用例点名 qBittorrent / Transmission / libtorrent 且要求抓包 + 千兆内网）。\n")
-		fmt.Fprintf(&b, "> L4 发布门禁仍以 SKIPPED/UNSUPPORTED 维持**未通过**；本段仅为补充证据。\n\n")
+		fmt.Fprintf(&b, "> aria2-next 不点名于 L4；libtorrent 2.x 虽点名于 `BT-03`，但本段只覆盖**单向**\n")
+		fmt.Fprintf(&b, "> （对方做种 → 我方下载），而 `BT-03` 要求双向（我方做种 → 对方下载，按 ADR-0004 明确不做），\n")
+		fmt.Fprintf(&b, "> 且仍缺隔离千兆内网、抓包设备与 `chihaya` / `opentracker` 二进制。\n")
+		fmt.Fprintf(&b, "> 因此这是**真实跨客户端互通证据**，但**不计入** `BT-01..BT-14` 的 L4 发布门禁；\n")
+		fmt.Fprintf(&b, "> L4 仍以 SKIPPED / UNSUPPORTED 维持**未通过**，`UNSUPPORTED` 表示外部引擎不可用，绝不等于通过。\n\n")
 		fmt.Fprintf(&b, "| 编号 | 客户端 | 状态 | 说明 | 哈希/infohash |\n|---|---|---|---|---|\n")
 		for _, v := range r.ExternalEvidence {
 			note := v.Name
-			if v.Status != "PASS" && v.Error != "" {
-				note = note + " — " + v.Error
+			if v.Status != "PASS" {
+				detail := v.Error
+				if detail == "" {
+					detail = v.Evidence
+				}
+				if runes := []rune(detail); len(runes) > 160 {
+					detail = string(runes[:160]) + "…"
+				}
+				if detail != "" {
+					note += " — " + detail
+				}
 			}
 			ref := v.InfoHash
 			if ref == "" {
@@ -412,7 +423,7 @@ func loadExternalEvidence(path string) ([]ExternalVerdict, error) {
 	}
 	for _, v := range vs {
 		switch v.Status {
-		case "PASS", "FAIL", "SKIPPED":
+		case "PASS", "FAIL", "SKIPPED", "UNSUPPORTED":
 		default:
 			return nil, fmt.Errorf("未知 status %q in %s", v.Status, path)
 		}

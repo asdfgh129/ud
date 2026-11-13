@@ -28,10 +28,23 @@ type Transport struct {
 	guard          core.URLGuard
 	creds          core.CredentialStore
 	bootstrapPeers []net.Addr // optional known peers (test seam + private-trackers bootstrap)
+	plainHandshake bool       // lab-only: prefer plaintext over MSE on outgoing handshakes
 }
 
 // Option customizes the Transport at construction.
 type Option func(*Transport)
+
+// WithPlainHandshake makes outgoing BT handshakes prefer a plaintext header
+// instead of MSE obfuscation. The daemon default is UNCHANGED (MSE preferred,
+// plaintext fallback). This option exists only for the controlled WBS 11
+// cross-client interop lab: third-party seeders (aria2-next, libtorrent)
+// advertise encryption support inconsistently, and the first-attempt MSE race
+// produced sporadic loopback timeouts. It only changes the preference:
+// RequirePreferred stays false, so encrypted peers are still reachable via
+// fallback. No ADR-0004 policy (NoUpload / Seed=false / private flag) changes.
+func WithPlainHandshake() Option {
+	return func(t *Transport) { t.plainHandshake = true }
+}
 
 // WithBootstrapPeers injects known peer addresses into every added torrent. This
 // is a legitimate production feature (bootstrap / known-peer list) and doubles as
@@ -79,7 +92,7 @@ func (t *Transport) Probe(ctx context.Context, r *core.Resource) (*core.ProbeRes
 		return nil, core.Err(core.E_INTERNAL, "cannot create probe dir: %v", err)
 	}
 	defer os.RemoveAll(dataDir)
-	cfg := clientConfig(r, dataDir)
+	cfg := clientConfig(r, dataDir, t.plainHandshake)
 	cl, err := torrent.NewClient(cfg)
 	if err != nil {
 		return nil, core.Err(core.E_TRANSIENT_NETWORK, "bt client init failed: %v", err)
@@ -121,7 +134,7 @@ func (t *Transport) Run(ctx context.Context, r *core.Resource, w core.ChunkWrite
 	}
 	defer os.RemoveAll(dataDir)
 
-	cfg := clientConfig(r, dataDir)
+	cfg := clientConfig(r, dataDir, t.plainHandshake)
 	cl, err := torrent.NewClient(cfg)
 	if err != nil {
 		return core.Err(core.E_TRANSIENT_NETWORK, "bt client init failed: %v", err)
@@ -211,7 +224,7 @@ func buildSpec(r *core.Resource) (*torrent.TorrentSpec, error) {
 // clientConfig builds a per-task anacrolix client config honouring the private
 // flag: private torrents MUST NOT use DHT or PEX (BT-08), and we never upload by
 // default (Seed=false per ADR-0004).
-func clientConfig(r *core.Resource, dataDir string) *torrent.ClientConfig {
+func clientConfig(r *core.Resource, dataDir string, plainHandshake bool) *torrent.ClientConfig {
 	// Start from the defaults so the rate limiters and other required fields are
 	// populated, then apply the BT-specific policy for this Resource.
 	cfg := torrent.NewDefaultClientConfig()
@@ -222,6 +235,9 @@ func clientConfig(r *core.Resource, dataDir string) *torrent.ClientConfig {
 	cfg.PeerID = honestPeerID()
 	cfg.ListenHost = func(network string) string { return "" }
 	cfg.ListenPort = 0
+	if plainHandshake {
+		cfg.HeaderObfuscationPolicy.Preferred = false
+	}
 	cfg.DefaultStorage = storage.NewFile(dataDir)
 	if os.Getenv("UD_BT_DEBUG") != "" {
 		cfg.Debug = true

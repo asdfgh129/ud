@@ -86,3 +86,24 @@ HTTP/HTTPS 与 BEP 15 UDP tracker fixture（BEP 23 compact 6B/18B、passkey、�
    升级 `anacrolix/torrent` 仍须重跑互操作套件（`15` §7）。
 5. 产品文案维持 `16` §7 口径，只写「兼容标准 BitTorrent 网络，可与主流客户端互通」，
    不得写「已与主流客户端实测互通」「全矩阵通过」「千兆内网性能达标」。
+
+**P1 WBS 11 续包（2026-11-13 补记，同样不改写上述决策）**：
+
+- `internal/transport/bt` 新增 `WithPlainHandshake()`，**仅由 `cmd/udinteropx` 外部实验室
+  显式开启**：把出站 `HeaderObfuscationPolicy.Preferred` 置为 false，消除第三方引擎 MSE
+  首试协商竞态（默认策略下 8 个用例出现 2 次偶发超时，改后连跑 3 轮 12/12 PASS）。
+  `RequirePreferred` 仍 false（加密回退保留），`udd` 默认 MSE 优先不变；
+  `NoUpload` / `Seed=false` / private flag / 诚实 PeerID 等本 ADR 决策与 ADR-0017 控制
+  **零改动**，`TestClientConfigHandshakePolicy` 作回归。
+- 新增 `cmd/udinteropx` 双引擎 harness 与可选 `tools/interop_libtorrent.py`，取得真实
+  `libtorrent 2.1.1` 的 `BX-03` / `BX-04` 单向回环证据（python 绑定为本机外部工具，
+  非项目依赖、不进 SBOM、CI 不跑），连同 aria2-next 的 `BX-01` / `BX-02` 共 4/4 PASS。
+  libtorrent 点名于 `BT-03`，但该判据要求双向（我方做种明确不做），故**不计入 L4**。
+- **新发现的阻塞**：`BT-02` / `BT-11` 因决策中的 `Seed=false` 恒 `UNSUPPORTED`，
+  `BT-03` 双向半向不可达，因此「BT-01..BT-14 全矩阵通过方可发布 P1」在现有产品边界下
+  **形式不可满足**。三条处置路径（修订判据豁免 / 修订本 ADR 扩大产品范围实现做种 /
+  保持开放）见 `12` §3.1，**须经评审签署**；签署前 `release_gate_met` 维持 `false`，
+  `UNSUPPORTED` 不得改写为 PASS 或以豁免计入通过数。
+- `make perf` 新增 1GiB 回环参考基准（固定 `nfr_perf_01.met=false`），不代表千兆内网
+  NFR-PERF-01 达标；决策 3 的 cgo/libtorrent 升级路径与决策 4 的 v1/hybrid 默认策略
+  **仍未改变**。

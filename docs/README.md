@@ -1,7 +1,18 @@
 # 文档总览与文档控制
 
-> 文档编号：UD-DOC-00 ｜ 版本：v1.2 ｜ 状态：**草案（P0 已通过有条件评审；ADR 集已批准，其余文档待逐篇评审）** ｜ 日期：2026-11-11 ｜ 维护责任：架构组
+> 文档编号：UD-DOC-00 ｜ 版本：v1.3 ｜ 状态：**草案（P0 已通过有条件评审；ADR 集已批准，其余文档待逐篇评审）** ｜ 日期：2026-11-13 ｜ 维护责任：架构组
 
+> **v1.3 变更**：P1 WBS 11 续包（仍不关闭序 6）。§三「当前态口径」更新外部证据为
+> **BX-01..BX-04（aria2-next + 真实 libtorrent 2.1.1，4/4 PASS）**、新增「性能基准」行
+> （`make perf` 1GiB 回环参考，`nfr_perf_01.met=false`）、L4 行补记
+> **判据与 ADR-0004 产品边界的形式冲突（待评审）**；同步 `03` v0.7 §8 追踪矩阵、
+> `05` v0.5 §1 当前态、`10` v0.9 §8.3、`11` v0.9 §7.1、`12` v1.1 §3.1/§3.1.1/§5、
+> `13` v0.7 §3/§12、`14` v1.2 §11、`16` v0.7 §8、ADR-0004 实现落地段，以及根
+> `README.md` / `CHANGELOG.md`。新增代码零依赖、门禁包数与链接模块数不变；
+> `17` 与 ADR-0020 已签署证据原值不改。门户 `docs/_site/index.html` 已重建。
+> **时点口径**：v1.2 说明中的 `BX-01 / BX-02` 为 **2026-11-11 时点值**，历史数值保留不改；
+> 当前以本节表格（`BX-01..BX-04`、4/4 PASS）为唯一速查。
+>
 > **v1.2 变更**：P1 WBS 11（互操作套件 v1）落地，§三「当前态口径」更新为
 > **16 个门禁包 / 90 个链接模块 / `make gates-strict` 6 PASS / 0 WARN / 0 FAIL /
 > `make interop` 9 条本地用例全绿**，并新增「L4 发布门禁」行明确
@@ -148,18 +159,23 @@ graph TD
 
 | 项 | 当前值 | 权威来源 |
 |---|---|---|
-| 已交付 | P0 有条件通过（附加条件已关闭）、P1 WBS 8 / WBS 9 / WBS 7（BT / 磁力） / WBS 10（插件引擎）；**WBS 11 互操作套件 v1 已交付**（框架 + 自建 tracker + 9 条本地用例 + 证据链），但 L4 全矩阵未执行，序 6 **不关闭**；另以本机 MotrixNext 打包的 **aria2-next 3.0.9** 作为真实做种方产出 **BX-01 / BX-02 跨客户端证据**（sha256 校验通过），为**补充证据**不计入 L4 门禁 | `CHANGELOG.md`、`14` §11、`12` §3.1.1 |
+| 已交付 | P0 有条件通过（附加条件已关闭）、P1 WBS 8 / WBS 9 / WBS 7（BT / 磁力） / WBS 10（插件引擎）；**WBS 11 互操作套件 v1 已交付**（框架 + 自建 tracker + 9 条本地用例 + 证据链），但 L4 全矩阵未执行，序 6 **不关闭**；另以本机 **aria2-next 3.0.9**（MotrixNext）与真实 **libtorrent 2.1.1**（Python 绑定，可选外部工具）作真实做种方产出 **BX-01..BX-04 跨客户端证据**（sha256 校验通过），为**补充证据**不计入 L4 门禁 | `CHANGELOG.md`、`14` §11、`12` §3.1.1 |
 | 受门禁包 | **16 个**（WBS 10 新增 `internal/plugin` 88.4%；WBS 11 新增 `internal/interop` 87.1%） | `tools/gates.py:THRESHOLDS`、`12` §9 |
 | 链接模块 | **90 个**，0 copyleft / 0 未识别（含 `anacrolix/torrent` v1.62.0 与 `goja`；WBS 11 零新增依赖） | `dist/sbom.cdx.json`、`10` §8.1 / §8.2 |
 | 严格门禁 | `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**（本机与 CI 一致） | `dist/gates.json`、`.github/workflows/ci.yml` |
-| 互操作套件 | `make interop` **23 例：9 PASS / 0 FAIL / 12 SKIPPED / 2 UNSUPPORTED**，证据 `dist/interop.json`；另有 `dist/interop_external.json` 的 **BX-01 / BX-02 真实跨客户端证据**（aria2-next，2/2 PASS，sha256 校验） | `dist/INTEROP.md`、`dist/interop_external.json`、`12` §3.1.1 |
-| **L4 发布门禁** | ❌ **未通过**：`BT-01..BT-14` 需真实 qBittorrent / Transmission、自建 tracker 二进制、抓包与千兆内网；`SKIPPED` / `UNSUPPORTED` 不计为 PASS；已用真实 **aria2-next** 取得 BX-01/BX-02 互通证据，但 aria2-next 不点名于 `BT-01..BT-14`，**仅作补充、不计入门禁** | `dist/INTEROP.md`、`dist/interop_external.json`、`14` §11 序 6 |
-| 下一个工作包 | 序 6 / WBS 11 **L4 外部矩阵执行**（套件已就绪，待隔离网络与命名客户端 qBittorrent / Transmission；跨客户端 harness 已可对本机 aria2-next 复跑 BX-01/BX-02）；另含 NFR-PERF-01 千兆内网 1GiB ≥ 80MB/s 基准 | `14` §11、`16` §6、`12` §3.1.1 |
+| 互操作套件 | `make interop` **23 例：9 PASS / 0 FAIL / 12 SKIPPED / 2 UNSUPPORTED**，证据 `dist/interop.json`；`dist/interop_external.json` 为 **BX-01..BX-04 真实跨客户端证据（2 引擎、4/4 PASS、sha256 校验）**，由 `make interop-external` 复跑并合并进 `dist/INTEROP.md` | `dist/INTEROP.md`、`dist/interop_external.json`、`12` §3.1.1 |
+| **L4 发布门禁** | ❌ **未通过**：`BT-01..BT-14` 需真实 qBittorrent / Transmission、自建 tracker 二进制、抓包与千兆内网；`SKIPPED` / `UNSUPPORTED` 不计为 PASS。已用 **aria2-next**（不点名）与真实 **libtorrent 2.1.1**（点名于 `BT-03`，但仅单向回环）取得补充证据，**均不计入门禁**；另已登记「14/14 PASS」与 ADR-0004 不做种边界的**形式冲突（待评审）** | `dist/INTEROP.md`、`14` §11 序 6、`12` §3.1、ADR-0004 实现落地段 |
+| 性能基准 | `make perf` 产出 `dist/perf.json`：1GiB / 4 连接 / 256KiB 分片走真实 HTTP Range Transport，本机回环参考 **885.83 MB/s（1.156s）**；**`nfr_perf_01.met=false`**，回环不等于双机千兆内网达标；既有 32MiB 微基准仍为回归基线 | `dist/perf.json`、`12` §5 |
+| 下一个工作包 | 序 6 / WBS 11 **L4 外部矩阵执行**（套件已就绪，待隔离网络、命名客户端 qBittorrent / Transmission、抓包设备；双引擎 harness `make interop-external` 已可复跑 BX-01..BX-04）；**先由评审处置 L4 判据与产品边界冲突**；另需双机千兆内网执行 NFR-PERF-01 1GiB ≥ 80MB/s 基准 | `14` §11、`16` §6、`12` §3.1.1 / §5 |
 
 > **禁止误读**：套件 v1 已交付、CI 会跑 `make interop`，只说明**可复跑的本地自动化部分是绿的**；
 > `dist/INTEROP.md` 的 `release_gate_met: false` 才是发布结论。产品文案仍按 `16` §7
 > 只写「兼容标准 BitTorrent 网络，可与主流客户端互通」，**不得**写「已与主流客户端实测互通」
 > 「全矩阵通过」或「千兆内网性能达标」。`make interop-gate` 在门禁未满足时明确失败。
+> **新增边界**：`libtorrent 2.1.1` 虽点名于 `BT-03`，但 BX-03 / BX-04 只是
+> 「对方做种 → 我方下载」的单向回环证据，缺双向、抓包、隔离千兆内网与
+> `chihaya` / `opentracker` 二进制，**不得**据此宣称 `BT-03` 通过；`dist/perf.json`
+> 的回环 MB/s 也**不得**当作 NFR-PERF-01 达标（该文件固定 `nfr_perf_01.met=false`）。
 >
 > **时点区分**：`17`、ADR-0020 以及 `12` v0.4/v0.5 说明中的「10 个门禁包 /
 > 12 个链接模块 / 5 PASS / 1 WARN / 4 PASS / 2 WARN」均为 **2026-11-09/10 P0 评审时点快照**，

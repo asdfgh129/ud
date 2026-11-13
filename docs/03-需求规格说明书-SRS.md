@@ -1,6 +1,13 @@
 # 03 软件需求规格说明书（SRS）
 
-> 文档编号：UD-DOC-03 ｜ 版本：v0.6 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9/10/11 已补记，待评审） ｜ 日期：2026-11-11 ｜ 上游：`01`、`adr/`
+> 文档编号：UD-DOC-03 ｜ 版本：v0.7 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9/10/11 已补记，待评审） ｜ 日期：2026-11-13 ｜ 上游：`01`、`adr/`
+>
+> **v0.7 变更**：P1 WBS 11 续包补记（序 6 **仍不关闭**）。§8 追踪矩阵新增
+> `BX-01..BX-04` 真实第三方引擎单向回环补充证据（aria2-next 3.0.9 + `libtorrent 2.1.1`，
+> 4/4 PASS、**不计入 L4**）、`make perf` 1GiB 回环参考基准（固定 `nfr_perf_01.met=false`）
+> 与**L4 判据与 ADR-0004 不做种边界的形式冲突（待评审）**；§9 准则 2 的
+> 「互操作套件全矩阵通过」仍未满足，`release_gate_met: false`。
+> 门禁包 16 / 链接模块 90 / `make gates-strict` 6 PASS 口径不变，零新增依赖。
 >
 > **v0.6 变更**：P1 WBS 11（互操作套件 v1）落地，§8 新增「P1 WBS 11 追踪矩阵补记」表。
 > **真实公网 / 真实客户端 L4 互操作矩阵（`12` §3.1 `BT-01..BT-14`）仍全部 `SKIPPED`**
@@ -246,6 +253,16 @@ WASM 硬隔离、第三方规则仓库 / 发布流水线、规则失效遥测、
 | NFR-PORT-01 纯 Go 六平台 / 零 cgo | `13` §1/§2、`10` §8 | `make build`（12 个二进制）；`make gates-strict` 许可证 **90 个链接模块 0 copyleft / 0 未识别**，`internal/interop` 覆盖率 87.1%（16 个门禁包） | ✅ WBS 11 **零新增依赖** |
 | `12` §8 发布门禁「互操作 L4」 | `12` §3.1、`14` §11 序 6 | `make interop-gate` / `udinterop --release-gate-only`；`dist/interop.json:release_gate_met` | ❌ **未通过**：0/14 PASS，12 `SKIPPED` + 2 `UNSUPPORTED`（`BT-02`/`BT-11` 产品边界），`release_gate_met: false`；`make interop-gate` 明确失败 |
 | NFR-PERF-01 千兆内网吞吐 | `12` §5 | 需隔离网络 + 1GiB 文件 + 抓包 | ❌ **未执行**（`make bench` 只是回环 32MiB 回归基线，非该门禁） |
+
+**P1 WBS 11 续包追踪矩阵补记（2026-11-13）**：序 6 仍不关闭，以下均为**补充证据 / 阻塞登记**，
+不改变上表 L4 与 NFR-PERF-01 的 ❌ 结论。
+
+| 需求 / 准则 | 证据 | 状态 |
+|---|---|---|
+| 与真实第三方引擎互通（补充） | `BX-01..BX-04`：aria2-next 3.0.9 + `libtorrent 2.1.1` 真实做种 → 我方 `bttransport` 下载，sha256 一致；`make interop-external` 可复跑 | ✅ 4/4 PASS，**单向回环、不计入 L4** |
+| `12` §8 发布门禁「互操作 L4」 | `12` §3.1「L4 门禁可满足性冲突」 | ⚠️ **判据与 ADR-0004 不做种边界冲突**：`BT-02`/`BT-11` 恒 `UNSUPPORTED`、`BT-03` 双向不可达，14/14 PASS 形式不可满足，**待评审处置** |
+| NFR-PERF-01 千兆内网吞吐 | `make perf` → `dist/perf.json`（1GiB / 4 连接 / 256KiB，真实 HTTP Range Transport） | ⚠️ 回环参考 885.83 MB/s，固定 `nfr_perf_01.met=false`；**双机千兆实验室仍未执行** |
+| 16 门禁包 / 90 链接模块 / 6 PASS | `make gates-strict`、`TestClientConfigHandshakePolicy`、`TestLoadExternalEvidenceStatuses` | ✅ 口径不变，零新增依赖 |
 
 > **§9 验收准则的 P0 边界**：准则 1 的「无空格」在 P0 仅对上表 P0 行成立；准则 2/4 的 `12` 发布门禁、互操作全矩阵、SBOM 与 `go version -m` 一致性尚未执行（P1+；其中 SBOM / `go version -m` 一致性已于 `make gates-strict` 落地，但 **L4 互操作全矩阵仍未通过**）。准则 3 法务签字未进行。详见 `14` §9 与 `ADR-0020`。
 

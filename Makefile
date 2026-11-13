@@ -22,7 +22,7 @@ PLATFORMS := \
 	linux/amd64 linux/arm64 \
 	windows/amd64 windows/arm64
 
-.PHONY: all gen lint lint-arch test build docs sbom licenses cover vuln bench rollback-drill gates interop interop-gate sign package release check clean fmt vet
+.PHONY: all gen lint lint-arch test build docs sbom licenses cover vuln bench perf rollback-drill gates interop interop-external interop-gate sign package release check clean fmt vet
 
 all: lint test build docs
 
@@ -79,6 +79,12 @@ vuln:
 bench:
 	$(PYTHON) tools/gates.py bench
 
+# 1 GiB loopback reference measurement over the real HTTP Range Transport.
+# This is NOT NFR-PERF-01 (which needs a two-host gigabit LAN); dist/perf.json
+# always records nfr_perf_01.met=false. CI does not run this target.
+perf:
+	$(GO) run ./cmd/udperf --out $(DIST)/perf.json
+
 rollback-drill:
 	$(PYTHON) tools/gates.py rollback
 
@@ -96,6 +102,14 @@ gates-strict:
 # claim the L4 release gate is met: SKIPPED external cases are reported as such.
 interop:
 	$(GO) run ./cmd/udinterop --out $(DIST)
+
+# Optional real third-party client harness (BX-01..BX-04). Requires locally
+# installed aria2-next and/or the python-libtorrent binding; set
+# UD_ARIA2_NEXT, UD_LIBTORRENT_PYTHONPATH, UD_LIBTORRENT_SEEDER as needed.
+# Missing engines emit explicit SKIPPED / UNSUPPORTED records. CI never runs
+# this target; run `make interop` afterwards to merge dist/interop_external.json.
+interop-external:
+	$(GO) run ./cmd/udinteropx
 
 # Release gate: exits non-zero unless BT-01..BT-14 are all PASS. Never wire
 # this into CI until a lab with real clients / packet capture / gigabit LAN

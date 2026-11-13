@@ -66,6 +66,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **P1 WBS 11 续：真实命名客户端证据、L4 判据冲突登记与 1GiB 基准（2026-11-13）**：
+  序 6 仍**不关闭**；本轮只交付「可复跑的真实补充证据」与「阻塞项的正式登记」，
+  不改写 `12` §3.1 的 L4 判据、不改写 ADR-0004 决策，`dist/interop.json` 的
+  `release_gate_met` 仍为 `false`。
+  - **真实 libtorrent 2.1.1 跨客户端证据（BX-03 / BX-04）**：新增可选外部 seeder
+    `tools/interop_libtorrent.py`（Python `libtorrent` 绑定仅装在本机 `/tmp`，**非项目依赖**、
+    不入库、CI 不跑）；`cmd/udinteropx` 扩展为双引擎 harness，真实 libtorrent 做种 →
+    项目真实 `bttransport` 下载，`.torrent`（320KiB）与纯磁力 BEP 9（224KiB）均 sha256 一致，
+    自建 HTTP tracker 观测到外来 PeerID 的 `left=0` announce。加上既有 aria2-next 的
+    BX-01 / BX-02，`dist/interop_external.json` 现为 **4 条真实跨客户端证据（2 引擎，4/4 PASS）**，
+    由 `make interop` 合并进 `dist/INTEROP.md`；引擎缺失时显式写 `SKIPPED` / `UNSUPPORTED`，
+    `loadExternalEvidence` 现接受 `UNSUPPORTED` 并补回归用例（`TestLoadExternalEvidenceStatuses`）。
+  - **握手可复跑性修复**：默认 MSE 优先在跨引擎回环下出现偶发超时（8 用例 2 次超时）；
+    新增 `bt.WithPlainHandshake()` **仅实验室选项**（`HeaderObfuscationPolicy.Preferred=false`，
+    `RequirePreferred` 仍 false、加密回退仍在，`udd` 默认策略与 ADR-0004 边界零改动），
+    补 `TestClientConfigHandshakePolicy`；改后连跑 3 轮 × 4 用例 **12/12 PASS**。
+    另加 `UD_INTEROPX_TIMEOUT_S` 与「等待做种方 `left=0` announce」就绪同步，
+    使 BEP 9 元数据用例不再依赖进程启动竞态。
+  - **L4 门禁可满足性冲突（正式登记，待评审）**：按 ADR-0004 / WBS 7 边界
+    （`NoUpload=true` / `Seed=false`），`BT-02`（我方做种）与 `BT-11`（分享率 / seed-time）
+    恒 `UNSUPPORTED`，`BT-03` 的「双向」半向同样不可达，故「14/14 PASS 才关闭序 6」
+    在现有产品边界下**形式不可满足**——即便补齐隔离网络、命名客户端、抓包与千兆基准也不会成立。
+    已同步 `12` §3.1 / `14` §11 与 ADR-0004 实现落地段，列出三条处置路径
+    （修订判据为非目标豁免 / 扩大产品范围实现做种 / 保持开放并标记阻塞）；
+    **评审签署前不得把 `UNSUPPORTED` 计为 PASS 或豁免**。BX-03 / BX-04 虽来自点名引擎，
+    但只是单向回环补充证据，不解除冲突、不计入 L4。
+  - **NFR-PERF-01 可复跑基准**：新增 `cmd/udperf` + `make perf`，走真实
+    `internal/transport/http` Range 路径，1GiB / 4 连接 / 256KiB 分片，产出
+    `dist/perf.json`（`ud.perf/v1`）。本机回环实测 **885.83 MB/s（1.156s，4096 片逐片字节数校验）**，
+    但证据固定写 `nfr_perf_01.met: false`——回环无双机千兆链路，不得当作 ≥ 80MB/s 达标；
+    与既有 32MiB P0 微基准（同样标注 NOT NFR-PERF-01）互补。CI 不跑 `make perf`。
+  - 门禁口径不变：**16 个门禁包 / 90 个链接模块 / 0 copyleft / 0 未识别 /
+    `make gates-strict` 6 PASS / 0 WARN / 0 FAIL**；`make interop` 仍
+    **23 例 9 PASS / 12 SKIPPED / 2 UNSUPPORTED，L4 0/14**，`go test -race ./...` 全绿。
+    新增代码零新增依赖、零 cgo；`17` 与 ADR-0020 已签署证据原值不改。
 - **P1 WBS 11：互操作套件 v1（2026-11-11）**：P1 序 6 的**套件与证据链**落地于
   `internal/interop/` + `cmd/udinterop`（纯 Go、零新增依赖、零 cgo、仅回环）。
   **重要口径：`BT-01..BT-14` 全矩阵仍未执行，序 6 / WBS 11 不关闭**——本地环境没有

@@ -141,6 +141,41 @@ func TestReportMarkdownEscaping(t *testing.T) {
 	}
 }
 
+// TestLoadExternalEvidenceStatuses guards the honest-status contract: an
+// optional external client that is unavailable is UNSUPPORTED, never PASS, and
+// must not invalidate the whole external evidence file.
+func TestLoadExternalEvidenceStatuses(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "interop_external.json")
+	valid := `[
+		{"id":"BX-01","client":"real A","status":"PASS","name":"hash ok","evidence":"sha256=ab","infohash":"ab"},
+		{"id":"BX-02","client":"real B","status":"SKIPPED","name":"not run","evidence":"binary missing"},
+		{"id":"BX-03","client":"real C","status":"UNSUPPORTED","name":"binding absent","evidence":"python libtorrent binding unavailable"},
+		{"id":"BX-04","client":"real D","status":"FAIL","name":"hash mismatch","evidence":"mismatch","error":"hash mismatch"}
+	]`
+	if err := os.WriteFile(p, []byte(valid), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	vs, err := loadExternalEvidence(p)
+	if err != nil || len(vs) != 4 {
+		t.Fatalf("loadExternalEvidence = %d entries, err=%v", len(vs), err)
+	}
+	rep := Report{Schema: schemaVersion, Summary: Summary{Total: 23, GateTotal: 14}, ExternalEvidence: vs}
+	md := rep.Markdown()
+	for _, want := range []string{"UNSUPPORTED", "绝不等于通过", "BX-03", "libtorrent 2.x"} {
+		if !strings.Contains(md, want) {
+			t.Errorf("Markdown missing %q", want)
+		}
+	}
+	bad := filepath.Join(dir, "bad.json")
+	if err := os.WriteFile(bad, []byte(`[{"id":"BX-9","status":"MAYBE"}]`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := loadExternalEvidence(bad); err == nil {
+		t.Fatal("expected error for unknown status")
+	}
+}
+
 func TestWriteEvidenceErrors(t *testing.T) {
 	rep := Report{Schema: schemaVersion}
 	// A regular file cannot be used as a directory.

@@ -307,3 +307,32 @@ func TestTransportLoopbackDownload(t *testing.T) {
 		t.Fatalf("downloaded content mismatch: got %d bytes, want %d", len(mcw.data), len(content))
 	}
 }
+
+// TestClientConfigHandshakePolicy guards the lab-only plaintext handshake
+// option: the daemon default (MSE preferred) must stay untouched, and the
+// option must not change any ADR-0004 product boundary.
+func TestClientConfigHandshakePolicy(t *testing.T) {
+	r := &core.Resource{Kind: core.KindTorrent, Identity: core.ProtocolIdentity{Private: true}}
+	dir := t.TempDir()
+
+	def := clientConfig(r, dir, false)
+	if !def.HeaderObfuscationPolicy.Preferred || def.HeaderObfuscationPolicy.RequirePreferred {
+		t.Fatalf("daemon default handshake policy changed: %+v", def.HeaderObfuscationPolicy)
+	}
+	plain := clientConfig(r, dir, true)
+	if plain.HeaderObfuscationPolicy.Preferred || plain.HeaderObfuscationPolicy.RequirePreferred {
+		t.Fatalf("plain option must disable only the preference: %+v", plain.HeaderObfuscationPolicy)
+	}
+	for _, cfg := range []*torrent.ClientConfig{def, plain} {
+		if !cfg.NoUpload || cfg.Seed || !cfg.NoDHT || !cfg.DisablePEX {
+			t.Fatalf("ADR-0004 boundary changed: NoUpload=%t Seed=%t NoDHT=%t DisablePEX=%t",
+				cfg.NoUpload, cfg.Seed, cfg.NoDHT, cfg.DisablePEX)
+		}
+	}
+	if got := New(nil, noopCreds{}, WithPlainHandshake()); !got.plainHandshake {
+		t.Fatal("WithPlainHandshake was not applied")
+	}
+	if got := New(nil, noopCreds{}); got.plainHandshake {
+		t.Fatal("plaintext handshake must be opt-in")
+	}
+}
