@@ -57,8 +57,16 @@
 > `release_gate_met: false`、`UNSUPPORTED` 不得计 PASS 或豁免。
 > 同轮新增 `make l4-preflight` / `l4-preflight-check` / `l4-run` 打通实验室接线
 > （前置条件清点，**不是 L4 执行证据**，示例 stub 配置只能产出 `SKIPPED`，三者均不接入 CI）。
+> **L4 证据包完整性审计（2026-11-14）**：新增 `make l4-audit`（`internal/interop/audit.go`
+> + `cmd/udl4audit`），独立重算**已产出** `ud.interop/v1` 证据包的 9 项 `AUD-*` 检查，
+> 写 `dist/l4_audit.json` / `dist/L4_AUDIT.md`；**`CONSISTENT` 只是内部自洽结论，
+> 不等于 L4 已执行或通过**，审计器恒 `l4_executed_by_audit=false`、不接入 CI、
+> 不替代 `make interop-gate`。实测 stub 产物 `CONSISTENT` 且重算门禁 `false`，
+> 篡改副本 `INCONSISTENT`（`AUD-SUMMARY` / `AUD-GATE-VERDICT`）。四目标
+> （`l4-preflight` / `l4-preflight-check` / `l4-run` / `l4-audit`）均不接入 CI。
+
 > **评审与实验室准备材料包（2026-11-14）**：[`docs/18`](docs/18-序6评审与L4实验室准备材料包.md)
-> （`v0.1`、`草案`、**待签署**）集中已核实事实清单、A / B / C 影响面核对表、
+> （`v0.2`、`草案`、**待签署**）集中已核实事实清单、A / B / C 影响面核对表、
 > 留白豁免清单与评审签署表模板、隔离千兆内网拓扑 / 抓包方案、9 项 `LAB-*` 前置条件映射
 > 与 NFR-PERF-01 双机基准方案；**不代行裁决、不产出 L4 证据**，空表未签署无效。
 > 不得据本地用例宣称「已与主流客户端实测互通」「全矩阵通过」或「千兆内网性能达标」。
@@ -145,7 +153,7 @@ go run ./cmd/udctl show <id>
 | 查 P0 评审结论、签署与附加条件 | [`docs/17-P0里程碑评审材料.md`](docs/17-P0里程碑评审材料.md) |
 | 看哪些文档待审核 / 已决定 | 文档门户首页 `#/home` 的状态总览 |
 
-预览型阅读：运行 `python3 tools/build_docs.py` 后打开 `docs/_site/index.html`。这是一个带侧栏的单文件门户，**默认打开 `#/home` 状态首页**：统计卡 + 状态徽章 + 分类卡片，直观显示每份文档是「待审核 / 已决定 / 持续维护 / 已废止 / 未标注」，并支持按状态、类型筛选与搜索；侧栏保留全部 41 篇文档链接，CHANGELOG、ADR 与 P0 评审材料均可直接跳转。`docs/_site/` 是生成物，禁止手工编辑。
+预览型阅读：运行 `python3 tools/build_docs.py` 后打开 `docs/_site/index.html`。这是一个带侧栏的单文件门户，**默认打开 `#/home` 状态首页**：统计卡 + 状态徽章 + 分类卡片，直观显示每份文档是「待审核 / 已决定 / 持续维护 / 已废止 / 未标注」，并支持按状态、类型筛选与搜索；侧栏保留全部 43 篇文档链接，CHANGELOG、ADR 与 P0 评审材料均可直接跳转。`docs/_site/` 是生成物，禁止手工编辑。
 
 ## 明确的能力边界（写进产品文案）
 

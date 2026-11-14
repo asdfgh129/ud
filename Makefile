@@ -22,7 +22,7 @@ PLATFORMS := \
 	linux/amd64 linux/arm64 \
 	windows/amd64 windows/arm64
 
-.PHONY: all gen lint lint-arch test build docs sbom licenses cover vuln bench perf rollback-drill gates interop interop-external interop-gate l4-preflight l4-preflight-check l4-run sign package release check clean fmt vet
+.PHONY: all gen lint lint-arch test build docs sbom licenses cover vuln bench perf rollback-drill gates interop interop-external interop-gate l4-preflight l4-preflight-check l4-run l4-audit sign package release check clean fmt vet
 
 all: lint test build docs
 
@@ -135,6 +135,17 @@ l4-preflight-check:
 # stub config it MUST exit non-zero (0/14 PASS).
 l4-run:
 	$(GO) run ./cmd/udinterop --out $(L4_OUT) --require-external --external-config $(L4_CONFIG) --release-gate-only
+
+# Independent integrity audit of an ALREADY-PRODUCED evidence bundle. This is
+# NOT an L4 run, NOT a release gate and NOT wired into CI. A zero exit status
+# means only "internally consistent"; a consistent bundle can still report
+# release_gate_met=false. Use --require-gate-met via L4_AUDIT_FLAGS for an
+# additional gate check, but make interop-gate remains the authoritative gate.
+L4_EVIDENCE ?= $(L4_OUT)/interop.json
+L4_AUDIT_FLAGS ?=
+
+l4-audit:
+	$(GO) run ./cmd/udl4audit --in $(L4_EVIDENCE) --out $(DIST)/l4_audit.json --md $(DIST)/L4_AUDIT.md $(L4_AUDIT_FLAGS)
 
 sign package release:
 	@echo "  [P0] '$@' is a release-stage target (docs/13 §3)"; exit 0

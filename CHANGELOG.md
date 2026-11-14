@@ -66,6 +66,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **L4 证据包完整性审计器（2026-11-14，`internal/interop/audit.go` + `cmd/udl4audit` + `make l4-audit`）**：
+  独立重算**已产出**的 `ud.interop/v1` 证据包，9 项 `AUD-*` 检查：规范门禁覆盖
+  （`BT-01..BT-14` 恰 14 条、无缺 / 多 / 重）、`status` 枚举与记录卫生、7 项汇总计数、
+  按 case 重算 `release_gate_met`、`release_gate_reason` 不得虚假宣称全矩阵 PASS、
+  声称门禁达标须 `require_external=true`、PASS 门禁用例须带 `reason` / `evidence`、
+  补充证据 status 合法。产出 `dist/l4_audit.json`（`ud.l4-evidence-audit/v1`）与
+  `dist/L4_AUDIT.md`，结论仅 `CONSISTENT` / `INCONSISTENT` / `MISSING`；
+  `--require-gate-met`（`L4_AUDIT_FLAGS`）可追加门禁判定。
+  **完整性结论不是 L4 测试结果、不是发布门禁**：不执行用例、不启动进程、不访问网络、
+  不写回被审计文档，`l4_executed_by_audit=false` 恒真，审计器从不设置
+  `release_gate_met`（只做重算）；`make interop-gate` 仍是唯一权威门禁，本目标**不接入 CI**。
+  实测：示例 stub 产物审计为 `CONSISTENT` 且重算 `release_gate_met=false`（9/9 检查 OK）；
+  手工篡改（`release_gate_met=true` + `summary.pass=99`）为 `INCONSISTENT`，精确报出
+  `AUD-SUMMARY` / `AUD-GATE-VERDICT`；缺文件为 `MISSING`；`--require-gate-met` 非零退出。
+  新增 `internal/interop/audit_test.go` 11 项 `TestAudit*` 回归（含全 PASS 但缺证据、
+  本地回环报告冒称门禁达标、伪「全部 PASS」原因串、重复 / 缺失门禁用例、非法 status）。
+  **零新增 L4 证据**：`BT-01..BT-14` 仍 **0/14 PASS**，`release_gate_met=false` 不变。
 - **序 6 评审与 L4 实验室准备材料包（2026-11-14，`docs/18` v0.1，待评审签署）**：
   新增 [18 序 6 评审与 L4 实验室准备材料包](docs/18-序6评审与L4实验室准备材料包.md)，
   把散落在 ADR-0021 / `12` §3.1.2 / `14` §11 的评审要件集中为可直接使用的材料包：
@@ -333,6 +350,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **L4 证据审计链路全量文档同步（2026-11-14，`docs/18` v0.2 / `docs/README` v1.8 /
+  `12` v1.4 / `13` v0.12）**：`12` §3.1.3 表补 `make l4-audit` 行并新增
+  **§3.1.4 证据包完整性审计**、§9 用例追踪补 `TestAudit*` 行；`13` §3 目标表与
+  §12 实现矩阵补审计目标并明确「四目标均不接入 CI」；`docs/18` §7.3 补第 5 条留痕、
+  §7.4 步骤 5 补审计、§九 收口清单补一项、§十 增第 9 条硬不变量；
+  `docs/README` §三 新增「证据完整性审计」行并改写「L4 实验室链路」/「下一个工作包」、
+  §二 角色阅读、§六、§七 索引同步；根 `README.md` 补审计说明，并修正门户侧栏
+  **41 → 43 篇**的过期当前态表述。门户 `docs/_site/index.html` 重建仍
+  **43 篇 / 0 断链**（本次未新增文档）。**历史版本说明中的 42 / 43 篇与
+  「三目标」等表述按「时点值不改写」原则保留**，仅在新增版本说明中标注。
+  另按惯例补记 `0ca9164` 的 CI run `43580889196` 经 `gh run list` 核验为
+  **`quality: success`**（时点口径追加，不改写原条目）。
+  `internal/interop` 覆盖率因 11 项 `TestAudit*` 由 87.9% → **88.7%**（阈值 80%）。
+  门禁包 **16** / 链接模块 **90** / `gates-strict` **6 PASS / 0 WARN / 0 FAIL** /
+  L4 **0/14** / `release_gate_met=false` / `l4_executed=false` /
+  `nfr_perf_01.met=false` / 序 6 仍开放；`17` / ADR-0020 已签署证据不改写。
 - **门户接入 doc-18 与 CI 时点口径补记（2026-11-14，纯文档 / 生成器校准）**：
   `tools/build_docs.py` 的 `GROUPS` 纳入 `docs/18`，导航契约注释由
   `doc-01..doc-17` 改为 `doc-01..doc-18`，分组描述补「评审材料」；
