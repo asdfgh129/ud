@@ -323,6 +323,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **代码↔文档一致性校准与已核验 CI 结论补记（2026-11-14，纯文档 / 生成器校准）**：
+  按 `15` §13 / `13` §4 的「如实记录」口径，补齐此前条目留白的 CI 结论——
+  `679a26e`（v1.4 / `15` v0.4 文档控制包）触发 run `43402970475`、
+  `c3fbc70`（ADR-0021 + L4 前置检查链路）触发 run `43567640194`，
+  经 `gh run list` 核验均为 **`quality: success`**（严格门禁 6 PASS / 0 WARN / 0 FAIL）。
+  另有 run `43566313113` 为 `failure`：该次尝试用 Git Data API 生成的 commit
+  无法被 `actions/checkout` 完整拉取（`Found 4 documents` / `253 error(s)`），
+  已由真实 git 对象 `c3fbc70` 经 SSH 读写 deploy key 重推取代，**不是偶发 flake、
+  不是质量门禁回归**，如实登记不隐藏、也不计入通过数。
+  `c3fbc70` 条目中「不预先记为通过」属**提交时点口径**，按历史数值不改写原则保留原文，
+  仅以本条追加时点校准。
+  门户生成器 `tools/build_docs.py` 的硬编码徽章 `文档体系 v0.4` 改为从
+  `docs/README.md` 版本头动态读取，导航契约注释由 `adr-0001..adr-0020` 改为
+  ADR 自动发现口径（实际 **21 份 ADR**）；同步 `docs/README` **v1.6**
+  （§三 严格门禁行 / §六 变更记录）、`13` **v0.10**（§4 CI 段）、根 `README.md`
+  当前态，门户 `docs/_site/index.html` 重建（仍 **42 篇 / 0 断链**）。
+  **零产品代码改动**：门禁包仍 **16**、链接模块仍 **90**、
+  `make gates-strict` 仍 **6 PASS / 0 WARN / 0 FAIL**、L4 仍 **0/14**、
+  `release_gate_met=false`、`nfr_perf_01.met=false`、序 6 仍开放；
+  `17` / ADR-0020 已签署证据与历史时点数值均不改写。
 - **文档控制与 CI 缺陷处置口径补记（2026-11-13）**：`docs/README` 升 **v1.4**，
   §三「当前态口径」严格门禁行如实闭合为「CI run `43393512271` 曾
   **5 PASS / 0 WARN / 1 FAIL** → `ddda48d` run `43399289527` 与 `8138c42`

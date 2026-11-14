@@ -14,9 +14,10 @@ CDN is reachable; otherwise the diagram source remains readable as a code block.
 Navigation contract
 --------------------
 * Every document gets a STABLE ASCII slug: home / readme / doc-01..doc-17 /
-  adr-index / adr-0001..adr-0020 / changelog / root-readme. Non-ASCII fragments
-  must be avoided: browsers percent-encode location.hash, which breaks naive
-  lookups.
+  adr-index / adr-0001..adr-NNNN / changelog / root-readme. ADRs are discovered
+  automatically from docs/adr/ADR-*.md, so adding an ADR needs no edit here.
+  Non-ASCII fragments must be avoided: browsers percent-encode location.hash,
+  which breaks naive lookups.
 * `home` is a virtual section (no Markdown source): a generated status
   dashboard that is the default landing page. All existing sidebar links and
   deep links keep working unchanged.
@@ -342,6 +343,20 @@ def parse_doc_index() -> dict[str, dict[str, str]]:
     return out
 
 
+def doc_system_version() -> str:
+    """Read the doc-system version from docs/README.md, the single truth source.
+
+    The homepage chip used to hardcode ``v0.4`` (the release that introduced the
+    status dashboard) and drifted as the documentation set advanced. Deriving it
+    from the version header keeps the generated portal and the docs in sync.
+    """
+    text = (DOCS / "README.md").read_text(encoding="utf-8")
+    m = re.search(
+        r"^>\s*文档编号：UD-DOC-00[^\n]*?版本：\s*(v[0-9]+(?:\.[0-9]+)*)",
+        text, re.M)
+    return m.group(1) if m else "v?"
+
+
 def parse_adr_index() -> dict[str, dict[str, str]]:
     """Read the ADR index table for concise titles, statuses and impact."""
     text = (DOCS / "adr" / "README.md").read_text(encoding="utf-8")
@@ -458,6 +473,7 @@ def build_home(docs: list[Doc], by_rel: dict[str, Doc]) -> str:
     """
     from collections import Counter
     doc_idx, adr_idx, basis = parse_doc_index(), parse_adr_index(), p0_basis()
+    doc_ver = doc_system_version()
 
     groups: list[tuple[str, list[str]]] = []
     for gi, (gname, names) in enumerate(GROUPS):
@@ -523,7 +539,7 @@ def build_home(docs: list[Doc], by_rel: dict[str, Doc]) -> str:
   <h1>开发文档 · 状态总览</h1>
   <p>把 BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信等来源，收敛到一条流水线、一个调度器、一份状态。本页按文档版本头与 ADR 状态行自动汇总：哪些仍在待审核、哪些已决定、哪些已按 P0 实现校准，一眼可见。左侧全部文档链接保持不变。</p>
   <div class="chips">
-    <span class="chip s-plain">文档体系 v0.4</span>
+    <span class="chip s-plain">文档体系 {doc_ver}</span>
     <span class="chip s-p0">P0 附加条件已关闭</span>
     <span class="chip s-review">P1 进行中 · 序 6 开放</span>
     <span class="chip s-plain">单文件 · 离线可读</span>
