@@ -124,3 +124,28 @@ HTTP/HTTPS 与 BEP 15 UDP tracker fixture（BEP 23 compact 6B/18B、passkey、�
 / C（保持开放）三条须评审签署的路径。签署前本 ADR 仍为 `Accepted`、
 「`BT-01..BT-14` 全矩阵通过方可发布 P1」仍有效且未满足、
 `release_gate_met` 维持 `false`、`UNSUPPORTED` 不得计 PASS 或以豁免计入通过数。
+
+## 实现落地补记（2026-11-14，ADR-0021 路径 A；上文各段原文不改）
+
+> **本段是当前态口径**。上文 WBS 11 续包与「阻塞根因二次校准」里的
+> 「`Seed=false` 仍为待办」「ADR-0021 `Proposed` 未生效」「签署前不得实现」
+> 均为 2026-11-13 提案期时点值，按项目文档控制规则保留不改。
+
+- 项目发起人于 2026-11-14 明确指令「按 A 方案补齐，同时修改相关文档」，
+  [ADR-0021](ADR-0021-L4门禁与P2P礼仪范围冲突裁决提案.md) 依 `15` §4 规则④
+  转为 `Accepted（路径 A）` 并同步索引；**本次不是评审组五方签署**，
+  `docs/18` §六 签署表仍留白，法务口径与 `14` R-10 重评待补。
+- 本 ADR「后续动作」要求的**显式做种礼仪**已落地：`internal/transport/bt/seeding.go`
+  提供受限做种、分享率 / `seed-time` 任一达标即停、上传槽、UPnP / NAT-PMP、
+  诚实 PeerID 强制回落；`internal/config/config.go` 让 `bt.*` 真正生效并拒绝
+  无界做种目标；`Client.ConnStats()` 把上传计数写入 `tasks.bytes_uploaded`，
+  与 tracker announce 同源。上传字节速率仍只由 `scheduler.Limiter` 管理，
+  不引入第二 limiter；**私有种子恒不上传且恒禁 DHT / PEX**。
+- 库默认 `Seed=false` 的事实不变，项目层已用显式 `SeedingPolicy` 补偿；
+  LSD（BEP 14）与 Super-seeding（BEP 16）仍缺失，决策 3 的 cgo/libtorrent
+  升级路径与决策 4 的 v1/hybrid 默认策略**未改变**。
+- `12` §3.1 的 `BT-01..BT-14` 判据**未改**：真实客户端矩阵、抓包与隔离
+  千兆内网仍未执行，L4 **0/14**；套件 v1 的 `BT-02` / `BT-11` 仍按
+  `ScopeProductGap` 固定 `UNSUPPORTED`（路径 A 实现不翻转证据状态），
+  `release_gate_met=false`、`l4_executed=false`、序 6 **仍开放**。
+  `SKIPPED` / `UNSUPPORTED` / `PRESENT` / `CONSISTENT` 一律不计 PASS。

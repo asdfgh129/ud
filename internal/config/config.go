@@ -34,14 +34,22 @@ type SecurityConfig struct {
 	AllowLoopbackForDev  bool     `yaml:"allowLoopbackForDev" json:"allowLoopbackForDev"`
 }
 
-// Reserved groups: parsed for forward compatibility, ignored by P0 (docs/14).
+// BTConfig is the LIVE BitTorrent upload-etiquette configuration (WBS 7 +
+// ADR-0021 path A). It used to be a reserved group that was parsed but
+// ignored; the daemon now maps it onto bttransport.SeedingPolicy. Global byte
+// rates deliberately stay out of this struct: scheduler.Limiter is the only
+// rate authority (docs/04 §5.3, check_arch.py guard 4).
 type BTConfig struct {
 	PeerID          string  `yaml:"peerID" json:"peerID"`
 	EnableDHT       bool    `yaml:"enableDHT" json:"enableDHT"`
 	EnablePEX       bool    `yaml:"enablePEX" json:"enablePEX"`
+	SeedEnabled     bool    `yaml:"seedEnabled" json:"seedEnabled"`
 	SeedRatio       float64 `yaml:"seedRatio" json:"seedRatio"`
 	SeedTimeMinutes int     `yaml:"seedTimeMinutes" json:"seedTimeMinutes"`
+	MaxUploadSlots  int     `yaml:"maxUploadSlots" json:"maxUploadSlots"`
 	EnableUPnP      bool    `yaml:"enableUPnP" json:"enableUPnP"`
+	ListenPort      int     `yaml:"listenPort" json:"listenPort"`
+	ListenHost      string  `yaml:"listenHost" json:"listenHost"`
 }
 
 type ED2KConfig struct {
@@ -125,7 +133,11 @@ func Defaults() Config {
 			MaxXMLBytes:          4 << 20,
 			BlockPrivateNetworks: true,
 		},
-		BT:   BTConfig{PeerID: "-GT0001-", EnableDHT: true, EnablePEX: true, SeedRatio: 1.0, SeedTimeMinutes: 60, EnableUPnP: true},
+		BT: BTConfig{
+			PeerID: "-UD0000-", EnableDHT: true, EnablePEX: true,
+			SeedEnabled: true, SeedRatio: 1.0, SeedTimeMinutes: 60,
+			MaxUploadSlots: 8, EnableUPnP: true, ListenPort: 0,
+		},
 		ED2K: ED2KConfig{Obfuscation: true, SecureIdent: true, TCPPort: 4662, UDPPort: 4672},
 		Plugins: PluginsConfig{
 			VerifySignature: true, Runtime: "goja", ReloadInterval: "30s",
@@ -167,6 +179,40 @@ func applyEnv(c *Config) {
 	set("UD_PLUGINS_DIR", &c.Plugins.Dir)
 	set("UD_PLUGINS_RUNTIME", &c.Plugins.Runtime)
 	set("UD_PLUGINS_RELOAD_INTERVAL", &c.Plugins.ReloadInterval)
+	// ADR-0021 path A: bt.* keys are live now. UD_BT_* overrides let an
+	// operator disable or bound seeding without editing the config file.
+	set("UD_BT_PEER_ID", &c.BT.PeerID)
+	set("UD_BT_LISTEN_HOST", &c.BT.ListenHost)
+	if v := os.Getenv("UD_BT_SEED_ENABLED"); v != "" {
+		if b, err := strconv.ParseBool(v); err == nil {
+			c.BT.SeedEnabled = b
+		}
+	}
+	if v := os.Getenv("UD_BT_SEED_RATIO"); v != "" {
+		if f, err := strconv.ParseFloat(v, 64); err == nil {
+			c.BT.SeedRatio = f
+		}
+	}
+	if v := os.Getenv("UD_BT_SEED_TIME_MINUTES"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			c.BT.SeedTimeMinutes = n
+		}
+	}
+	if v := os.Getenv("UD_BT_UPLOAD_SLOTS"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			c.BT.MaxUploadSlots = n
+		}
+	}
+	if v := os.Getenv("UD_BT_ENABLE_UPNP"); v != "" {
+		if b, err := strconv.ParseBool(v); err == nil {
+			c.BT.EnableUPnP = b
+		}
+	}
+	if v := os.Getenv("UD_BT_LISTEN_PORT"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			c.BT.ListenPort = n
+		}
+	}
 	if v := os.Getenv("UD_PLUGIN_KEYS"); v != "" {
 		for _, k := range strings.Split(v, ",") {
 			if k = strings.TrimSpace(k); k != "" {
@@ -203,6 +249,26 @@ func (c Config) Validate() error {
 	}
 	if err := c.Plugins.Validate(); err != nil {
 		return fmt.Errorf("plugins: %w", err)
+	}
+	// ADR-0021 path A: a bounded seeding obligation must always be able to
+	// terminate. Both targets being zero with seedEnabled=true would seed
+	// forever, so fail closed. Private torrents ignore this policy entirely.
+	if c.BT.SeedEnabled {
+		if c.BT.SeedRatio < 0 {
+			return errors.New("bt.seedRatio must be >= 0")
+		}
+		if c.BT.SeedTimeMinutes < 0 {
+			return errors.New("bt.seedTimeMinutes must be >= 0")
+		}
+		if c.BT.SeedRatio == 0 && c.BT.SeedTimeMinutes == 0 {
+			return errors.New("bt.seedEnabled requires seedRatio or seedTimeMinutes > 0 (bounded seeding)")
+		}
+		if c.BT.MaxUploadSlots < 1 {
+			return errors.New("bt.maxUploadSlots must be >= 1")
+		}
+		if c.BT.ListenPort < 0 || c.BT.ListenPort > 65535 {
+			return errors.New("bt.listenPort must be within 0..65535")
+		}
 	}
 	if c.TempSuffix == "" || strings.ContainsAny(c.TempSuffix, "/\\") {
 		return errors.New("tempSuffix must be a simple suffix like .part")

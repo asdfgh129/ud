@@ -1,7 +1,28 @@
 # 文档总览与文档控制
 
-> 文档编号：UD-DOC-00 ｜ 版本：v1.8 ｜ 状态：**草案（P0 已通过有条件评审；ADR 0001–0020 已批准，ADR-0021 为待评审提案，其余文档待逐篇评审）** ｜ 日期：2026-11-14 ｜ 维护责任：架构组
+> 文档编号：UD-DOC-00 ｜ 版本：v1.9 ｜ 状态：**草案（P0 已通过有条件评审；ADR 0001–0021 已批准（0021 为路径 A，评审组复签待补），其余文档待逐篇评审）** ｜ 日期：2026-11-14 ｜ 维护责任：架构组
 
+> **v1.9 变更**（2026-11-14，ADR-0021 路径 A 裁决与实现；**编码部分落地、
+> 评审组复签待补、零 L4 证据**）：项目发起人明确指令按 A 方案补齐，ADR-0021 由
+> `Proposed` 转 `Accepted（路径 A）`（ADR 索引 v0.5）。本包把 §三「阻塞定档」
+> 改为「路径 A 裁决」，新增「P2P 礼仪（路径 A）」当前态行，改写「L4 发布门禁」
+> /「评审准备」/「下一个工作包」与 ADR-0021 边界注；§三 清单表 18 行状态、
+> §六 变更记录、§七 索引同步。同步 `03` v0.9 / `05` v0.8 / `07` v0.6 /
+> `11` v1.1 / `12` v1.5 / `13` v0.13 / `14` v1.5 / `15` v0.6 / `16` v0.9 / `18` v0.3 /
+> ADR-0004 / ADR-0017 实现落地注 / `config.example.yaml` / 根 README /
+> `tools/build_docs.py` 首页横幅；门户重建仍 **43 篇 / 0 断链**，ADR 汇总变为
+> **21 `Accepted` / 0 待评审**。**不改 `12` §3.1 L4 判据**：`BT-01..BT-14` 仍
+> **0/14**、`BT-02` / `BT-11` 仍 `UNSUPPORTED`（实现具备 ≠ L4 已验证）、
+> `release_gate_met=false`、`l4_executed=false`、`nfr_perf_01.met=false`、
+> 序 6 仍开放；`SKIPPED` / `UNSUPPORTED` / `PRESENT` / `CONSISTENT` 一律不计 PASS。
+> **如实标注**：`docs/18` §六 评审组五方签署表仍全部留白，本次为发起人指令裁决，
+> **不冒充**架构组 + 产品 + 法务三方会签；法务口径、`14` R-10 重评与复签仍待补。
+> v1.5–v1.8 及更早版本说明中的「42/43 篇」「20 Accepted / 1 待评审」
+> 「ADR-0021 待评审」等为时点值，保留不改。
+> 另按惯例补记 `9395343` 的 CI run `43595391886` 为 `quality: success`；
+> §五 slug 契约补到 `doc-01..doc-18` / `adr-0001..adr-0021`，§三 严格门禁行
+> 同步追加该 CI 结论，并修正 ADR-0021 边界注的重复行。
+>
 > **v1.8 变更**（2026-11-14，L4 证据包完整性审计；**新增完整性守卫、不改判据、
 > 不代行裁决、不产出 L4 证据**）：新增 `internal/interop/audit.go` + `cmd/udl4audit`
 > + `make l4-audit`，独立重算已产出证据包的门禁覆盖 / 状态枚举 / 汇总计数 /
@@ -221,7 +242,7 @@ graph TD
 | 15 | [开发规范与协作流程](15-开发规范与协作流程.md) | 草案 | 全体 | 编码规范、Git 流程、评审清单、变更管理、DoR/DoD |
 | 16 | [互操作性与兼容性设计](16-互操作性与兼容性设计.md) | 草案 | 架构/QA/产品 | BT/BEP、tracker、eD2k 三层兼容性、身份与礼仪、PT 非承诺、文案口径 |
 | 17 | [P0 里程碑评审材料](17-P0里程碑评审材料.md) | 已批准 | 评审组/PM/QA/安全/法务 | 客观门禁证据、覆盖率达标记录、风险登记册更新、ADR 变更清单、OPEN 决策简报、签署表 |
-| 18 | [序 6 评审与 L4 实验室准备材料包](18-序6评审与L4实验室准备材料包.md) | 草案（待评审签署材料） | 评审组/PM/QA/架构 | 事实清单、A/B/C 影响面核对表、空白豁免与签署表模板、实验室拓扑/抓包方案、NFR-PERF-01 双机方案、证据完整性审计衔接、硬不变量 |
+| 18 | [序 6 评审与 L4 实验室准备材料包](18-序6评审与L4实验室准备材料包.md) | 草案（路径 A 裁决输入已登记；评审组复签待补） | 评审组/PM/QA/架构 | 事实清单、A/B/C 影响面核对表、空白豁免与签署表模板、实验室拓扑/抓包方案、NFR-PERF-01 双机方案、证据完整性审计衔接、硬不变量 |
 | — | [ADR 索引](adr/README.md) | 已批准 | 全体 | 全部架构决策记录（唯一决策真值源），含 0020 P0 实现基线 |
 | — | [更新日志 CHANGELOG](../CHANGELOG.md) | 现行 | 全体 | Keep a Changelog 1.1.0 + SemVer 2.0.0；**每次代码变更必须先写这里**（`15` §10） |
 
@@ -237,15 +258,16 @@ graph TD
 | 已交付 | P0 有条件通过（附加条件已关闭）、P1 WBS 8 / WBS 9 / WBS 7（BT / 磁力） / WBS 10（插件引擎）；**WBS 11 互操作套件 v1 已交付**（框架 + 自建 tracker + 9 条本地用例 + 证据链），但 L4 全矩阵未执行，序 6 **不关闭**；另以本机 **aria2-next 3.0.9**（MotrixNext）与真实 **libtorrent 2.1.1**（Python 绑定，可选外部工具）作真实做种方产出 **BX-01..BX-04 跨客户端证据**（sha256 校验通过），为**补充证据**不计入 L4 门禁 | `CHANGELOG.md`、`14` §11、`12` §3.1.1 |
 | 受门禁包 | **16 个**（WBS 10 新增 `internal/plugin` 88.4%；WBS 11 新增 `internal/interop` 87.1%，本包复测 **87.9%**；2026-11-14 证据审计包复测 **88.7%**，阈值 80%，`below_threshold=[]`） | `tools/gates.py:THRESHOLDS`、`12` §9 |
 | 链接模块 | **90 个**，0 copyleft / 0 未识别（含 `anacrolix/torrent` v1.62.0 与 `goja`；WBS 11 零新增依赖） | `dist/sbom.cdx.json`、`10` §8.1 / §8.2 |
-| 严格门禁 | `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**（本机；CI 于 2026-11-13 的 run `43393512271` 曾因 WAL 偶发 `SQLITE_BUSY` 在 `cover` 步骤 **5 PASS / 0 WARN / 1 FAIL**，已修复，CI run `43399289527`（代码修复）与 `43400218985`（文档复验）均 `quality: success`（严格门禁 6 PASS / 0 WARN / 0 FAIL）；后续 `679a26e` run `43402970475` 与 `c3fbc70` run `43567640194` 于 2026-11-14 核验亦均 `quality: success`，被取代的 API 推送尝试 run `43566313113` 为 `failure`（非 flake、非门禁回归，详见 v1.6 变更）；后续 `84871b0` run `43570105065` 与 `0ca9164` run `43580889196` 于 2026-11-14 核验亦均 `quality: success`（见 v1.7 / v1.8 时点口径）） | `dist/gates.json`、`.github/workflows/ci.yml`、`13` §4 |
+| 严格门禁 | `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**（本机；CI 于 2026-11-13 的 run `43393512271` 曾因 WAL 偶发 `SQLITE_BUSY` 在 `cover` 步骤 **5 PASS / 0 WARN / 1 FAIL**，已修复，CI run `43399289527`（代码修复）与 `43400218985`（文档复验）均 `quality: success`（严格门禁 6 PASS / 0 WARN / 0 FAIL）；后续 `679a26e` run `43402970475` 与 `c3fbc70` run `43567640194` 于 2026-11-14 核验亦均 `quality: success`，被取代的 API 推送尝试 run `43566313113` 为 `failure`（非 flake、非门禁回归，详见 v1.6 变更）；后续 `84871b0` run `43570105065` 与 `0ca9164` run `43580889196` 于 2026-11-14 核验亦均 `quality: success`（见 v1.7 / v1.8 时点口径）；后续 `9395343` run `43595391886` 于 2026-11-14 核验为 `quality: success`（见 v1.9 时点口径）） | `dist/gates.json`、`.github/workflows/ci.yml`、`13` §4 |
 | 互操作套件 | `make interop` **23 例：9 PASS / 0 FAIL / 12 SKIPPED / 2 UNSUPPORTED**，证据 `dist/interop.json`；`dist/interop_external.json` 为 **BX-01..BX-04 真实跨客户端证据（2 引擎、4/4 PASS、sha256 校验）**，由 `make interop-external` 复跑并合并进 `dist/INTEROP.md` | `dist/INTEROP.md`、`dist/interop_external.json`、`12` §3.1.1 |
-| **L4 发布门禁** | ❌ **未通过**：`BT-01..BT-14` 需真实 qBittorrent / Transmission、自建 tracker 二进制、抓包与千兆内网；`SKIPPED` / `UNSUPPORTED` 不计为 PASS。已用 **aria2-next**（不点名）与真实 **libtorrent 2.1.1**（点名于 `BT-03`，但仅单向回环）取得补充证据，**均不计入门禁**；阻塞已按 **ADR-0021（Proposed）** 定档：根因是实现相对 ADR-0004 / ADR-0017 与 `03` M 级需求的**未签署范围缩减**，判据冲突与实验室条件缺失并存，须评审裁决 | `dist/INTEROP.md`、`14` §11 序 6、`12` §3.1、ADR-0021 |
-| 阻塞定档 | **ADR-0021**（`Proposed`，待评审、**未生效**）：A 补齐做种实现 / B 修订范围（须把 ADR-0004、ADR-0017 标 `Superseded` 并同步 `03` 等九处）/ C 保持开放，三条互斥路径及影响面清单；签署前不得改判据、不得把 `UNSUPPORTED` 记 PASS 或以豁免计入通过数 | `docs/adr/ADR-0021-…`、`12` §3.1.2、`15` §4 |
+| **L4 发布门禁** | ❌ **未通过**：`BT-01..BT-14` **0/14 PASS**，需真实 qBittorrent / Transmission / libtorrent、自建 tracker 二进制、抓包与隔离千兆内网；`SKIPPED` / `UNSUPPORTED` 不计为 PASS。**ADR-0021 路径 A 已补齐做种实现**，故「实现范围缩减」这一根因已消除，但**实验室验证仍未执行**：`BT-02` / `BT-11` 仍 `UNSUPPORTED`（实现具备 ≠ L4 已验证），`BT-03` 我方做种半向未实测；aria2-next / libtorrent 补充证据仍单向回环、不计入门禁 | `dist/INTEROP.md`、`14` §11 序 6、`12` §3.1、ADR-0021 决议记录 R4 |
+| P2P 礼仪（路径 A） | **已落地（编码）**：`bt.*` 生效、`SeedingPolicy` 受限做种（分享率 1.0 / 60min 任一达标即停）、上传槽 8、`enableUPnP`、诚实 PeerID `-UD` 强制回落、私有种子恒不上传且恒禁 DHT/PEX；`tasks.bytes_uploaded` 与 announce 同源、`Completed → Seeding → Completed` 条件迁移。**上传字节速率仍由 `scheduler.Limiter` 唯一权威管理**，不设第二 limiter。⚠️ **R-10 反吸血风险重评 / 安全与礼仪复签 / L4 实测未执行** | `internal/transport/bt/seeding.go`、`internal/config/config.go`、`11` §7.1、`14` R-10 |
+| 路径 A 裁决 | **ADR-0021 已由 `Proposed` 转 `Accepted（路径 A）`**（项目发起人 2026-11-14 指令裁决，ADR 索引 v0.5；决策记录见 ADR-0021「决议记录」）。B 修订范围 / C 保持开放**未被选择**；`12` §3.1 判据**未修改**。**评审组五方签署表仍全部留白**——本次为发起人指令裁决，不冒充三方会签；法务口径、`14` R-10 重评与复签仍待补 | `docs/adr/ADR-0021-…` 决议记录、`adr/README` v0.5、`18` §六 / §九 |
 | L4 实验室链路 | `make l4-preflight` → `dist/l4_preflight.json` / `dist/L4_PREFLIGHT.md`（9 项前置条件清点，`l4_executed=false`、`release_gate_met=false` 硬不变量）；`l4-preflight-check` / `l4-run` 与示例 stub 配置只输出 `SKIPPED`，**不是 L4 执行证据**；`make l4-audit` 只做证据完整性重算；**四目标均不接入 CI** | `12` §3.1.3、`13` §3/§12、`dist/L4_PREFLIGHT.md` |
 | 证据完整性审计 | `make l4-audit` → `dist/l4_audit.json` / `dist/L4_AUDIT.md`（`ud.l4-evidence-audit/v1`）：9 项 `AUD-*` 独立重算**已产出**证据包的门禁覆盖、状态枚举、汇总计数与 `release_gate_met`；实测 stub 产物 `CONSISTENT` 且重算门禁 `false`，篡改副本 `INCONSISTENT`（`AUD-SUMMARY` / `AUD-GATE-VERDICT`）。**完整性结论 ≠ L4 通过**，恒 `l4_executed_by_audit=false`、不接入 CI、不替代 `make interop-gate` | `internal/interop/audit.go`、`cmd/udl4audit`、`12` §3.1.4、`13` §3/§12、`18` §7.3 / §7.4 / §十 |
-| 评审准备 | 新增 [18 序 6 评审与 L4 实验室准备材料包](18-序6评审与L4实验室准备材料包.md)（`v0.2`、`草案`、**待签署**）：已核实事实清单、A / B / C 影响面核对表、**留白**豁免清单与签署表、隔离拓扑 / 抓包方案、9 项 `LAB-*` 映射、NFR-PERF-01 双机方案；**不代行裁决、不产出 L4 证据**，空表未签署无效 | `docs/18`、ADR-0021、`12` §3.1.2 / §3.1.3 |
+| 评审准备 | 新增 [18 序 6 评审与 L4 实验室准备材料包](18-序6评审与L4实验室准备材料包.md)（`v0.3`、`草案`、**评审组复签待补**）：已核实事实清单、A / B / C 影响面核对表、**留白**豁免清单与签署表、隔离拓扑 / 抓包方案、9 项 `LAB-*` 映射、NFR-PERF-01 双机方案；**已登记路径 A 裁决输入、不代行评审组签署、不产出 L4 证据**，空表未签署无效 | `docs/18`、ADR-0021、`12` §3.1.2 / §3.1.3 |
 | 性能基准 | `make perf` 产出 `dist/perf.json`：1GiB / 4 连接 / 256KiB 分片走真实 HTTP Range Transport，本机回环参考 **885.83 MB/s（1.156s）**；**`nfr_perf_01.met=false`**，回环不等于双机千兆内网达标；既有 32MiB 微基准仍为回归基线 | `dist/perf.json`、`12` §5 |
-| 下一个工作包 | **先由评审按 ADR-0021 裁决**「补齐做种实现 / 修订范围 / 保持开放」并签署（不签署则序 6 永不关闭；材料包见 [18](18-序6评审与L4实验室准备材料包.md)）；随后在隔离千兆内网执行 `BT-01..BT-14` 真实客户端矩阵（套件与 `make l4-preflight` / `make l4-run` 已就绪）、`chihaya` / `opentracker` 二进制与抓包，、用 `make l4-audit` 独立复核证据包完整性，并执行 NFR-PERF-01 双机 1GiB ≥ 80MB/s 基准 | `14` §11、`16` §6、`12` §3.1.2 / §3.1.3 / §5、`18` §三 / §六 / §七 / §八、ADR-0021 |
+| 下一个工作包 | **评审组按 `18` §六 复签**（含法务口径、`14` R-10 重评）→ 在隔离千兆内网执行 `BT-01..BT-14` 真实客户端矩阵（`make l4-preflight-check` 齐备后 `make l4-run --require-external`）、`chihaya` / `opentracker` 二进制与抓包 → `make l4-audit` 复核证据包 → NFR-PERF-01 双机 1GiB ≥ 80MB/s → 全量文档 / 门禁 / CI 证据同步 | `14` §11、`16` §6、`12` §3.1 / §5、`18` §七 / §八 / §九、ADR-0021 决议记录 R2 / R4 |
 
 > **禁止误读**：套件 v1 已交付、CI 会跑 `make interop`，只说明**可复跑的本地自动化部分是绿的**；
 > `dist/INTEROP.md` 的 `release_gate_met: false` 才是发布结论。产品文案仍按 `16` §7
@@ -255,7 +277,11 @@ graph TD
 > 「对方做种 → 我方下载」的单向回环证据，缺双向、抓包、隔离千兆内网与
 > `chihaya` / `opentracker` 二进制，**不得**据此宣称 `BT-03` 通过；`dist/perf.json`
 > 的回环 MB/s 也**不得**当作 NFR-PERF-01 达标（该文件固定 `nfr_perf_01.met=false`）。
-> **ADR-0021 边界**：该记录是 `Proposed` **提案**，不是已批准决策、不构成实现依据；
+> **ADR-0021 边界（2026-11-14 时点口径）**：该记录已由 `Proposed` 转为
+> `Accepted（路径 A）`，**仅授权实现与文档变更**；它**不等于**评审组已签署、
+> **不等于** L4 已执行或通过；套件 v1 注册表仍按 `ScopeProductGap` 固定
+> `BT-02` / `BT-11` 的 `UNSUPPORTED`，路径 A 实现不翻转证据状态。
+> `docs/18` §六 签署表仍留白，法务口径与 R-10 重评待补。
 > 各文档此前「ADR-0004 不做种边界」的措辞属误归属，已追加带日期的校准注，
 > 历史版本说明中的数值保留不改。`make l4-preflight` 的 `PRESENT` 只表示工具可核验的
 > 条件存在，**绝不等于 PASS**；示例 stub 配置只能产出 `SKIPPED`，
@@ -291,7 +317,7 @@ python3 tools/build_docs.py --check   # 只校验，不写文件（用于 CI 门
 | 首页 | `#/home` 为默认落地页，是构建器生成的**虚拟章节**（无对应 Markdown 源文件）：hero 统计卡、状态分布条、按状态/类型筛选与搜索、按分类的文档卡片网格、「从这里开始」快捷入口。左侧全部文档链接保持不变，点击卡片标题仍在页内阅读正文 |
 | 状态来源 | 首页状态取自每份文档版本头的 `状态：` 与 ADR 的 `- **状态**：`，`docs/README.md` §三 清单表为兜底；只按括号前的**主状态词**规范化为 5 类（待审核 / 已决定 / 持续维护 / 已废止 / 未标注），括号内备注不会影响归类。卡片同时显示 `P0 已校准`（版本 ≥ v0.2）与 `P0 依据`（ADR-0020「前置 ADR」）标记。修改状态后重跑构建即自动更新 |
 | URL 格式 | `#/<slug>`，例如 `#/home`、`#/doc-04`、`#/adr-0013`；带章节锚点时为 `#/<slug>~<scoped-heading-id>` |
-| slug 规则 | **必须全 ASCII**：`home` / `readme` / `doc-01`…`doc-17` / `adr-index` / `adr-0001`…`adr-0020` / `changelog` / `root-readme`。浏览器会对 `location.hash` 中的非 ASCII 字符做百分号编码，中文 slug 会导致哈希与 `data-slug` 不匹配、跳转回首页 |
+| slug 规则 | **必须全 ASCII**：`home` / `readme` / `doc-01`…`doc-18` / `adr-index` / `adr-0001`…`adr-0021` / `changelog` / `root-readme`。浏览器会对 `location.hash` 中的非 ASCII 字符做百分号编码，中文 slug 会导致哈希与 `data-slug` 不匹配、跳转回首页 |
 | 旧书签 | v0.1 的 `#doc-<中文旧 slug>` 由门户内的 `ALIASES` 表自动映射到新 slug，仍可直接打开 |
 | 链接转换 | 构建时把 `.md` 链接与 `#章节` 锚点统一改写为门户哈希；标题 id 按文档加前缀（`h-<slug>--<tocid>`），避免跨文档 id 冲突 |
 | 校验范围 | 源文档内部链接、生成 HTML 的哈希目标、导航项 ↔ 章节一一对应、首页章节存在且卡片数等于文档数、残留 `.md` 链接、无重复 id |
@@ -322,6 +348,7 @@ python3 tools/build_docs.py --check   # 只校验，不写文件（用于 CI 门
 | v1.6 | 2026-11-14 | 代码↔文档一致性校准 + CI 结论补记（纯文档/生成器校准）：§三 严格门禁行追加 `679a26e` run `43402970475` / `c3fbc70` run `43567640194` 均 `quality: success` 与被取代推送的 run `43566313113` `failure`（非 flake）；门户生成器硬编码 `文档体系 v0.4` 徽章改为从本文件版本头动态读取、导航契约注释改为 ADR 自动发现口径；同步 `13` v0.10、根文档与 `CHANGELOG`；门户重建仍 42 篇 | 架构组 |
 | v1.7 | 2026-11-14 | 序 6 评审与 L4 实验室准备材料包：新增 `docs/18`（待评审、留白签署表、不产出 L4 证据）；§三 清单 / 当前态 / 下一个工作包、§二 角色阅读、§七 索引同步；`tools/build_docs.py` GROUPS / 导航契约 / 分组描述纳入 doc-18；同步 `13` v0.11（文档数 42 → 43）、根文档与 `CHANGELOG`；补记 CI run `43570105065`；门户重建 **43 篇 / 0 断链**，历史「42 篇」作为时点值不改写 | 架构组 |
 | v1.8 | 2026-11-14 | L4 证据包完整性审计：`internal/interop/audit.go` + `cmd/udl4audit` + `make l4-audit`（9 项 `AUD-*`，`CONSISTENT` ≠ L4 通过，不接入 CI）；§三 新增「证据完整性审计」行并把实验室链路扩为四目标、改写下一个工作包，§二 / §六 / §七 同步；`12` v1.4（新增 §3.1.4）、`13` v0.12、`18` v0.2、根文档与 `CHANGELOG` 同步，修正门户侧栏 41 → 43 篇；补记 CI run `43580889196`；门户重建仍 **43 篇 / 0 断链**，历史时点值不改写 | 架构组 |
+| v1.9 | 2026-11-14 | ADR-0021 路径 A 裁决与实现：§三「阻塞定档」改为「路径 A 裁决」并新增「P2P 礼仪」行，改写 L4 门禁 / 评审准备 / 下一个工作包 / ADR-0021 边界注，§三 清单表 18 行、§六、§七 同步；`03` v0.9 / `05` v0.8 / `07` v0.6 / `11` v1.1 / `12` v1.5 / `13` v0.13 / `14` v1.5 / `15` v0.6 / `16` v0.9 / `18` v0.3 / ADR-0004 / ADR-0017 / `config.example.yaml` / 根文档 / 门户横幅同步；ADR 汇总 21 `Accepted` / 0 待评审；补记 CI run `43595391886`；门户重建仍 **43 篇 / 0 断链**，历史时点值不改写 | 架构组 |
 
 ## 七、P0 实现基线索引（代码 ↔ 文档）
 
@@ -331,6 +358,7 @@ python3 tools/build_docs.py --check   # 只校验，不写文件（用于 CI 门
 | P0 评审要签什么、还差什么 | [`docs/17`](17-P0里程碑评审材料.md) §1、§5、§7、§9 |
 | 序 6 评审要签什么、L4 实验室怎么搭 | [`docs/18`](18-序6评审与L4实验室准备材料包.md) §三 / §六 / §七 / §八 |
 | 产出的 L4 证据包有没有被改过 | `make l4-audit`、`12` §3.1.4、`dist/L4_AUDIT.md`（**完整性结论，不是发布门禁**） |
+| 路径 A 做种实现落地在哪、还差什么 | `internal/transport/bt/seeding.go`、`config.example.yaml`、`11` §7.1、ADR-0021 决议记录 R3 / R4 |
 | 哪些能力是「有意不做」、哪些是遗漏 | [ADR-0020](adr/ADR-0020-P0实现基线与范围声明.md) §「决策 3」与「后果」 |
 | P0 验收逐条结果 | [`docs/14`](14-项目计划与风险管理.md) §9 |
 | 接口签名的最终口径 | [`docs/05`](05-详细设计说明书-LLD.md) §2、§4、§12 |

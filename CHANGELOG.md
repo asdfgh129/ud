@@ -66,6 +66,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **ADR-0021 路径 A 补齐实现（2026-11-14，序 6 编码部分；评审组复签待补）**：
+  项目发起人 2026-11-14 明确指令「按 A 方案补齐，同时修改相关文档」，
+  ADR-0021 按 `15` §4 规则④由 `Proposed` 转 `Accepted（路径 A）` 并同步 ADR 索引
+  （决策事实、权限依据与边界见 ADR-0021 决议记录）。**如实标注**：`docs/18` §六
+  评审组五方签署表仍全部留白，本次为发起人指令裁决，**不冒充**三方会签。
+  - `internal/transport/bt/seeding.go`：`SeedingPolicy` / `SeedingManager` /
+    `SeedingObserver`；受限做种、分享率与 `seed-time`（任一达标即停止，且有界校验）、
+    上传槽（`EstablishedConnsPerTorrent`）、UPnP / NAT-PMP（`NoDefaultPortForwarding`）、
+    诚实 PeerID 强制回落（非 `-UD` 前缀配置自动拒绝）、**私有种子恒不上传且恒禁
+    DHT / PEX**（BT-08 / ADR-0017「不承诺 PT」）。
+  - `internal/transport/bt/bt.go`：下载完成后把 client 与临时目录移交后台做种会话，
+    `Run` 立即返回不占用 scheduler worker；`Transport.Close()` 与 daemon 生命周期 ctx
+    保证会话回收与临时目录清理。**未显式注入 policy 的 Transport 仍为 leech-only**，
+    WBS 11 的 9 条 L3 回环用例行为不变。
+  - `internal/config/config.go`：`bt.*` 由「预留不生效」改为**生效**；新增 `seedEnabled` /
+    `maxUploadSlots` / `listenPort` / `listenHost`，默认 `peerID` 改诚实 `-UD0000-` 前缀，
+    `Validate()` 拒绝「无界做种目标」与非法槽数 / 端口，`UD_BT_*` 环境变量可覆盖。
+    **上传字节速率仍只由 `scheduler.Limiter` 一个权威管理**，bt 层不设第二 limiter。
+  - `internal/app/daemon.go` + `internal/app/seeding_observer.go` +
+    `internal/transport/registry.go` + `internal/store/tasks.go`：策略 / 观察者 /
+    生命周期接线；`transport.Registry.Close()` 统一回收；
+    `tasks.bytes_uploaded` 与 tracker announce 同源（取 `Client.ConnStats()`），
+    并驱动 `Completed → Seeding → Completed` 的**条件**状态迁移
+    （`TrySetSeedingState`，不抢在 `scheduler.Commit` 之前）。
+  - 回归测试四层：`bt/seeding_test.go`（策略 / clientConfig 字段 / 私有种子硬约束 /
+    诚实 PeerID / 达标判定 / 会话与 manager 清理）、`config/seeding_test.go`
+    （默认值 / 有界校验 / env）、`store/seeding_test.go`（条件写入）、
+    `app/seeding_observer_test.go`（计数与状态流转）。
+  **零 L4 证据**：`BT-01..BT-14` 仍 **0/14**，`BT-02` / `BT-11` 仍 `UNSUPPORTED`
+  （实现具备 ≠ 已通过真实客户端矩阵验证），`release_gate_met=false`、
+  `l4_executed=false`、`nfr_perf_01.met=false`、序 6 **仍开放**。
 - **L4 证据包完整性审计器（2026-11-14，`internal/interop/audit.go` + `cmd/udl4audit` + `make l4-audit`）**：
   独立重算**已产出**的 `ud.interop/v1` 证据包，9 项 `AUD-*` 检查：规范门禁覆盖
   （`BT-01..BT-14` 恰 14 条、无缺 / 多 / 重）、`status` 枚举与记录卫生、7 项汇总计数、
@@ -350,6 +381,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **ADR-0021 路径 A 全量文档同步（2026-11-14）**：ADR-0021 追加「决议记录」
+  （R1 裁决事实 / R2 签署如实状态 / R3 已落地 / R4 未落地），`adr/README` 升 **v0.5**
+  并同步 0021 索引状态；`docs/18` 升 **v0.3**（登记裁决输入，§二事实清单 /
+  §三标题与引言追加时点口径注，签署表仍留白、§十 增第 10 条硬不变量）；`docs/README` 升 **v1.9**（§三 清单 / 当前态 /
+  下一个工作包 / ADR-0021 边界注 / §六）、`03` **v0.9** §8 追踪矩阵、
+  `05` **v0.8** 状态机落地、`07` **v0.6** 配置映射、`11` **v1.1** §7.1 控制矩阵、
+  `12` **v1.5** §3.1 / §9、`13` **v0.13** §7 / §12、`14` **v1.5** §11 / R-10、
+  `15` **v0.6** §4 规则⑥的 ADR-0021 时点口径、`16` **v0.9** 卷首与 §4 / §8 文案、
+  ADR-0004 / ADR-0017 实现落地注、`config.example.yaml`、根 `README.md`、
+  `tools/build_docs.py` 首页横幅与 `docs/README` §五 slug 契约同步。
+  **如实校准**：套件 v1 注册表仍把 `BT-02` / `BT-11` 按 `ScopeProductGap`
+  固定为 `UNSUPPORTED`；路径 A 只补齐实现，不翻转证据状态、更不计 PASS。
+  **不改 `12` §3.1 已登记 L4 判据**，不改 `17` / ADR-0020 已签署证据，
+  历史版本说明中的时点数值（「42/43 篇」「20 Accepted / 1 待评审」
+  「`Proposed`」「不做种」等）一律保留不改，只追加带日期的时点口径注。
+  门户 `docs/_site/index.html` 重建仍 **43 篇 / 0 断链**，ADR 状态汇总由动态解析变为
+  **21 `Accepted` / 0 待评审**。另按惯例补记 `9395343` 的 CI run `43595391886`
+  经核验为 **`quality: success`**（时点口径追加，不改写原条目）。
+  门禁口径零改动：16 门禁包 / 90 链接模块 / `gates-strict` 6 PASS 0 WARN 0 FAIL /
+  L4 **0/14** / `release_gate_met=false` / 序 6 仍开放。
 - **L4 证据审计链路全量文档同步（2026-11-14，`docs/18` v0.2 / `docs/README` v1.8 /
   `12` v1.4 / `13` v0.12）**：`12` §3.1.3 表补 `make l4-audit` 行并新增
   **§3.1.4 证据包完整性审计**、§9 用例追踪补 `TestAudit*` 行；`13` §3 目标表与

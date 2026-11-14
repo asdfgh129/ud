@@ -557,9 +557,12 @@ def build_home(docs: list[Doc], by_rel: dict[str, Doc]) -> str:
 
 <div class="banner warn"><strong>当前最该关注：</strong>P0「有条件通过」的附加条件已关闭，
   ADR 头部状态汇总为 <code>{adr_accepted}</code> 份 <code>Accepted</code>、
-  <code>{adr_review}</code> 份待评审（新增提案不得作为实现依据）。P1 仍在进行：
-  <a href="#/doc-14">docs/14 §11 序 6</a> 未关闭——L4 真实客户端矩阵未执行、
-  判据与 P2P 礼仪范围冲突待评审、NFR-PERF-01 双机千兆基准未执行。
+  <code>{adr_review}</code> 份待评审。P1 仍在进行：
+  <a href="#/doc-14">docs/14 §11 序 6</a> 未关闭——ADR-0021 已按项目发起人指令
+  选择<strong>路径 A 补齐实现</strong>（受限做种 / 分享率 / seed-time / 上传槽 /
+  UPnP / 诚实 PeerID / <code>tasks.bytes_*</code> 统计已落地，评审组复签待补），
+  但 <strong>L4 真实客户端矩阵仍 0/14、NFR-PERF-01 双机千兆基准未执行</strong>，
+  <code>release_gate_met=false</code>、<code>l4_executed=false</code> 恒真。
   当前态唯一速查为 <strong>docs/README §三</strong>，进度真值源为
   <a href="#/changelog">CHANGELOG</a>；范围外能力与残余风险见
   <a href="#/adr-0020">ADR-0020</a>。</div>

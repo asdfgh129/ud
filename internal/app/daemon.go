@@ -67,12 +67,12 @@ func newBuiltinResolvers(guard core.URLGuard, beforeDirect ...core.Resolver) *re
 // because plaintext secrets must never be carried by a Resource. The BT
 // Transport (WBS 7) also receives the credential store so private-trackers
 // passkeys can be resolved without ever living on a Resource.
-func newBuiltinTransports(guard core.URLGuard, creds core.CredentialStore) *transport.Registry {
+func newBuiltinTransports(guard core.URLGuard, creds core.CredentialStore, btOpts ...bttransport.Option) *transport.Registry {
 	r := transport.NewRegistry()
 	r.Register(httptransport.New(guard))
 	r.Register(ftptransport.New(guard, creds))
 	r.Register(sftptransport.New(guard, creds))
-	r.Register(bttransport.New(guard, creds))
+	r.Register(bttransport.New(guard, creds, btOpts...))
 	return r
 }
 
@@ -213,7 +213,18 @@ func Run(ctx context.Context, opts Options) error {
 	}
 
 	resolvers := newBuiltinResolvers(guard, pluginResolvers...)
-	transports := newBuiltinTransports(guard, creds)
+	// ADR-0021 path A: bt.* keys are LIVE now. The BT transport owns bounded
+	// background seeding sessions, tied to the daemon context, the persisted
+	// tasks.bytes_uploaded counter and the Completed -> Seeding -> Completed
+	// state transitions. Without these options it stays leech-only (lab/tests).
+	btOpts := []bttransport.Option{
+		bttransport.WithSeedingPolicy(bttransport.SeedingFromConfig(cfg.BT)),
+		bttransport.WithSeedingObserver(newSeedingObserver(st, log)),
+		bttransport.WithLifecycleContext(ctx),
+	}
+	transports := newBuiltinTransports(guard, creds, btOpts...)
+	defer transports.Close()
+
 	postprocs := postproc.NewRegistry()
 
 	sch, err := scheduler.New(scheduler.Options{

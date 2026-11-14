@@ -26,17 +26,23 @@ security:
   # 仅供本地 fixture / 单元测试使用；开启后允许回环地址与任意端口。生产必须保持 false。
   allowLoopbackForDev: false
 
-# 以下分组为预留键：P0 只解析不生效；P1 WBS 7 已交付 BT，但 bt.* 至今仍未接入
-# internal/transport/bt.clientConfig（固定 NoUpload=true / Seed=false），
-# seedRatio / seedTimeMinutes / enableUPnP 是目标态配置而非当前生效能力。
-# 该未签署范围缩减已由 docs/adr/ADR-0021（Proposed，未生效）定档待评审。
+# bt.* 已生效（ADR-0021 路径 A，2026-11-14）：由 internal/app/daemon.go 注入
+# internal/transport/bt.SeedingPolicy。上传字节速率仍统一由 scheduler.Limiter
+# 管理，此处只配置连接槽数；私有种子恒不上传、恒禁 DHT/PEX（BT-08 / 不承诺 PT）。
+# peerID 必须保持诚实 -UD 前缀（ADR-0017）：非 -UD 前缀会自动回落生成的诚实 ID。
+# seedEnabled=true 时 seedRatio 与 seedTimeMinutes 至少一项 > 0（禁止无界做种）。
+# 可用 UD_BT_* 环境变量覆盖，详见 docs/07 配置表与 docs/13 §7。
 bt:
-  peerID: "-GT0001-"
+  peerID: "-UD0000-"          # 前缀占位；完整 20 字节 -UD ID 才按配置使用
   enableDHT: true
   enablePEX: true
-  seedRatio: 1.0
-  seedTimeMinutes: 60
-  enableUPnP: true
+  seedEnabled: true
+  seedRatio: 1.0              # 上传/下载达到该分享率即停止做种
+  seedTimeMinutes: 60         # 或做种满该时长即停止（任一达标）
+  maxUploadSlots: 8           # 同时上传连接数上限
+  enableUPnP: true            # UPnP / NAT-PMP 端口映射
+  listenPort: 0               # 0 = 随机端口
+  listenHost: ""              # 空 = 库默认（所有接口）；生产请配合防火墙
 ed2k:
   obfuscation: true
   secureIdent: true

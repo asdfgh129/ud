@@ -3,6 +3,7 @@
 package transport
 
 import (
+	"io"
 	"sync"
 
 	"github.com/asdfgh129/ud/internal/core"
@@ -44,4 +45,21 @@ func (r *Registry) Select(res *core.Resource) (core.Transport, error) {
 	}
 	return nil, core.Err(core.E_CAPABILITY_UNAVAILABLE,
 		"no transport available for resource kind %q", res.Kind)
+}
+
+// Close releases transport-owned background resources (currently the BT
+// seeding sessions). Transports without a Close method are skipped, so the
+// daemon can always defer this on the whole registry.
+func (r *Registry) Close() error {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	var first error
+	for _, name := range r.order {
+		if c, ok := r.items[name].(io.Closer); ok {
+			if err := c.Close(); err != nil && first == nil {
+				first = err
+			}
+		}
+	}
+	return first
 }

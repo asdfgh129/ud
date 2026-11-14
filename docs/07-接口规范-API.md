@@ -1,7 +1,22 @@
 # 07 接口规范（API）
 
-> 文档编号：UD-DOC-07 ｜ 版本：v0.5 ｜ 状态：草案（L0 已落地；P1 WBS 10 离线插件 CLI、WBS 11 互操作 CLI 已落地） ｜ 日期：2026-11-13 ｜ 相关：ADR-0003、ADR-0014、ADR-0016、ADR-0019、ADR-0020、ADR-0021
+> 文档编号：UD-DOC-07 ｜ 版本：v0.6 ｜ 状态：草案（L0 已落地；P1 WBS 10 离线插件 CLI、WBS 11 互操作 CLI 已落地） ｜ 日期：2026-11-14 ｜ 相关：ADR-0003、ADR-0014、ADR-0016、ADR-0019、ADR-0020、ADR-0021
 
+> **v0.6 变更 / 2026-11-14 时点口径（ADR-0021 路径 A；下文 v0.5 及更早
+> 说明为 2026-11-13 时点值，保留不改）**：`bt.*` **已生效**，由
+> `internal/app/daemon.go` 注入 `bttransport.SeedingPolicy`；新增
+> `seedEnabled` / `maxUploadSlots` / `listenPort` / `listenHost`，
+> 默认 `peerID` 改诚实 `-UD0000-` 前缀，`Validate()` 拒绝无界做种目标，
+> `UD_BT_*` 环境变量可覆盖；详见 `config.example.yaml` 与 `13` §7。
+> 上传字节速率仍只由 `scheduler.Limiter` 一个权威管理。因此 v0.5 中
+> 「bt.* 未接入 / 做种策略未生效 / 不得误读映射表」的**当前态结论已不再适用**，
+> 但 §5 的 L1 facade 按 ADR-0019 **仍未实现**这一边界不变。
+> **L4 判据未改**：`BT-01..BT-14` 仍 **0/14**、`BT-02` / `BT-11` 仍
+> `UNSUPPORTED`（实现具备 ≠ 真实客户端矩阵已验证），`release_gate_met=false`、
+> `l4_executed=false`、`nfr_perf_01.met=false`、序 6 仍开放；
+> 评审组五方签署表仍留白（本次为发起人指令裁决，不冒充三方会签），
+> 法务口径、`14` R-10 重评与礼仪复签待补。
+>
 > **v0.5 实现校准**（2026-11-13，仅补记、不改 L0 契约）：新增 `cmd/udl4preflight`
 > （`make l4-preflight` / `l4-preflight-check`），§8 补一行；它同样是**离线诊断入口**，
 > 不监听端口、不注册端点、不改变错误码。另校准 §5.4 映射表中的
@@ -189,7 +204,7 @@ udctl daemon [--config <file>] [--listen 127.0.0.1:0] [--insecure-plugins]
 | `max-download-limit` / `max-overall-download-limit` | 任务限速 / 全局限速 | 全局由 Limiter 唯一权威 |
 | `dir` / `out` / `check-integrity` | 输出目录 / 文件名 / 强制校验 | — |
 | `select-file` | `files[].selected` | 多文件选择 |
-| `bt-tracker` / `bt-max-peers` / `seed-time` / `seed-ratio` | `identity.trackers` / 上传槽 / 做种策略 | — |
+| `bt-tracker` / `bt-max-peers` / `seed-time` / `seed-ratio` | `identity.trackers` / 上传槽 / 做种策略 | **2026-11-14 起生效**：`bt.seedRatio` / `seedTimeMinutes` / `maxUploadSlots` / `enableUPnP` / `seedEnabled` / `listenPort` / `listenHost`（`config.example.yaml`）；L1 facade 仍未实现、L4 实测仍缺 |
 | `all-proxy` / `header` / `cookie` | 代理 / headers / `cred_ref` | Cookie 只写钥匙串 |
 | 未知选项 | **接受但忽略** | 返回错误会让前端直接挂掉 |
 

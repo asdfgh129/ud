@@ -1,10 +1,24 @@
 # 05 详细设计说明书（LLD）
 
-> 文档编号：UD-DOC-05 ｜ 版本：v0.7 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10/11 已补记） ｜ 日期：2026-11-13 ｜ 上游：`04`、`06`、`07`
+> 文档编号：UD-DOC-05 ｜ 版本：v0.8 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10/11 已补记） ｜ 日期：2026-11-14 ｜ 上游：`04`、`06`、`07`
 
+> **v0.8 变更 / 2026-11-14 时点口径（ADR-0021 路径 A，追加；下文 v0.7 及更早说明与「重要校准」为提案期时点值，保留不改）**：
+> 项目发起人明确指令「按 A 方案补齐」，ADR-0021 由 `Proposed` 转 `Accepted（路径 A）`
+> 并同步 ADR 索引。**实现差距已消除**：`bt.*` 生效、受限做种 / 分享率 / `seed-time` /
+> 上传槽 / UPnP-NAT-PMP / 诚实 PeerID / `tasks.bytes_*` 统一统计与
+> `Completed → Seeding → Completed` 条件迁移已落地（见 `internal/transport/bt/seeding.go`、
+> `internal/config/config.go`、`internal/app/seeding_observer.go`）。
+> **但 `12` §3.1 的 L4 判据未改**：`BT-01..BT-14` 仍 **0/14**；`BT-02` / `BT-11`
+> 在 `internal/interop/suite.go` 仍按 `ScopeProductGap` 固定 `UNSUPPORTED`
+> （实现具备 ≠ 真实客户端矩阵已验证，路径 A 不翻转证据状态），
+> `release_gate_met=false`、`l4_executed=false`、`nfr_perf_01.met=false`、序 6 仍开放。
+> **评审组五方签署表仍全部留白**：本次为发起人指令裁决，不冒充三方会签；
+> 法务口径、`14` R-10 反吸血风险重评与安全 / P2P 礼仪复签仍待补。
+>
 > **v0.7 说明**（2026-11-13，仅范围补记、不改契约）：新增 `internal/interop/preflight.go`
 > 与 `cmd/udl4preflight`（L4 前置条件清点，不进入 daemon 注册链、零新增依赖）。
-> **重要校准**：§5 状态机的 `Completed --> Seeding` / `Seeding --> Completed` 是
+>
+> **重要校准（2026-11-13 提案期时点值，保留不改）**：§5 状态机的 `Completed --> Seeding` / `Seeding --> Completed` 是
 > ADR-0004 / ADR-0017 与 `03` FR-INT-04 下的**目标态**，当前实现
 > `internal/transport/bt.clientConfig` 固定 `NoUpload=true` / `Seed=false`，
 > 既无 `Seeding` 状态迁移也无分享率 / `seed-time` 策略；这属于**未签署范围缩减**，
@@ -24,7 +38,12 @@
 > 不进入 daemon 的 Resolver / Transport 注册链，`core` 三大冻结契约仍未改动、零新增依赖。
 > `internal/transport/bt` 新增**仅实验室使用**的 `WithPlainHandshake()` 选项
 > （出站握手优先明文，`udd` 默认策略与 ADR-0004 的 `NoUpload` / `Seed=false` 不变）。
-> §1 当前态已同步；L4 判据与产品边界的冲突待评审（`12` §3.1、`14` §11）。
+> §1 当前态已同步；L4 判据与产品边界的冲突待评审（`12` §3.1、`14` §11，
+> 2026-11-13 时点值）。**2026-11-14 路径 A 落地注**：`Completed → Seeding → Completed`
+> 现已由 `internal/app/seeding_observer.go` + `store.TrySetSeedingState` 条件驱动
+> （仅在 `scheduler.Commit` 完成后翻转，避免抢跑）；`Seeding` 会话由
+> `bt.SeedingManager` 管理，达标 / daemon ctx 取消 / `Close()` 时回收。
+> **但真实 L4 矩阵未执行**，`BT-11` 仍 `UNSUPPORTED`、序 6 仍开放。
 >
 > **v0.4 说明**（2026-11-11，仅范围补记、不改契约）：P1 WBS 11 新建 `internal/interop/`
 > 与 `cmd/udinterop`（互操作套件 v1），§1「当前态」按实际目录更新。该包是**测试 / 证据

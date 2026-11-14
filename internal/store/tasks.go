@@ -161,6 +161,48 @@ func (s *Store) Commit(ctx context.Context, id core.TaskID, resourceID string, f
 	})
 }
 
+// UpdateSeedingStats persists the BT upload counter for the task that owns
+// resourceID. ADR-0004 requires tracker announce counters and tasks.bytes_*
+// to share one source of truth; the seeding observer feeds this method from
+// the very Client.ConnStats() the library uses for announces. Unknown
+// resources are a silent no-op (a seeding session may outlive a deleted task).
+func (s *Store) UpdateSeedingStats(ctx context.Context, resourceID string, uploaded int64) error {
+	return s.withTx(ctx, func(tx *sql.Tx) error {
+		_, err := tx.ExecContext(ctx,
+			`UPDATE tasks SET bytes_uploaded=?, updated_at=? WHERE resource_id=?`,
+			uploaded, s.now(), resourceID)
+		return err
+	})
+}
+
+// TrySetSeedingState drives the docs/05 §4 Completed -> Seeding -> Completed
+// transitions. It is a CONDITIONAL update: a download that has not committed
+// yet (state != Completed) is never flipped prematurely, and a session that
+// ended before commit never leaves a task stuck in Seeding. The bool result
+// reports whether a row actually changed.
+func (s *Store) TrySetSeedingState(ctx context.Context, resourceID string, seeding bool) (bool, error) {
+	from, to := "Completed", "Seeding"
+	if !seeding {
+		from, to = "Seeding", "Completed"
+	}
+	changed := false
+	err := s.withTx(ctx, func(tx *sql.Tx) error {
+		res, err := tx.ExecContext(ctx,
+			`UPDATE tasks SET state=?, updated_at=? WHERE resource_id=? AND state=?`,
+			to, s.now(), resourceID, from)
+		if err != nil {
+			return err
+		}
+		n, err := res.RowsAffected()
+		if err != nil {
+			return err
+		}
+		changed = n > 0
+		return nil
+	})
+	return changed, err
+}
+
 // SetProgress sets the absolute counter (used after recovery recomputation).
 func (s *Store) SetProgress(ctx context.Context, id core.TaskID, done, total int64) error {
 	return s.withTx(ctx, func(tx *sql.Tx) error {

@@ -29,6 +29,9 @@ type Transport struct {
 	creds          core.CredentialStore
 	bootstrapPeers []net.Addr // optional known peers (test seam + private-trackers bootstrap)
 	plainHandshake bool       // lab-only: prefer plaintext over MSE on outgoing handshakes
+	policy         SeedingPolicy
+	observer       SeedingObserver
+	manager        *SeedingManager
 }
 
 // Option customizes the Transport at construction.
@@ -54,11 +57,40 @@ func WithBootstrapPeers(addrs ...net.Addr) Option {
 }
 
 func New(g core.URLGuard, creds core.CredentialStore, opts ...Option) *Transport {
-	t := &Transport{guard: g, creds: creds}
+	t := &Transport{guard: g, creds: creds, manager: newSeedingManager(context.Background())}
 	for _, o := range opts {
 		o(t)
 	}
 	return t
+}
+
+// WithSeedingPolicy enables ADR-0021 path A bounded upload etiquette. Without
+// it the Transport is leech-only, which is what the WBS 11 interop lab needs.
+func WithSeedingPolicy(p SeedingPolicy) Option {
+	return func(t *Transport) { t.policy = p }
+}
+
+// WithoutSeeding is the explicit spelling of the leech-only default.
+func WithoutSeeding() Option {
+	return func(t *Transport) { t.policy = SeedingPolicy{} }
+}
+
+// WithSeedingObserver wires the optional tasks.bytes_* / state observer.
+func WithSeedingObserver(o SeedingObserver) Option {
+	return func(t *Transport) { t.observer = o }
+}
+
+// WithLifecycleContext binds background seeding sessions to the daemon's
+// lifetime so shutdown never leaves a client or temp directory behind.
+func WithLifecycleContext(ctx context.Context) Option {
+	return func(t *Transport) { t.manager = newSeedingManager(ctx) }
+}
+
+// Close cancels all background seeding sessions and waits for their cleanup.
+// It is safe to call more than once.
+func (t *Transport) Close() error {
+	t.manager.Close()
+	return nil
 }
 
 func (t *Transport) Name() string { return "bt" }
@@ -132,14 +164,25 @@ func (t *Transport) Run(ctx context.Context, r *core.Resource, w core.ChunkWrite
 	if err != nil {
 		return core.Err(core.E_INTERNAL, "cannot create bt data dir: %v", err)
 	}
-	defer os.RemoveAll(dataDir)
 
-	cfg := clientConfig(r, dataDir, t.plainHandshake)
+	cfg := clientConfig(r, dataDir, t.plainHandshake, t.policy)
 	cl, err := torrent.NewClient(cfg)
 	if err != nil {
+		_ = os.RemoveAll(dataDir)
 		return core.Err(core.E_TRANSIENT_NETWORK, "bt client init failed: %v", err)
 	}
-	defer cl.Close()
+	// A seeding session may take ownership of cl/dataDir after the download
+	// completes. In that case the session (not these defers) closes the client
+	// and removes the temp directory, when its bounded target, the daemon
+	// context, or Transport.Close() ends it.
+	handedOff := false
+	defer func() {
+		if handedOff {
+			return
+		}
+		cl.Close()
+		_ = os.RemoveAll(dataDir)
+	}()
 
 	spec, err := buildSpec(r)
 	if err != nil {
@@ -195,7 +238,24 @@ func (t *Transport) Run(ctx context.Context, r *core.Resource, w core.ChunkWrite
 			return err
 		}
 	}
+	// ADR-0021 path A: after the bytes have been handed to the ChunkWriter,
+	// keep the torrent alive for bounded, honest seeding. Run returns
+	// immediately so the scheduler worker is not held for the whole seed
+	// window; the SeedingManager owns the remaining lifetime.
+	if t.beginSeeding(r, cl, tor, dataDir) {
+		handedOff = true
+	}
 	return nil
+}
+
+// beginSeeding hands the completed torrent to the background manager. It
+// returns false (leaving cleanup to Run's defers) for leech-only transports,
+// private torrents, or a manager that has already been closed.
+func (t *Transport) beginSeeding(r *core.Resource, cl *torrent.Client, tor *torrent.Torrent, dataDir string) bool {
+	if !seedingApplicable(t.policy, r) || t.manager == nil {
+		return false
+	}
+	return t.manager.start(newSession(r, cl, tor, dataDir, t.policy, t.observer))
 }
 
 // buildSpec assembles a TorrentSpec from the Resource identity.
@@ -221,10 +281,13 @@ func buildSpec(r *core.Resource) (*torrent.TorrentSpec, error) {
 	return nil, core.Err(core.E_RESOLVE_FAILED, "resource has neither metainfo nor infohash")
 }
 
-// clientConfig builds a per-task anacrolix client config honouring the private
-// flag: private torrents MUST NOT use DHT or PEX (BT-08), and we never upload by
-// default (Seed=false per ADR-0004).
-func clientConfig(r *core.Resource, dataDir string, plainHandshake bool) *torrent.ClientConfig {
+// clientConfig builds a per-task anacrolix client config. Private torrents
+// MUST NOT use DHT or PEX (BT-08). Seeding is opt-in via an explicit
+// SeedingPolicy: with no policy the transport stays leech-only, which is the
+// WBS 7 behaviour kept for the WBS 11 interop lab. Note that "库默认
+// Seed=false" is a library default, NOT a product boundary (ADR-0004/0017
+// require us to implement the etiquette ourselves; see ADR-0021).
+func clientConfig(r *core.Resource, dataDir string, plainHandshake bool, policies ...SeedingPolicy) *torrent.ClientConfig {
 	// Start from the defaults so the rate limiters and other required fields are
 	// populated, then apply the BT-specific policy for this Resource.
 	cfg := torrent.NewDefaultClientConfig()
@@ -242,6 +305,11 @@ func clientConfig(r *core.Resource, dataDir string, plainHandshake bool) *torren
 	if os.Getenv("UD_BT_DEBUG") != "" {
 		cfg.Debug = true
 	}
+	var p SeedingPolicy
+	if len(policies) > 0 {
+		p = policies[0]
+	}
+	applySeedingPolicy(cfg, r, p)
 	return cfg
 }
 
