@@ -13,7 +13,7 @@ CDN is reachable; otherwise the diagram source remains readable as a code block.
 
 Navigation contract
 --------------------
-* Every document gets a STABLE ASCII slug: home / readme / doc-01..doc-17 /
+* Every document gets a STABLE ASCII slug: home / readme / doc-01..doc-18 /
   adr-index / adr-0001..adr-NNNN / changelog / root-readme. ADRs are discovered
   automatically from docs/adr/ADR-*.md, so adding an ADR needs no edit here.
   Non-ASCII fragments must be avoided: browsers percent-encode location.hash,
@@ -69,7 +69,7 @@ GROUPS = [
         "10-技术选型与依赖清单.md", "11-安全与合规设计.md",
         "12-测试策略与测试计划.md", "13-构建发布与运维.md",
         "14-项目计划与风险管理.md", "15-开发规范与协作流程.md",
-        "17-P0里程碑评审材料.md",
+        "17-P0里程碑评审材料.md", "18-序6评审与L4实验室准备材料包.md",
     ]),
     ("变更记录", ["@root:CHANGELOG.md"]),
 ]
@@ -287,7 +287,7 @@ GROUP_DESC = {
     "总览与治理": "为什么做，以及文档体系如何管理",
     "需求与架构": "需求、架构、详细设计、数据模型与互操作性",
     "接口与扩展": "对外契约、插件与 sidecar 边界",
-    "工程保障": "依赖、安全、测试、构建、计划与协作流程",
+    "工程保障": "依赖、安全、测试、构建、计划、协作流程与评审材料",
     "变更记录": "每次代码变更的唯一记录入口",
     "架构决策记录 ADR": "一个决策一份记录，状态与影响面一目了然",
 }

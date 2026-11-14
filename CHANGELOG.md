@@ -66,6 +66,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **序 6 评审与 L4 实验室准备材料包（2026-11-14，`docs/18` v0.1，待评审签署）**：
+  新增 [18 序 6 评审与 L4 实验室准备材料包](docs/18-序6评审与L4实验室准备材料包.md)，
+  把散落在 ADR-0021 / `12` §3.1.2 / `14` §11 的评审要件集中为可直接使用的材料包：
+  §二 8 条已核实事实清单（引用不复制）、§三 A / B / C 三条互斥路径对照、
+  §四 三路径影响面逐项核对表、§五 **留白**豁免清单模板、§六 **留白**评审签署表
+  （签署人 / 日期 / 路径 / 豁免清单版本）、§七 隔离千兆内网拓扑与抓包留痕方案
+  （与 `internal/interop/preflight.go` 的 9 项 `LAB-*` 一一映射）、§八 NFR-PERF-01
+  双机基准执行方案、§九 签署后收口清单、§十 8 条硬不变量。
+  **不代行裁决**：不预选路径、不预填签署人、不改判据、不改产品代码与门禁语义，
+  **不产出 L4 证据**；空表未签署无效；`Proposed` 的 ADR-0021 仍不构成实现依据。
 - **P1 序 6 阻塞根因定档与 L4 实验室可执行化（2026-11-13，序 6 仍不关闭）**：
   本轮**不新增任何 L4 通过证据**；`dist/interop.json` 仍 `release_gate_met: false`、
   `BT-01..BT-14` **0/14 PASS**，`make interop-gate` 继续明确失败。
@@ -323,6 +333,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Proposed（…转 Accepted）` 被误判为已决定。首页章节与卡片数为 `--check` 的强制校验项。
 
 ### Changed
+- **门户接入 doc-18 与 CI 时点口径补记（2026-11-14，纯文档 / 生成器校准）**：
+  `tools/build_docs.py` 的 `GROUPS` 纳入 `docs/18`，导航契约注释由
+  `doc-01..doc-17` 改为 `doc-01..doc-18`，分组描述补「评审材料」；
+  `docs/README` 升 **v1.7**（§二 角色阅读、§三 清单 / 当前态「评审准备」行 /
+  下一个工作包、§六、§七 索引）、`13` 升 **v0.11**（§12 实现矩阵文档数
+  **42 → 43**）、根 `README.md` 同步；门户 `docs/_site/index.html` 重建为
+  **43 篇 / 0 断链**。**v1.5 / v1.6 与 `13` v0.9 版本说明中的「42 篇」为时点值，
+  按历史数值不改写原则保留**。另补记 `84871b0` 的 CI run `43570105065`
+  经 `gh run view` 核验为 **`quality: success`**（时点口径追加，不改写原条目）。
+  **零产品代码改动 / 零新增门禁证据**：门禁包 **16**、链接模块 **90**、
+  `make gates-strict` **6 PASS / 0 WARN / 0 FAIL**、L4 **0/14**、
+  `release_gate_met=false`、`l4_executed=false`、`nfr_perf_01.met=false`、
+  序 6 仍开放；`17` / ADR-0020 已签署证据不改写。
 - **代码↔文档一致性校准与已核验 CI 结论补记（2026-11-14，纯文档 / 生成器校准）**：
   按 `15` §13 / `13` §4 的「如实记录」口径，补齐此前条目留白的 CI 结论——
   `679a26e`（v1.4 / `15` v0.4 文档控制包）触发 run `43402970475`、
