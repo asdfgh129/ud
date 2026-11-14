@@ -107,3 +107,20 @@ HTTP/HTTPS 与 BEP 15 UDP tracker fixture（BEP 23 compact 6B/18B、passkey、�
 - `make perf` 新增 1GiB 回环参考基准（固定 `nfr_perf_01.met=false`），不代表千兆内网
   NFR-PERF-01 达标；决策 3 的 cgo/libtorrent 升级路径与决策 4 的 v1/hybrid 默认策略
   **仍未改变**。
+
+**阻塞根因二次校准（2026-11-13，ADR-0021 提案待评审；上文决策 / 后果 / 后续动作
+原文不改）**：上文 WBS 11 续包中「`BT-02` / `BT-11` 因决策中的 `Seed=false` 恒
+`UNSUPPORTED`」及「按 ADR-0004 不做种边界」属**误归属**。本 ADR「后果 / 负面」写的是
+「默认 `Seed=false`，**做种策略须自行实现**」，「后续动作」更明确要求 P1 显式实现
+分享率 / 时长、上传槽、UPnP/NAT-PMP 与统一 announce 统计；ADR-0017 决策 4 同样要求
+「必须自行实现 P2P 礼仪」。因此 WBS 7 起 `internal/transport/bt.clientConfig` 固定
+`NoUpload=true` / `Seed=false`、`internal/config.BTConfig` 至今仍为预留字段，
+是**相对已批准决策的未签署范围缩减（按 `15` §4 规则②视为缺陷）**，
+而不是本 ADR 授权的产品边界。序 6 阻塞应定性为「合规差距（根因）+ 判据冲突 +
+实验室条件缺失」三者并存；仅修订 `12` §3.1 判据不足以消除合规差距。
+已按 `docs/adr/README.md` 与 `15` §4 提交
+[ADR-0021](ADR-0021-L4门禁与P2P礼仪范围冲突裁决提案.md)（`Proposed`，**未生效**），
+列 A（补齐实现）/ B（修订范围，须把本 ADR 与 ADR-0017 标 `Superseded` 并同步 `03` 等九处）
+/ C（保持开放）三条须评审签署的路径。签署前本 ADR 仍为 `Accepted`、
+「`BT-01..BT-14` 全矩阵通过方可发布 P1」仍有效且未满足、
+`release_gate_met` 维持 `false`、`UNSUPPORTED` 不得计 PASS 或以豁免计入通过数。

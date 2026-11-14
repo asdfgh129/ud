@@ -1,7 +1,17 @@
 # 05 详细设计说明书（LLD）
 
-> 文档编号：UD-DOC-05 ｜ 版本：v0.6 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10/11 已补记） ｜ 日期：2026-11-13 ｜ 上游：`04`、`06`、`07`
+> 文档编号：UD-DOC-05 ｜ 版本：v0.7 ｜ 状态：草案（P0 实现基线已落地；P1 WBS 7/8/9/10/11 已补记） ｜ 日期：2026-11-13 ｜ 上游：`04`、`06`、`07`
 
+> **v0.7 说明**（2026-11-13，仅范围补记、不改契约）：新增 `internal/interop/preflight.go`
+> 与 `cmd/udl4preflight`（L4 前置条件清点，不进入 daemon 注册链、零新增依赖）。
+> **重要校准**：§5 状态机的 `Completed --> Seeding` / `Seeding --> Completed` 是
+> ADR-0004 / ADR-0017 与 `03` FR-INT-04 下的**目标态**，当前实现
+> `internal/transport/bt.clientConfig` 固定 `NoUpload=true` / `Seed=false`，
+> 既无 `Seeding` 状态迁移也无分享率 / `seed-time` 策略；这属于**未签署范围缩减**，
+> 按 `15` §4 规则②视为缺陷，已由 [ADR-0021](adr/ADR-0021-L4门禁与P2P礼仪范围冲突裁决提案.md)
+> （`Proposed`，未生效）定档待评审，签署前不得把该状态机改写成「已实现」或自行删除。
+> `Resource` / `PostProcessor` / 状态机三大冻结契约与 `core` 注册链仍未改动。
+>
 > **v0.6 说明**（2026-11-13，仅实现校准、不改契约）：CI 复跑暴露 WAL 下
 > `SQLITE_BUSY_SNAPSHOT` 不受 `busy_timeout` 保护，`internal/store.withTx` 增加
 > **有界事务重放**（最多 6 次、5ms 递增退避、只对 `SQLITE_BUSY` / `SQLITE_LOCKED` 重放）。

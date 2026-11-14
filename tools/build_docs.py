@@ -448,7 +448,14 @@ def home_card(d: Doc, doc_idx: dict, adr_idx: dict,
 
 
 def build_home(docs: list[Doc], by_rel: dict[str, Doc]) -> str:
-    """Render the dashboard section. All numbers come from the source docs."""
+    """Render the dashboard section.
+
+    Counts and status badges come from the source docs. The short milestone
+    banner is prose (it cannot be mechanically derived from a spec) and MUST
+    be kept in sync with docs/README.md §三, the current-state truth source.
+    The obsolete "ADR 0001–0020 still Proposed / P0 not reviewed" banner was
+    removed on 2026-11-13: it contradicted the Accepted ADR index.
+    """
     from collections import Counter
     doc_idx, adr_idx, basis = parse_doc_index(), parse_adr_index(), p0_basis()
 
@@ -502,6 +509,13 @@ def build_home(docs: list[Doc], by_rel: dict[str, Doc]) -> str:
          for k, label in kind_labels]
     )
     adr_count = kinds.get("adr", 0)
+    # Derive the ADR status split from the ADR front matter (the ADR index is
+    # the registry, but individual ADR headers are authoritative for
+    # classify_status). The remaining prose banner must be kept in sync with
+    # docs/README.md §三, as noted in the docstring above.
+    adr_buckets: Counter = Counter(classify_status(status_of(d, doc_idx, adr_idx))
+                                   for d in docs if d.rel.startswith("docs/adr/ADR-"))
+    adr_accepted, adr_review = adr_buckets["accepted"], adr_buckets["review"]
 
     return f"""<article class="doc home" id="doc-{HOME_SLUG}" data-slug="{HOME_SLUG}">
 <header class="hero">
@@ -510,8 +524,8 @@ def build_home(docs: list[Doc], by_rel: dict[str, Doc]) -> str:
   <p>把 BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信等来源，收敛到一条流水线、一个调度器、一份状态。本页按文档版本头与 ADR 状态行自动汇总：哪些仍在待审核、哪些已决定、哪些已按 P0 实现校准，一眼可见。左侧全部文档链接保持不变。</p>
   <div class="chips">
     <span class="chip s-plain">文档体系 v0.4</span>
-    <span class="chip s-p0">P0 骨架已落地</span>
-    <span class="chip s-review">待里程碑评审</span>
+    <span class="chip s-p0">P0 附加条件已关闭</span>
+    <span class="chip s-review">P1 进行中 · 序 6 开放</span>
     <span class="chip s-plain">单文件 · 离线可读</span>
     <span class="chip s-plain">更新 {date.today().isoformat()}</span>
   </div>
@@ -525,10 +539,14 @@ def build_home(docs: list[Doc], by_rel: dict[str, Doc]) -> str:
   <div class="hlegend">{legend}</div>
 </header>
 
-<div class="banner warn"><strong>当前最该关注：</strong>P0 骨架（WBS 1–6）已完成编码并通过全量门禁，但
-  ADR 0001–0020 仍全部为 <code>Proposed</code>、P0 里程碑尚未正式评审。按
-  <a href="#/doc-14">docs/14 §3</a> 评审通过前不得启动 P1；差异与残余风险见
-  <a href="#/adr-0020">ADR-0020</a>，逐批次变更见 <a href="#/changelog">CHANGELOG</a>。</div>
+<div class="banner warn"><strong>当前最该关注：</strong>P0「有条件通过」的附加条件已关闭，
+  ADR 头部状态汇总为 <code>{adr_accepted}</code> 份 <code>Accepted</code>、
+  <code>{adr_review}</code> 份待评审（新增提案不得作为实现依据）。P1 仍在进行：
+  <a href="#/doc-14">docs/14 §11 序 6</a> 未关闭——L4 真实客户端矩阵未执行、
+  判据与 P2P 礼仪范围冲突待评审、NFR-PERF-01 双机千兆基准未执行。
+  当前态唯一速查为 <strong>docs/README §三</strong>，进度真值源为
+  <a href="#/changelog">CHANGELOG</a>；范围外能力与残余风险见
+  <a href="#/adr-0020">ADR-0020</a>。</div>
 
 <section class="card">
   <h2>文档清单</h2>

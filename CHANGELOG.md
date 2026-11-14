@@ -66,6 +66,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `checksums.txt` 与 `govulncheck`，接入 `make gates` 与 CI。
 
 ### Added
+- **P1 序 6 阻塞根因定档与 L4 实验室可执行化（2026-11-13，序 6 仍不关闭）**：
+  本轮**不新增任何 L4 通过证据**；`dist/interop.json` 仍 `release_gate_met: false`、
+  `BT-01..BT-14` **0/14 PASS**，`make interop-gate` 继续明确失败。
+  - **跨 ADR 一致性审计（本轮最重要的结论）**：核对已批准 ADR-0004「后果 / 后续动作 /
+    合规与验证」、ADR-0017 决策 4、`03` FR-INT-01 / FR-INT-04 / FR-TRN-05（优先级 M）、
+    `01` 章程互操作验收行、`05` §5 状态机、`07` / `13` §7 的 `seedRatio` /
+    `seedTimeMinutes` / `enableUPnP` 与 `14` R-10，它们都**要求**显式实现做种礼仪；
+    而 WBS 7 起 `internal/transport/bt.clientConfig` 固定 `NoUpload=true` / `Seed=false`，
+    且 `internal/config.BTConfig` 至今仍是「parsed for forward compatibility, ignored」
+    的预留字段。因此现有文档把现状表述为「ADR-0004 不做种边界」属**误归属**：
+    ADR-0004 把 `Seed=false` 记为「须自行补偿的库默认」并列入后续动作，
+    ADR-0017 更把「保持库默认 `Seed=false`」判为否决方案。按 `15` §4 规则②，
+    正确定性是「实现相对已批准 ADR 与 M 级需求的**未签署范围缩减（合规差距）**」为根因，
+    判据冲突与实验室条件缺失并存；`12` §3.1 原处置路径 1「仅修订判据」不足以消除该差距。
+  - **新增 ADR-0021（Proposed，待评审、未生效）**：按 `docs/adr/README.md` 与 `15` §4
+    的变更流程提交裁决提案，列 A（补齐实现）/ B（修订范围，须把 ADR-0004 / ADR-0017
+    标 `Superseded` 并同步 `03` 等九处）/ C（保持开放）三条互斥路径及各自必须变更的文件；
+    明确签署前不得改判据、不得把 `UNSUPPORTED` 记为 PASS 或以「豁免」计入通过数。
+    0001–0020 仍全部 `Accepted`；`17` / ADR-0020 正文与历史版本说明中的时点数值未改写，
+    既有误归属只追加带日期的「时点口径 / 阻塞校准」注。
+  - **L4 实验室可执行链路**：`internal/interop/preflight.go` + `cmd/udl4preflight` 产出
+    `dist/l4_preflight.json` / `dist/L4_PREFLIGHT.md`（schema `ud.l4-preflight/v1`），
+    清点 9 项前置条件；`l4_executed=false` / `release_gate_met=false` 为硬不变量，
+    `PRESENT` 绝不等于 PASS，物理拓扑 / 评审签署 / NFR-PERF-01 恒列为人工签署项。
+    `tools/l4_external_config.example.json` + `tools/l4_harness_stub.py` 演示
+    `--require-external --external-config` 的接线，stub **只能输出 `SKIPPED`**；
+    新增 `make l4-preflight` / `l4-preflight-check` / `l4-run` 三个目标（均不接入 CI），
+    用示例配置跑 `l4-run` 必须是 0/14 PASS 且失败。新增 6 条 `TestPreflight*` 回归用例，
+    `internal/interop` 覆盖率 **87.1% → 87.9%**；门禁包仍 **16**、链接模块仍 **90**。
+    本机全套复跑：`make build` → `make lint` / `make test` / `make interop` /
+    `make gates-strict` **6 PASS / 0 WARN / 0 FAIL** / `go test -race ./...` /
+    `build_docs.py --check`（42 篇 / 0 断链）全部 exit 0；
+    `make interop` 仍 9 PASS / 0 FAIL、L4 **0/14**，`make interop-gate`
+    与 `make l4-preflight-check` / `make l4-run` 均按预期明确失败。
+    本提交触发的 CI `quality` 结论以对应 workflow run 为准，**不预先记为通过**。
 - **P1 WBS 11 续：真实命名客户端证据、L4 判据冲突登记与 1GiB 基准（2026-11-13）**：
   序 6 仍**不关闭**；本轮只交付「可复跑的真实补充证据」与「阻塞项的正式登记」，
   不改写 `12` §3.1 的 L4 判据、不改写 ADR-0004 决策，`dist/interop.json` 的
@@ -380,6 +415,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   「不包含」清单移出（它们属构建期门禁工具，不是产品能力）。
 
 ### Fixed
+- **文档门户首页横幅与 ADR 状态矛盾、`bt.*` 配置键误导（2026-11-13）**：
+  `tools/build_docs.py` 生成的总览页仍硬编码「ADR 0001–0020 仍全部为 `Proposed`、
+  P0 里程碑尚未正式评审」，与 `docs/adr/README.md` 索引（0001–0020 已于 2026-11-09
+  批量转 `Accepted`）及 `17` §1 结论矛盾。现改为按 ADR 头部状态动态汇总
+  （当前 **20 `Accepted` / 1 待评审**），chips 改为「P0 附加条件已关闭」/
+  「P1 进行中 · 序 6 开放」，横幅明确「当前态唯一速查为 `docs/README` §三、
+  进度真值源为 `CHANGELOG`」，并在构建器注释中要求里程碑叙述随 §三同步；
+  门户重建 **42 篇 / 0 断链**。同轮把 `config.example.yaml` 的
+  「P1+ 预留，P0 只解析不生效」更正为「P0/P1 当前仍只解析不生效（WBS 7 未接入 `bt.*`）」，
+  并在 `13` §7 补同样口径注，避免把示例配置误读为已生效。
 - **CI 偶发 `SQLITE_BUSY` 导致 `cover` 门禁失败（2026-11-13，WBS 11 续包推送后复跑发现）**：
   提交 `9530c35` 的 CI run `43393512271` 在 `quality / make gates-strict` 的 **cover** 步骤出现
   `internal/scheduler::TestLifecycleErrors` 的 `extra_test.go:236: database is locked (5) (SQLITE_BUSY)`，

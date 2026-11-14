@@ -22,7 +22,7 @@ PLATFORMS := \
 	linux/amd64 linux/arm64 \
 	windows/amd64 windows/arm64
 
-.PHONY: all gen lint lint-arch test build docs sbom licenses cover vuln bench perf rollback-drill gates interop interop-external interop-gate sign package release check clean fmt vet
+.PHONY: all gen lint lint-arch test build docs sbom licenses cover vuln bench perf rollback-drill gates interop interop-external interop-gate l4-preflight l4-preflight-check l4-run sign package release check clean fmt vet
 
 all: lint test build docs
 
@@ -116,6 +116,25 @@ interop-external:
 # exists; running it here must fail loudly rather than pretend to pass.
 interop-gate:
 	$(GO) run ./cmd/udinterop --out $(DIST) --release-gate-only
+
+# WBS 11 L4 lab preparation (docs/12 §3.1.3). These targets are inventory /
+# wiring only: they NEVER execute the L4 matrix and never flip the release
+# gate. The shipped example config is a STUB whose verdict can only be
+# SKIPPED, so `make l4-preflight-check` and `make l4-run` must fail on a stock
+# checkout. CI runs neither target.
+L4_CONFIG ?= tools/l4_external_config.example.json
+L4_OUT ?= $(DIST)/l4_lab
+
+l4-preflight:
+	$(GO) run ./cmd/udl4preflight --out $(DIST)/l4_preflight.json --md $(DIST)/L4_PREFLIGHT.md --config $(L4_CONFIG)
+
+l4-preflight-check:
+	$(GO) run ./cmd/udl4preflight --out $(DIST)/l4_preflight.json --md $(DIST)/L4_PREFLIGHT.md --config $(L4_CONFIG) --require-ready
+
+# Only run this inside an isolated lab with real harness commands. With the
+# stub config it MUST exit non-zero (0/14 PASS).
+l4-run:
+	$(GO) run ./cmd/udinterop --out $(L4_OUT) --require-external --external-config $(L4_CONFIG) --release-gate-only
 
 sign package release:
 	@echo "  [P0] '$@' is a release-stage target (docs/13 §3)"; exit 0

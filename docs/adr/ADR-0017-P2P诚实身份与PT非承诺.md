@@ -40,3 +40,28 @@
 - `12` BT-08 抓包验证 `private=1` 无 DHT/PEX 流量；BT-14 抓包验证 PeerID 诚实；BT-11 验证分享率达标后停止做种。
 - 全量日志/事件扫描无 passkey 明文（`11` §9）。
 - 发布前由产品/法务对照 `16` §7 逐条检查对外文案并签字。
+
+## 实现落地与偏差登记（2026-11-13 补记，不改写上述决策）
+
+> 本节只记录实现事实；上文「决策 / 备选方案 / 后果 / 合规与验证」保持原样。
+
+**已落实**：WBS 7 的 `internal/transport/bt` 对 `private=1` 强制 `NoDHT` /
+`DisablePEX` / `NoUpload` / `Seed=false`，PeerID 使用诚实的 `-UD0000-` 前缀
+（决策 1 允许配置且禁止伪装，前缀属「自定义但非伪装」）；passkey 只存钥匙串引用。
+`docs/03` §9 已记录 `L3-06` 回环握手抓包证据。`BT-14` 的真实客户端抓包仍**未执行**。
+
+**未落实（偏差）**：决策 4 要求的分享率 / 做种时长策略、上传槽、UPnP/NAT-PMP 端口映射
+与「`uploaded/downloaded/left` 统一取 `tasks.bytes_*`」的做种统计链路，
+以及「合规与验证」中的 `BT-11`，在 WBS 7 之后**均未实现**；
+`bt.clientConfig` 固定 `NoUpload=true` / `Seed=false`，`config.BTConfig` 的
+`seedRatio` / `seedTimeMinutes` / `enableUPnP` 仍是「parsed, ignored」的预留字段。
+备选方案表已把「保持库默认 `Seed=false`」判为 ❌，因此这不是本 ADR 或
+ADR-0004 授权的产品边界，而是按 `15` §4 规则②应视为缺陷的**未签署范围缩减**。
+
+**处置**：已按 `docs/adr/README.md` 与 `15` §4 提交
+[ADR-0021](ADR-0021-L4门禁与P2P礼仪范围冲突裁决提案.md)（`Proposed`，**未生效**），
+列 A（补齐实现，使代码回到本 ADR 基线）/ B（修订范围，须把本 ADR 与 ADR-0004
+标 `Superseded` 并同步 `03` 等九处）/ C（保持开放）三条须评审签署的路径。
+签署前本 ADR 仍为 `Accepted`、决策 4 仍然有效且未满足；
+`BT-02` / `BT-11` 继续 `UNSUPPORTED`、`release_gate_met: false`，
+不得以「豁免」名义计入通过数，也不得把 `NoUpload=true` 表述为「ADR-0004 不做种边界」。

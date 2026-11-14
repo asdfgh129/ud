@@ -1,7 +1,17 @@
 # 07 接口规范（API）
 
-> 文档编号：UD-DOC-07 ｜ 版本：v0.4 ｜ 状态：草案（L0 已落地；P1 WBS 10 离线插件 CLI、WBS 11 互操作 CLI 已落地） ｜ 日期：2026-11-11 ｜ 相关：ADR-0003、ADR-0014、ADR-0016、ADR-0019、ADR-0020
+> 文档编号：UD-DOC-07 ｜ 版本：v0.5 ｜ 状态：草案（L0 已落地；P1 WBS 10 离线插件 CLI、WBS 11 互操作 CLI 已落地） ｜ 日期：2026-11-13 ｜ 相关：ADR-0003、ADR-0014、ADR-0016、ADR-0019、ADR-0020、ADR-0021
 
+> **v0.5 实现校准**（2026-11-13，仅补记、不改 L0 契约）：新增 `cmd/udl4preflight`
+> （`make l4-preflight` / `l4-preflight-check`），§8 补一行；它同样是**离线诊断入口**，
+> 不监听端口、不注册端点、不改变错误码。另校准 §5.4 映射表中的
+> `seed-time` / `seed-ratio` / 上传槽：这些 aria2 选项映射到
+> `internal/config.BTConfig` 的 `seedRatio` / `seedTimeMinutes` 等**预留字段**，
+> P1 WBS 7 之后仍未接入 `bt.clientConfig`（固定 `NoUpload=true` / `Seed=false`），
+> 且 §5 的 L1 facade 本身按 ADR-0019 未实现。该范围缩减已由
+> [ADR-0021](adr/ADR-0021-L4门禁与P2P礼仪范围冲突裁决提案.md)（`Proposed`）定档待评审，
+> **不得**把映射表误读为「做种策略已生效」。
+>
 > **v0.4 实现校准**（2026-11-11）：P1 WBS 11 新增独立二进制 `cmd/udinterop`
 > （`make interop` / `make interop-gate`），§8 矩阵补一行。**它是离线测试入口，
 > 不是 L0 REST / WS 契约的一部分**：不监听端口、不注册 API 端点、不改变任何
@@ -221,6 +231,7 @@ udctl daemon [--config <file>] [--listen 127.0.0.1:0] [--insecure-plugins]
 | §3 CLI 子集 | `cmd/udctl/main.go` | 端到端冒烟（见 `CHANGELOG.md`） |
 | §3 `plugin` 离线子命令（P1 WBS 10） | `cmd/udctl/plugin.go` + `internal/plugin/fixture.go` | `cmd/udctl/plugin_test.go:TestPluginCommandScaffoldLifecycle` / `TestPluginCommandSignVerifyTestList` / `TestPluginCommandUsageErrors`；`internal/plugin/fixture_test.go:TestRunFixtureOfflineReplay` |
 | 独立诊断 CLI（P1 WBS 11，非 L0 契约） | `cmd/udinterop/main.go` + `internal/interop/{suite,cases,httptracker,udptracker}.go` | `internal/interop/*_test.go`；`make interop` → `dist/interop.json` / `dist/INTEROP.md`（CI 运行并上传）。**L4 门禁 0/14 PASS，`release_gate_met: false`** |
+| L4 前置条件清点 CLI（P1 序 6 续，非 L0 契约） | `cmd/udl4preflight/main.go` + `internal/interop/preflight.go` | `internal/interop/preflight_test.go:TestPreflight*`；`make l4-preflight` → `dist/l4_preflight.json`（`l4_executed=false`、`release_gate_met=false` 硬不变量）。**不是 L4 执行证据**，CI 不运行 |
 | §4 WebSocket 事件 | `internal/api/ws.go` + `core.EventBus` | `TestWebSocketEventDelivery` |
 | §5 L1 facade | **未实现**（ADR-0019，符合预期） | `/jsonrpc` 返回 404 |
 | §6 错误码表 | `internal/core/errors.go:errorSpecs` 全量 | `internal/core/state_test.go:TestErrorCodeTable`（HTTP 状态 / retryable / kind） |

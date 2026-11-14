@@ -2,7 +2,7 @@
 
 跨平台的统一下载引擎：把 **BT / 磁力 / ed2k / HTTP(S) / FTP(S) / SFTP / Metalink / 迅雷链接 / 视频网站 / Telegram / 微信** 等来源，收敛到一条流水线、一个调度器、一份状态。
 
-> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行、判据与不做种边界冲突待评审，序 6 仍开放）。** 当前态：**16 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机 **6 PASS / 0 WARN / 0 FAIL**（CI 于 2026-11-13 的 `cover` 步骤曾因 WAL 偶发 `SQLITE_BUSY` 失败，已在 `internal/store` 以有界事务重放修复，CI run `43399289527` / `43400218985` 均 `quality: success`），`make interop` 本地 9 例全绿；本机 **aria2-next 3.0.9 + 真实 libtorrent 2.1.1 的 BX-01..BX-04 跨客户端证据（4/4 PASS，sha256 校验，单向回环补充、不计入 L4 门禁）**；`make perf` 产出 1GiB 回环参考基准（固定 `nfr_perf_01.met=false`）；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
+> **当前阶段：P0「有条件通过」的附加条件已于 2026-11-10 全部关闭，P1 进行中（WBS 8 / 9 / 7 / 10 已交付，WBS 11 互操作套件 v1 已交付；L4 真实客户端矩阵未执行、范围 / 判据冲突已按 ADR-0021 提案定档待评审，序 6 仍开放）。** 当前态：**16 个门禁包**全部达标、**90 个链接模块** 0 copyleft / 0 未识别，`make gates-strict` 本机 **6 PASS / 0 WARN / 0 FAIL**（CI 于 2026-11-13 的 `cover` 步骤曾因 WAL 偶发 `SQLITE_BUSY` 失败，已在 `internal/store` 以有界事务重放修复，CI run `43399289527` / `43400218985` 均 `quality: success`），`make interop` 本地 9 例全绿；本机 **aria2-next 3.0.9 + 真实 libtorrent 2.1.1 的 BX-01..BX-04 跨客户端证据（4/4 PASS，sha256 校验，单向回环补充、不计入 L4 门禁）**；`make perf` 产出 1GiB 回环参考基准（固定 `nfr_perf_01.met=false`）；唯一速查见 [`docs/README` §三](docs/README.md)，进度真值源为 [`CHANGELOG`](CHANGELOG.md) 与 [`docs/14` §11](docs/14-项目计划与风险管理.md)。
 > 仓库已包含可运行的 Go 代码：HTTP(S) / FTP(S) / SFTP 直链与 BT / 磁力均能走完
 > `Resolver → Resource → Transport → PostProcessor → Store` 全流水线。
 > **P1 WBS 8 已交付（2026-11-10）**：`thunder://` / `flashget://` / `qqdl://` 解码与 Metalink
@@ -42,10 +42,21 @@
 > （`BX-03` / `BX-04`，可选 `tools/interop_libtorrent.py` seeder，非项目依赖、CI 不跑）
 > 做种方完成下载并 sha256 校验，取得 **4/4 PASS 真实互通证据**，`make interop-external` 可复跑。
 > 但四条都是**单向（对方做种 → 我方下载）、回环、自托管 tracker**：aria2-next 不点名于
-> `BT-01..BT-14`；libtorrent 虽点名于 `BT-03`，该判据要求双向（我方做种按 ADR-0004 明确不做），
-> 且仍缺抓包、隔离千兆内网与 `chihaya` / `opentracker` 二进制，故**均不计入 L4 门禁**。
-> 另已登记「14/14 PASS」收口条件与不做种边界的**形式冲突（待评审）**；
-> `make perf` 的 1GiB 回环参考值固定 `nfr_perf_01.met=false`，不等于千兆内网达标。
+> `BT-01..BT-14`；libtorrent 虽点名于 `BT-03`，该判据要求双向（我方做种半向当前不可达，
+> 见下文阻塞定档），且仍缺抓包、隔离千兆内网与 `chihaya` / `opentracker` 二进制，
+> 故**均不计入 L4 门禁**。`make perf` 的 1GiB 回环参考值固定
+> `nfr_perf_01.met=false`，不等于千兆内网达标。
+> **序 6 阻塞定档（2026-11-13）**：核对已批准的 ADR-0004「后果 / 后续动作」、
+> ADR-0017 决策 4 与 `03` 的 M 级需求后确认，它们都**要求**显式实现做种礼仪
+> （分享率 / `seed-time` / 上传槽 / UPnP-NAT-PMP / 统一 announce 统计），
+> 而 WBS 7 起 `bt.clientConfig` 固定 `NoUpload=true` / `Seed=false`。
+> 因此此前「ADR-0004 不做种边界」属误归属：真正根因是**实现相对已批准决策的
+> 未签署范围缩减（合规差距）**，与判据冲突、实验室条件缺失并存。
+> 已按 `15` §4 提交 [`ADR-0021`](docs/adr/ADR-0021-L4门禁与P2P礼仪范围冲突裁决提案.md)
+> （`Proposed`，**未生效**）列出三条须评审签署的路径；签署前
+> `release_gate_met: false`、`UNSUPPORTED` 不得计 PASS 或豁免。
+> 同轮新增 `make l4-preflight` / `l4-preflight-check` / `l4-run` 打通实验室接线
+> （前置条件清点，**不是 L4 执行证据**，示例 stub 配置只能产出 `SKIPPED`，三者均不接入 CI）。
 > 不得据本地用例宣称「已与主流客户端实测互通」「全矩阵通过」或「千兆内网性能达标」。
 > `make interop-gate` 在门禁未满足时明确失败。
 > **P0 不是功能完整版**——ed2k / 真实站点规则包 / WASM 硬隔离 / sidecar / L1 RPC facade
@@ -68,6 +79,8 @@ make build         # 六平台交叉编译 → dist/（udd + udctl 各 6 个）
 make gates         # 评审门禁：覆盖率 / SBOM / 许可证 / govulncheck / 基准 / 回滚演练 → dist/
 make interop       # WBS 11 互操作套件 v1（本地回环用例）→ dist/interop.json + INTEROP.md
 make interop-gate  # L4 发布门禁（外部矩阵未执行时明确失败）
+make l4-preflight  # L4 实验室前置条件清点（不是执行证据，不接入 CI）
+make l4-run        # 隔离实验室执行外部矩阵（示例 stub 配置必须失败，不接入 CI）
 ```
 
 > `make gates` / `make gates-strict` 需要 `govulncheck`（`go install golang.org/x/vuln/cmd/govulncheck@latest`，
@@ -132,7 +145,7 @@ go run ./cmd/udctl show <id>
 
 ## 明确的能力边界（写进产品文案）
 
-- ✅ **P1 WBS 11 已实现（套件）**：`BT-01..BT-14` 门禁注册表、自建 HTTP(S)/UDP tracker fixture、9 条可复跑回环用例与 `dist/INTEROP.md` 证据链；❌ **L4 真实客户端矩阵（qBittorrent / Transmission）与 NFR-PERF-01 双机千兆基准未执行**，`make interop` 绿灯**不等于**发布门禁通过，不得宣称「已与主流客户端实测互通」。✅ **补充证据（不计入 L4）**：`BX-01..BX-04`（aria2-next 3.0.9 + 真实 `libtorrent 2.1.1`，4/4 PASS、sha256 校验）均为**单向回环**证据；libtorrent 虽点名于 `BT-03`，但该判据要求双向且需抓包 / 千兆内网，故不通过。⚠️ **「14/14 PASS」与 ADR-0004 不做种边界存在形式冲突，待评审处置**（`12` §3.1）；`make perf` 只是 1GiB 回环参考（固定 `nfr_perf_01.met=false`）。
+- ✅ **P1 WBS 11 已实现（套件）**：`BT-01..BT-14` 门禁注册表、自建 HTTP(S)/UDP tracker fixture、9 条可复跑回环用例与 `dist/INTEROP.md` 证据链；❌ **L4 真实客户端矩阵（qBittorrent / Transmission）与 NFR-PERF-01 双机千兆基准未执行**，`make interop` 绿灯**不等于**发布门禁通过，不得宣称「已与主流客户端实测互通」。✅ **补充证据（不计入 L4）**：`BX-01..BX-04`（aria2-next 3.0.9 + 真实 `libtorrent 2.1.1`，4/4 PASS、sha256 校验）均为**单向回环**证据；libtorrent 虽点名于 `BT-03`，但该判据要求双向且需抓包 / 千兆内网，故不通过。⚠️ **「14/14 PASS」收口条件与实现范围冲突已由 [`ADR-0021`](docs/adr/ADR-0021-L4门禁与P2P礼仪范围冲突裁决提案.md)（`Proposed`，未生效）定档待评审**：根因是未签署范围缩减（合规差距），不是「ADR-0004 不做种边界」；`make l4-preflight` 只清点条件、`PRESENT` 绝不等于 PASS（`12` §3.1.2 / §3.1.3）；`make perf` 只是 1GiB 回环参考（固定 `nfr_perf_01.met=false`）。
 - ✅ **P1 WBS 10 已实现**：goja ES5.1 插件规则引擎（manifest 严格校验、Ed25519 签名、能力裁剪、逐跳 SSRF Guard、目录指纹热更新、`udctl plugin` 离线工具链、`RULE_OUTDATED` 兜底）；**软隔离**，不承诺 WASM / Extism 硬隔离、Node/Deno / 浏览器扩展脚本兼容、现代 JS 语法、官方规则仓库与真实站点规则包（L4 互操作矩阵属 WBS 11）。
 - ✅ **P1 WBS 7 已实现**：BT / 磁力链接下载（标准 BitTorrent 网络、公开 HTTP/UDP/HTTPS tracker、magnet 经 BEP 9 取元数据；做种默认关闭、私有种子禁 DHT/PEX、诚实 PeerID）；标准 eD2k 网络（线协议层）为 P3 目标，尚未实现。
 - ✅ **P0 已实现**：HTTP(S) 直链、Range 分段、断点续传、暂停/恢复/取消、崩溃恢复、全局限速、L0 REST/WS/CLI、最小 UI、六平台纯 Go 构建。

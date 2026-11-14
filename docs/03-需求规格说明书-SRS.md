@@ -1,6 +1,16 @@
 # 03 软件需求规格说明书（SRS）
 
-> 文档编号：UD-DOC-03 ｜ 版本：v0.7 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9/10/11 已补记，待评审） ｜ 日期：2026-11-13 ｜ 上游：`01`、`adr/`
+> 文档编号：UD-DOC-03 ｜ 版本：v0.8 ｜ 状态：草案（P0 追踪矩阵已补全，P1 WBS 7/8/9/10/11 已补记，待评审） ｜ 日期：2026-11-13 ｜ 上游：`01`、`adr/`
+>
+> **v0.8 变更**（2026-11-13，序 6 阻塞定档，序 6 仍不关闭）：按 `15` §4 规则②核对
+> 已批准的 ADR-0004 / ADR-0017 与本文件 **FR-INT-01 / FR-INT-04 / FR-TRN-05（M）**、
+> `01` 章程、`05` §5、`07` / `13` §7，确认它们都要求显式实现做种礼仪；而 WBS 7 起
+> `bt.clientConfig` 固定 `NoUpload=true` / `Seed=false`、`config.BTConfig` 仍是预留字段。
+> 故 v0.7 说明与 §8 补记中「**ADR-0004 不做种边界**」属**误归属**，保留为时点措辞不改，
+> 以本注校准：ADR-0004 把 `Seed=false` 记为「须自行补偿的库默认」，ADR-0017 决策 4
+> 更要求「必须自行实现 P2P 礼仪」。§8 新增三行登记该合规差距、ADR-0021 裁决提案与
+> L4 实验室可执行链路；**M 级需求未落地不等于已豁免**，待评审按 ADR-0021 签署后
+> 才允许修订本文件需求等级或范围。L4 **0/14**、`release_gate_met: false` 不变。
 >
 > **v0.7 变更**：P1 WBS 11 续包补记（序 6 **仍不关闭**）。§8 追踪矩阵新增
 > `BX-01..BX-04` 真实第三方引擎单向回环补充证据（aria2-next 3.0.9 + `libtorrent 2.1.1`，
@@ -260,9 +270,12 @@ WASM 硬隔离、第三方规则仓库 / 发布流水线、规则失效遥测、
 | 需求 / 准则 | 证据 | 状态 |
 |---|---|---|
 | 与真实第三方引擎互通（补充） | `BX-01..BX-04`：aria2-next 3.0.9 + `libtorrent 2.1.1` 真实做种 → 我方 `bttransport` 下载，sha256 一致；`make interop-external` 可复跑 | ✅ 4/4 PASS，**单向回环、不计入 L4** |
-| `12` §8 发布门禁「互操作 L4」 | `12` §3.1「L4 门禁可满足性冲突」 | ⚠️ **判据与 ADR-0004 不做种边界冲突**：`BT-02`/`BT-11` 恒 `UNSUPPORTED`、`BT-03` 双向不可达，14/14 PASS 形式不可满足，**待评审处置** |
+| `12` §8 发布门禁「互操作 L4」 | `12` §3.1「L4 门禁可满足性冲突」 | ⚠️ **阻塞待 ADR-0021 裁决**：`BT-02`/`BT-11` 恒 `UNSUPPORTED`、`BT-03` 双向不可达，14/14 PASS 形式不可满足；v0.8 校准注已把原「ADR-0004 不做种边界」定性修正为**未签署范围缩减（合规差距）** |
 | NFR-PERF-01 千兆内网吞吐 | `make perf` → `dist/perf.json`（1GiB / 4 连接 / 256KiB，真实 HTTP Range Transport） | ⚠️ 回环参考 885.83 MB/s，固定 `nfr_perf_01.met=false`；**双机千兆实验室仍未执行** |
 | 16 门禁包 / 90 链接模块 / 6 PASS | `make gates-strict`、`TestClientConfigHandshakePolicy`、`TestLoadExternalEvidenceStatuses` | ✅ 口径不变，零新增依赖 |
+| **FR-INT-01 / FR-INT-04 / FR-TRN-05（M，做种礼仪）** | ADR-0004「后果 / 后续动作」、ADR-0017 决策 4、`01` 章程互操作行、`05` §5 状态机；实现侧 `internal/transport/bt.clientConfig` 的 `NoUpload=true` / `Seed=false` 与 `internal/config.BTConfig` 预留字段 | ❌ **未实现**：属未签署范围缩减（按 `15` §4 规则②视为缺陷），**不是已批准的产品边界**；待 ADR-0021 评审裁决，签署前不得自行降级需求 |
+| 阻塞裁决 | [ADR-0021](adr/ADR-0021-L4门禁与P2P礼仪范围冲突裁决提案.md)（`Proposed`，未生效） | ⚠️ A 补齐实现 / B 修订范围（须同步改写本文件 M 需求与 ADR-0004、ADR-0017）/ C 保持开放，三选一且须签署 |
+| L4 实验室前置条件 | `make l4-preflight` → `dist/l4_preflight.json`（9 项清点，`l4_executed=false`）；示例 stub 只输出 `SKIPPED` | ⚠️ **不是 L4 执行证据**，`BT-01..BT-14` 仍 0/14 PASS |
 
 > **§9 验收准则的 P0 边界**：准则 1 的「无空格」在 P0 仅对上表 P0 行成立；准则 2/4 的 `12` 发布门禁、互操作全矩阵、SBOM 与 `go version -m` 一致性尚未执行（P1+；其中 SBOM / `go version -m` 一致性已于 `make gates-strict` 落地，但 **L4 互操作全矩阵仍未通过**）。准则 3 法务签字未进行。详见 `14` §9 与 `ADR-0020`。
 
