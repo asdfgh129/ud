@@ -6,6 +6,7 @@ package goed2k
 // socket and feeds decoded results back into the session.
 
 import (
+	"fmt"
 	"net"
 	"sync"
 
@@ -22,6 +23,18 @@ type UDPTrafficStats struct {
 	SearchEntries    int64 `json:"search_entries"`
 	SourcesDatagrams int64 `json:"sources_datagrams"`
 	SourcesEndpoints int64 `json:"sources_endpoints"`
+	// AnswerOpcodes counts every decoded datagram by its inner opcode, before
+	// body parsing. It separates "server answered but we could not parse the
+	// body" from "server never answered", which a parsed-only counter hides.
+	AnswerOpcodes map[string]int64 `json:"answer_opcodes,omitempty"`
+}
+
+func (s UDPTrafficStats) recordAnswerOpcode(op byte) UDPTrafficStats {
+	if s.AnswerOpcodes == nil {
+		s.AnswerOpcodes = make(map[string]int64)
+	}
+	s.AnswerOpcodes[fmt.Sprintf("0x%02x", op)]++
+	return s
 }
 
 // ServerUDP holds the server-facing UDP socket. Send uses the connected
@@ -60,7 +73,14 @@ func (u *ServerUDP) SetUDPKey(key uint32) {
 func (u *ServerUDP) TrafficStats() UDPTrafficStats {
 	u.mu.Lock()
 	defer u.mu.Unlock()
-	return u.stats
+	stats := u.stats
+	if u.stats.AnswerOpcodes != nil {
+		stats.AnswerOpcodes = make(map[string]int64, len(u.stats.AnswerOpcodes))
+		for op, n := range u.stats.AnswerOpcodes {
+			stats.AnswerOpcodes[op] = n
+		}
+	}
+	return stats
 }
 
 // HasUDPKey reports whether a server key is currently installed. Tests and
@@ -193,6 +213,11 @@ func (u *ServerUDP) readLoop(conn *net.UDPConn,
 					plain = decoded
 				}
 			}
+		}
+		if len(plain) >= 2 {
+			u.mu.Lock()
+			u.stats = u.stats.recordAnswerOpcode(plain[1])
+			u.mu.Unlock()
 		}
 		// Handle both the encrypted and the (fallback) plaintext form of the
 		// server status answer, which carries the UDP key at body offset 36.

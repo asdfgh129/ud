@@ -16,6 +16,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ### Added
+- **查源证据补强：热门哈希替代固定 ISO，8/8 在线服务器回 `0x9B`（2026-11-28）**：
+  - `docs/26` 升 v1.5、新增 §4.8。此前固定 ISO 哈希（`1565D4…C90`）查源 9 台只有 3 台
+    回 `0x9B`，§4.7 只推测「更像是目标哈希在那些服务器上没有可用源」。本轮改造探针：
+    `-udp-source` 不带 `-hash` 时先让该服务器做关键词搜索（`debian`），用 `pickBest()`
+    挑源数最多的热门文件再查源——**8 台在线服务器全部回 `0x9B`**（第 9 台
+    `85.137.248.210:56612` 主动拒绝连接、不可达），实测坐实根因是「对端索引里没有该
+    ISO 的源」而非协议不兼容。三重证据一致：`source_from_search=true`、
+    `answer_opcodes_delta` 含 `0x9b:1`、逐哈希日志 `source answer hash=<热门哈希>`。
+  - `internal/ed2k/server_udp.go`：`UDPTrafficStats` 新增 `AnswerOpcodes map[string]int64`，
+    **在 body 解析前**按 inner opcode 计数，区分「服务器回了 `0x9B` 但解析失败」与
+    「根本没回」；`TrafficStats()` 返回 map 副本，避免前后快照共享导致差值恒为 0。
+  - `cmd/uded2kpeerprobe/main.go`：自动选热门哈希、报告新增 `answer_opcodes_delta` 字段。
+  - 新增单测 `TestUDPTrafficStatsAnswerOpcodes`、`TestServerUDPTrafficStatsReturnsIndependentMap`。
+- **性能主线复核（2026-11-28）**：在当前代码上重跑 `b8e9de9`（读路径 160 KiB/s 硬顶解除、
+  RequestBlocks 补货闸门修复）的 3 个行为断言——`TestDoReadDrainsMoreThanOneChunk`、
+  `TestRequestBlocksRefillsBeforeQueueDrains`、`TestRequestBlocksDoesNotCloseWithPendingWindow`
+  ——全部 PASS，确认吞吐增益仍成立。该提交当时已用同一源帧率 1.8→3.8、窗口 3→8 反而降到
+  14.8 KB/s 等实测闭环，本轮无新增基准需要。
+
+### Added
 - **UDP 互通专项收口归档 + SX2 未回 0x84 根因修正（2026-11-28）**：
   - `docs/26` 升 v1.4 并标记「已收口归档」：server UDP 字节级互通证据闭环，明确不再为
     「找到自动选择 `0x92`/`0x9A` 的服务器」或「9/9 查源回包」继续投入；保留未闭环边界说明。

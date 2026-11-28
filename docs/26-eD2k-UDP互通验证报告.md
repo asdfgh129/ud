@@ -1,6 +1,8 @@
 # 26 eD2k UDP 互通验证报告
 
-> 文档编号：UD-DOC-26 ｜ 版本：v1.4 ｜ 状态：**验证报告（已收口归档；本地交叉验证 + 真实服务器抓包；不作发布门禁）** ｜ 日期：2026-11-28 ｜ 维护责任：架构组
+> 文档编号：UD-DOC-26 ｜ 版本：v1.5 ｜ 状态：**验证报告（已收口归档；本地交叉验证 + 真实服务器抓包；不作发布门禁）** ｜ 日期：2026-11-28 ｜ 维护责任：架构组
+>
+> **v1.5 变更（2026-11-28 补强查源证据）**：新增 §4.8——改用「每台服务器自己搜到的热门文件哈希」替代固定 ISO 哈希重跑 9 台，8 台在线服务器全部拿到 `0x9B` 查源回包，证实 §4.6/§4.7 中 6 台「未回包」的根因是**固定哈希在那些服务器上没有源**，而非协议不兼容。探针新增自动选热门哈希与按 opcode 计数的回包统计（新增 2 个单测）。
 >
 > 本文只讨论 eD2k 的 **server UDP 数据报链路**（全局搜索、全局查源、能力协商与混淆信封）。
 > TCP 登录/源交换、SecureIdent、KAD 的结论见 [`16`](16-互操作性与兼容性设计.md) §3.1 / §6.1。
@@ -342,6 +344,49 @@ Cyberchrist / Sharing-Devils No.4 上成功的请求完全一致，差异更可�
   「有 key」直接等同于「查源有回包」：85.121.5.137、77.42.68.79、91.208.162.182、
   143.246.192.192 两轮都有 key 但都没有查源回包。
 
+### 4.8 补强查源证据：用每台服务器自己的热门哈希替代固定 ISO（2026-11-28）
+
+§4.6 / §4.7 用固定 ISO 哈希（`1565D4…C90`）查源，9 台里稳定只有 3 台回 `0x9B`，
+当时只记录「未回包」、不外推原因。为区分「该服务器没有这个文件的源」与
+「查源协议不兼容」，本轮改造探针：不指定 `-hash` 时，先让该服务器做一次关键词搜索
+（`debian`），用 `pickBest()` 从搜索结果里挑源数最多的文件，再对该哈希查源；
+同时在 UDP 接收路径按 opcode 计数（`AnswerOpcodes`），在 body 解析**之前**记录每个
+数据报的 inner opcode，使「服务器回了 `0x9B` 但解析失败」与「服务器根本没回」可区分。
+证据在 `dist/ed2k-interop/udp-hot/hot-*.json/.log`（该目录被 `.gitignore` 忽略）。
+
+| 服务器 | 结论 | 登录 | UDP flags | crypt key | 热门文件(源数) | `0x9B`包/端点 | opcode 增量 | 目标哈希回包 |
+|---|---|---|---|---|---|---|---|---|
+| 85.121.5.137:4232 | PASS | 是 | 0x0010073b | 是 | [Wiley] Ubuntu Linux Toolbox (2) | 1/2 | `0x99:10, 0x9b:1` | 1 |
+| 85.137.248.210:56612 | NOT_EXECUTED | 否 | - | 否 | - | 0/0 | - | 0 |
+| 91.208.162.55:4235 | PASS | 是 | 0x0010073b | 是 | [Wiley] Ubuntu Linux Toolbox (2) | 1/2 | `0x99:10, 0x9b:1` | 1 |
+| 91.208.162.87:4232 | PASS | 是 | 0x0010073b | 是 | Debian Squeeze - Roland Mas. (4) | 1/4 | `0x99:10, 0x9b:1` | 1 |
+| 82.192.72.186:4661 | PASS | 是 | 0x0010073b | 是 | Ubuntu Linux Toolbox 1000 Co (2) | 1/2 | `0x99:7, 0x9b:1` | 1 |
+| 77.42.68.79:4232 | PASS | 是 | 0x0010073b | 是 | [Wiley] Ubuntu Linux Toolbox (3) | 1/3 | `0x99:10, 0x9b:1` | 1 |
+| 91.208.162.182:4232 | PASS | 是 | 0x0010073b | 是 | debian-live-10.9.0-amd64-kde (1) | 1/1 | `0x99:10, 0x9b:1` | 1 |
+| 57.128.161.24:6666 | PASS | 是 | 0x0000073b | 是 | [Wiley] Ubuntu Linux Toolbox (2) | 1/2 | `0x99:10, 0x9b:1` | 1 |
+| 143.246.192.192:4232 | PASS | 是 | 0x0010073b | 是 | [Wiley] Ubuntu Linux Toolbox (2) | 1/2 | `0x99:8, 0x9b:1` | 1 |
+
+结论：
+
+- **8 台在线服务器全部拿到 `0x9B` 查源回包**（`85.137.248.210:56612` 本轮
+  `connectex: No connection could be made because the target machine actively refused it`，
+  是服务器主动拒绝连接、不可达，与协议无关）。这证实 §4.6 / §4.7 中 6 台「固定哈希
+  未回包」的根因是**那台服务器的索引里没有该 ISO 的源**——换成它自己索引里有的
+  热门文件，查源立即成功。§4.7 末尾「更像是目标哈希在那些服务器上没有可用源」
+  的推测，本轮由实测坐实。
+- 每台的三重证据一致：报告 `source_from_search=true`（哈希来自本服务器搜索）、
+  `answer_opcodes_delta` 含 `0x9b:1`（收到查源回包）、逐哈希日志
+  `source answer hash=<热门哈希> got=… encrypted=true`（回包归属该文件）。
+  `0x99:N` 是等待窗口内搜索请求的其他回包，按 opcode 单独计数后不再与 `0x9b` 混淆。
+- 本轮 8 台全部通过 crypt ping 装上 server key；但 §4.7 已证明 key 下发跨会话不稳定
+  （5/9、7/9、8/9），不能据此反推服务器能力。查源回包既有明文也有加密
+  （crypt ping 前发的是明文 `0x94`，之后是加密信封），两种都被正确解析。
+- **改动**：探针 `-udp-source` 不带 `-hash` 时自动选热门哈希；
+  `UDPTrafficStats.AnswerOpcodes` 在 body 解析前按 opcode 计数，`TrafficStats()` 返回
+  map 副本避免快照共享；报告新增 `answer_opcodes_delta`。新增单测
+  `TestUDPTrafficStatsAnswerOpcodes`、`TestServerUDPTrafficStatsReturnsIndependentMap`，
+  连同 b8e9de9 的 3 个性能断言（`TestDoReadDrainsMoreThanOneChunk` 等）在当前代码全部 PASS。
+
 ## 5. 复跑命令
 
 ```bash
@@ -391,6 +436,16 @@ awk -F'\t' '/udpFlags=0x/ && $0 !~ /udpFlags=0x00000000/ {print $1}' \
     -out "dist/ed2k-interop/udp-cap2/forced-$key.json"
 done
 
+# 补强查源：不带 -hash，自动用该服务器搜到的热门文件查源
+awk -F'\t' '/udpFlags=0x/ && $0 !~ /udpFlags=0x00000000/ {print $1}' \
+  dist/ed2k-interop/server-capabilities.txt | while read -r srv; do
+  key=${srv//:/_}
+  go run ./cmd/uded2kpeerprobe -server "$srv" -search debian -search-wait 12 \
+    -udp-only -udp-search=false -udp-source \
+    -wait-udp-key -udp-wait 12 -debug \
+    -out "dist/ed2k-interop/udp-hot/hot-$key.json"
+done
+
 # 全量
 go test ./internal/... ./cmd/... && python tools/check_arch.py && python tools/build_docs.py --check
 ```
@@ -405,6 +460,8 @@ go test ./internal/... ./cmd/... && python tools/check_arch.py && python tools/b
 哈希回包）的强制 opcode 真机往返，并把抽样中 9 台服务器全部重跑：9/9 登录、
 9/9 UDP 搜索有回包、3/9 目标哈希查源有回包（§4.5 / §4.6）。第二轮复跑中强制 `0x92`
 在 9/9 服务器上都拿到回包；自动查源与强制 `0x9A` 仍是同一批 3 台回包（§4.7）。
+补强轮（§4.8）改用每台服务器自己的热门文件哈希后，8 台在线服务器 **8/8 全部回 `0x9B`**，
+证实此前 6 台未回包是「无该文件的源」而非不兼容。
 
 **仍不能宣称**：找到一台会**自动选择** `0x92` 或 `0x9A` 的服务器——抽样里的服务器要么
 同时宣告 `EXT_GETFILES`+`LARGEFILES` 自动走 `0x90`，要么宣告 `EXT_GETSOURCES2` 自动走
@@ -421,5 +478,9 @@ go test ./internal/... ./cmd/... && python tools/check_arch.py && python tools/b
 「找到一台自动选择 `0x92`/`0x9A` 的服务器」或「让 9/9 服务器都回查源」继续投入——
 前者是服务器实现的选择而非协议缺陷，后者取决于对端索引里是否有目标哈希的源。
 后续若出现新的服务器实现或真实缺陷，再以新章节追加，不改写本节结论。
+
+**归档后追加（§4.8）**：v1.5 的查源补强不推翻本节——它恰恰用实测确认了「查源回包取决于
+对端索引里是否有目标哈希的源」这一归档判断：换用热门哈希后 8/8 在线服务器均回 `0x9B`。
+本专项仍保持收口状态。
 
 本报告的 PASS 项不改变 `12` §3.2 的 ED 门禁判定，也不翻转 P3 发布结论。

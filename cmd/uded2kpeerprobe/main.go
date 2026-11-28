@@ -67,6 +67,7 @@ type udpEvidence struct {
 	SearchOpcode     string                 `json:"search_opcode"`
 	SourceOpcode     string                 `json:"source_opcode"`
 	SourceSent       bool                   `json:"source_sent,omitempty"`
+	SourceFromSearch bool                   `json:"source_from_search,omitempty"`
 	ServerUDPKey     bool                   `json:"server_udp_key"`
 	Before           goed2k.UDPTrafficStats `json:"before"`
 	After            goed2k.UDPTrafficStats `json:"after"`
@@ -74,6 +75,11 @@ type udpEvidence struct {
 	SearchEntries    int64                  `json:"search_entries"`
 	SourcesDatagrams int64                  `json:"sources_datagrams"`
 	SourcesEndpoints int64                  `json:"sources_endpoints"`
+	// AnswerOpcodesDelta is After.AnswerOpcodes minus Before.AnswerOpcodes:
+	// every datagram received during the wait window, keyed by inner opcode,
+	// regardless of whether its body parsed. "0x9b>0 but sources_endpoints=0"
+	// therefore means "answered, body unusable" rather than "never answered".
+	AnswerOpcodesDelta map[string]int64 `json:"answer_opcodes_delta,omitempty"`
 }
 
 type report struct {
@@ -254,21 +260,52 @@ func run() int {
 			r.SearchHits = runSearch(c, *query, time.Duration(*searchWait)*time.Second)
 		}
 		if *udpSource {
-			if *hashArg == "" || *sizeArg <= 0 {
-				r.Verdict = "FAIL"
-				r.BlockReason = "-udp-source needs -hash and -size"
-				printReport(r, *out)
-				return 2
+			var hash protocol.Hash
+			var size int64
+			if *hashArg == "" {
+				// 不指定固定哈希时，先在本服务器搜一个热门文件再查源。避免把
+				// "这台服务器没有我们那个固定 ISO 的源"误判为协议不兼容。
+				if len(r.SearchHits) == 0 {
+					r.SearchHits = runSearch(c, *query, time.Duration(*searchWait)*time.Second)
+				}
+				best := pickBest(r.SearchHits)
+				if best == nil {
+					r.Verdict = "FAIL"
+					r.BlockReason = "-udp-source auto hash: search returned no usable file"
+					printReport(r, *out)
+					return 2
+				}
+				var err error
+				hash, err = protocol.HashFromString(best.Hash)
+				if err != nil {
+					r.Verdict = "FAIL"
+					r.BlockReason = "bad search hash: " + err.Error()
+					printReport(r, *out)
+					return 2
+				}
+				size = best.Size
+				r.ChosenFile = best
+				ev.SourceFromSearch = true
+			} else {
+				if *sizeArg <= 0 {
+					r.Verdict = "FAIL"
+					r.BlockReason = "-udp-source with -hash also needs -size"
+					printReport(r, *out)
+					return 2
+				}
+				var err error
+				hash, err = protocol.HashFromString(*hashArg)
+				if err != nil {
+					r.Verdict = "FAIL"
+					r.BlockReason = "bad -hash: " + err.Error()
+					printReport(r, *out)
+					return 2
+				}
+				size = *sizeArg
+				r.ChosenFile = &searchHit{Hash: hash.String(), Size: size, Name: "(from -hash)"}
 			}
-			hash, err := protocol.HashFromString(*hashArg)
-			if err != nil {
-				r.Verdict = "FAIL"
-				r.BlockReason = "bad -hash: " + err.Error()
-				printReport(r, *out)
-				return 2
-			}
-			r.ChosenFile = &searchHit{Hash: hash.String(), Size: *sizeArg, Name: "(from -hash)"}
-			ev.SourceSent = c.Session().SendUDPSourcesRequest(hash, *sizeArg)
+			fmt.Fprintf(os.Stderr, "probe: source hash=%s size=%d from_search=%t\n", hash.String(), size, ev.SourceFromSearch)
+			ev.SourceSent = c.Session().SendUDPSourcesRequest(hash, size)
 		}
 		if *udpWait > 0 {
 			time.Sleep(time.Duration(*udpWait) * time.Second)
@@ -278,6 +315,14 @@ func run() int {
 		ev.SearchEntries = ev.After.SearchEntries - ev.Before.SearchEntries
 		ev.SourcesDatagrams = ev.After.SourcesDatagrams - ev.Before.SourcesDatagrams
 		ev.SourcesEndpoints = ev.After.SourcesEndpoints - ev.Before.SourcesEndpoints
+		for op, n := range ev.After.AnswerOpcodes {
+			if delta := n - ev.Before.AnswerOpcodes[op]; delta > 0 {
+				if ev.AnswerOpcodesDelta == nil {
+					ev.AnswerOpcodesDelta = make(map[string]int64)
+				}
+				ev.AnswerOpcodesDelta[op] = delta
+			}
+		}
 		r.UDP = &ev
 		missing := []string{}
 		if *udpSearch && ev.SearchDatagrams == 0 {
